@@ -9,17 +9,15 @@ const outfit = Outfit({
 });
 
 const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin", "japanese"],
+  subsets: ["latin"],           // ← Changed here (removed "japanese")
   variable: "--font-noto-sans-jp",
   weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Nihongo Talk Screen | UHB10802",
   description: "Speak, Play & Learn Basic Japanese! 🌸 Live Multiplayer Quiz Exhibition",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
