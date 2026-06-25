@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+:root {
+  --font-outfit: "Outfit", system-ui, sans-serif;
+  --font-noto-sans-jp: "Noto Sans JP", "Noto Sans JP Fallback", sans-serif;
+
+  /* Beautiful Japanese Cultural Theme */
+  --torii-red: #d32f2f;
+  --torii-dark: #b71c1c;
+  --sakura-pink: #f4c2c2;
+  --sakura-light: #fce4ec;
+  --gold: #f59e0b;
+  --gold-dark: #d97706;
+  --bg-cream: #fdfbf7;
+  --bg-warm: #faf6f0;
+  --text-primary: #2d2d2d;
+  --text-secondary: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --card-white: #fff;
+  --success-green: #2e7d32;
+  --error-red: #e57373;
+}
+
+body {
+  font-family: var(--font-outfit), var(--font-noto-sans-jp), system-ui, sans-serif;
+  background: var(--bg-cream);
+  color: var(--text-primary);
+}
+
+/* Cultural Components */
+.card-cultural {
+  background: var(--card-white);
+  border: 2px solid #f4c2c280;
+  box-shadow: 0 2px 16px #0000000f;
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-cultural:hover {
+  box-shadow: 0 8px 32px #f4c2c259;
+  border-color: var(--sakura-pink);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.btn-torii {
+  background: linear-gradient(135deg, var(--torii-red) 0%, var(--torii-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px #d32f2f40;
+  cursor: pointer;
+}
+
+.btn-torii:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px #d32f2f59;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.gradient-text-torii {
+  background: linear-gradient(135deg, var(--torii-red) 0%, var(--sakura-pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Sakura Falling Animation */
+.sakura-container {
+  pointer-events: none;
+  z-index: 0;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sakura-petal {
+  opacity: 0;
+  background: radial-gradient(#f4c2c2 0%, #fce4ec 60%, transparent 100%);
+  border-radius: 50% 0;
+  width: 12px;
+  height: 12px;
+  animation: sakura-fall linear infinite;
+  position: absolute;
+}
+
+@keyframes sakura-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-10vh) rotate(0deg) scale(1);
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(110vh) rotate(720deg) scale(0.4);
+  }
+}
+
+/* Quiz Option Buttons */
+.option-btn {
+  transition: all 0.2s ease;
+  border: 2px solid #e5e7eb;
+}
+
+.option-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--sakura-pink);
+  box-shadow: 0 4px 12px rgba(244, 194, 194, 0.3);
+}
+
+.option-btn.correct {
+  background-color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  color: #166534 !important;
+}
+
+.option-btn.incorrect {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+  color: #991b1b !important;
+}
+
+/* Leaderboard Styling */
+.hall-of-fame .rank-1 { color: #f59e0b; }
+.hall-of-fame .rank-2 { color: #94a3b8; }
+.hall-of-fame .rank-3 { color: #cd7f32; }
