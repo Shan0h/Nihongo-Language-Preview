@@ -20,10 +20,10 @@ export default function QuizPage() {
 
   if (!category || quizQuestions.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-xl mb-4">Category not found</p>
-          <Link href="/" className="btn-torii px-6 py-2">Back to Home</Link>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-sm w-full">
+          <p className="text-base sm:text-lg mb-4">Category not found</p>
+          <Link href="/" className="btn-torii px-4 sm:px-6 py-2 text-sm sm:text-base">Back to Home</Link>
         </div>
       </div>
     );
@@ -65,27 +65,27 @@ export default function QuizPage() {
     const percentage = Math.round((score / quizQuestions.length) * 100);
     
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-6">
-        <div className="max-w-md w-full card-cultural p-8 text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl font-bold mb-2">Quiz Complete!</h2>
-          <p className="text-[#5a5a5a] mb-6">Category: {category.name}</p>
+      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
+        <div className="max-w-md w-full card-cultural p-6 sm:p-8 text-center">
+          <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">🎉</div>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">Quiz Complete!</h2>
+          <p className="text-sm sm:text-base text-[#5a5a5a] mb-4 sm:mb-6">Category: {category.name}</p>
 
-          <div className="text-7xl font-black text-[#d32f2f] mb-2">
+          <div className="text-5xl sm:text-6xl md:text-7xl font-black text-[#d32f2f] mb-2">
             {score} / {quizQuestions.length}
           </div>
-          <p className="text-2xl font-semibold mb-8">{percentage}% Correct</p>
+          <p className="text-xl sm:text-2xl font-semibold mb-6 sm:mb-8">{percentage}% Correct</p>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:gap-3">
             <button 
               onClick={resetQuiz}
-              className="btn-torii w-full py-3 text-lg"
+              className="btn-torii w-full py-2.5 sm:py-3 text-base sm:text-lg"
             >
               Try Again
             </button>
             <Link 
               href="/"
-              className="btn-gold w-full py-3 text-lg inline-block text-center"
+              className="btn-gold w-full py-2.5 sm:py-3 text-base sm:text-lg inline-block text-center"
             >
               Back to Topics
             </Link>
@@ -99,46 +99,46 @@ export default function QuizPage() {
     <div className="min-h-screen bg-[#fdfbf7]">
       {/* Header */}
       <div className="border-b bg-white">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-sm text-[#8a8a8a] hover:text-[#d32f2f]">
-            ← Back to Topics
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <Link href="/" className="text-xs sm:text-sm text-[#8a8a8a] hover:text-[#d32f2f]">
+            ← Back
           </Link>
-          <div className="text-sm font-medium">
+          <div className="text-xs sm:text-sm font-medium">
             {category.emoji} {category.name} • {currentIndex + 1} / {quizQuestions.length}
           </div>
         </div>
         
         {/* Progress Bar */}
-        <div className="h-1 bg-[#f4c2c2]">
+        <div className="h-1.5 bg-[#f4c2c2]">
           <div 
-            className="h-1 bg-[#d32f2f] transition-all duration-300" 
+            className="h-1.5 bg-[#d32f2f] transition-all duration-300" 
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Question Card */}
-        <div className="card-cultural p-8 mb-8">
-          <div className="mb-8">
-            <div className="text-sm text-[#d32f2f] font-semibold mb-2">
+        <div className="card-cultural p-6 sm:p-8 mb-6 sm:mb-8">
+          <div className="mb-6 sm:mb-8">
+            <div className="text-xs sm:text-sm text-[#d32f2f] font-semibold mb-2">
               QUESTION {currentIndex + 1}
             </div>
-            <h2 className="text-3xl font-bold leading-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight">
               {currentQuestion.japanese_text}
             </h2>
-            <p className="text-lg text-[#5a5a5a] mt-2">
+            <p className="text-sm sm:text-base text-[#5a5a5a] mt-2">
               {currentQuestion.romaji} — {currentQuestion.english_translation}
             </p>
           </div>
 
           {/* Options */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {currentQuestion.options.map((option, index) => {
               const isCorrect = option === currentQuestion.correct_answer;
               const isSelected = option === selectedAnswer;
 
-              let className = "option-btn w-full text-left p-4 rounded-xl border-2 text-lg font-medium ";
+              let className = "option-btn w-full text-left p-3 sm:p-4 rounded-xl border-2 text-sm sm:text-base font-medium ";
 
               if (isAnswered) {
                 if (isCorrect) {
@@ -171,9 +171,9 @@ export default function QuizPage() {
           <div className="flex justify-end">
             <button 
               onClick={nextQuestion}
-              className="btn-torii px-8 py-3 text-lg flex items-center gap-2"
+              className="btn-torii px-6 sm:px-8 py-2.5 sm:py-3 text-sm sm:text-lg flex items-center gap-2"
             >
-              {currentIndex === quizQuestions.length - 1 ? "See Results" : "Next Question"} →
+              {currentIndex === quizQuestions.length - 1 ? "See Results" : "Next"} →
             </button>
           </div>
         )}
