@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import { Outfit, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+import DarkModeToggle from "@/app/components/DarkModeToggle";
 
+// Lazy load fonts for faster initial load
 const outfit = Outfit({
   subsets: ["latin"],
   variable: "--font-outfit",
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  preload: false,
 });
 
 const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],           // ← Changed here (removed "japanese")
+  subsets: ["latin"],
   variable: "--font-noto-sans-jp",
   weight: ["400", "700"],
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -27,7 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[#fdfbf7] text-[#2d2d2d] font-sans antialiased">
+      <body className="min-h-full flex flex-col bg-[#fdfbf7] text-[#2d2d2d] font-sans antialiased transition-colors duration-300">
+        <DarkModeToggle />
         {children}
       </body>
     </html>

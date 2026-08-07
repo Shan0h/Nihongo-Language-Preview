@@ -86,7 +86,7 @@ export default function AdminCategories() {
         <div className="card-cultural p-4 mb-6 bg-gradient-to-br from-white to-[#fff5f5]">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-bold text-[#d32f2f]">{categories.length - 1}</div>
+              <div className="text-3xl font-bold text-[#d32f2f]">{categories.length}</div>
               <div className="text-xs text-[#8a8a8a]">Total Categories</div>
             </div>
             <div className="text-4xl">📂</div>
@@ -105,7 +105,7 @@ export default function AdminCategories() {
 
         {/* Categories List */}
         <div className="space-y-3">
-          {categories.length > 1 ? (
+          {categories.length > 0 ? (
             categories.map((cat) => (
               <div key={cat.slug} className="card-cultural p-4 hover:shadow-md transition-shadow">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:ws": "npx tsx server.ts",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:ws\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -11,16 +13,20 @@
   "dependencies": {
     "next": "16.2.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
+    "tsx": "^4.23.0",
     "typescript": "^5"
   }
 }

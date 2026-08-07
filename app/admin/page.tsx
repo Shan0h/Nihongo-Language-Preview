@@ -57,7 +57,18 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link href="/host" className="card-cultural p-6 hover:shadow-lg transition-shadow cursor-pointer group border-2 border-[#f59e0b]/30">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#f59e0b] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                🎮
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-[#2d2d2d] group-hover:text-[#f59e0b] transition-colors">Host Multiplayer</h2>
+                <p className="text-sm text-[#5a5a5a] mt-1">Create a game room for students to join</p>
+              </div>
+            </div>
+          </Link>
           <Link href="/admin/questions" className="card-cultural p-6 hover:shadow-lg transition-shadow cursor-pointer group">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-[#d32f2f] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
@@ -71,11 +82,11 @@ export default function AdminDashboard() {
           </Link>
           <Link href="/admin/categories" className="card-cultural p-6 hover:shadow-lg transition-shadow cursor-pointer group">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#f59e0b] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-[#10b981] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
                 📂
               </div>
               <div>
-                <h2 className="text-xl font-bold text-[#2d2d2d] group-hover:text-[#f59e0b] transition-colors">Manage Categories</h2>
+                <h2 className="text-xl font-bold text-[#2d2d2d] group-hover:text-[#10b981] transition-colors">Manage Categories</h2>
                 <p className="text-sm text-[#5a5a5a] mt-1">Create or edit question categories</p>
               </div>
             </div>
