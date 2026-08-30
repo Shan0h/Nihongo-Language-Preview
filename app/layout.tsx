@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[#fdfbf7] text-[#2d2d2d] font-sans antialiased transition-colors duration-300">
+    <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} h-full`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-sans antialiased transition-colors duration-300" suppressHydrationWarning>
         <DarkModeToggle />
         {children}
       </body>

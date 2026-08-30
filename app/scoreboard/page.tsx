@@ -3,37 +3,52 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+import { supabase } from '@/app/utils/supabase';
+
 export interface ScoreEntry {
   id: string;
   name: string;
   category: string;
   points: number;
   accuracy: number;
-  date: string;
+  created_at: string;
   badge: string;
 }
 
-const DEFAULT_SCORES: ScoreEntry[] = [
-  { id: '1', name: 'Tanaka-san 🌸', category: 'Greetings', points: 5000, accuracy: 100, date: 'Today', badge: '👑 SAMURAI MASTER' },
-  { id: '2', name: 'Kenji 🍣', category: 'Food', points: 4250, accuracy: 100, date: 'Today', badge: '👑 SAMURAI MASTER' },
-  { id: '3', name: 'Sakura 🎨', category: 'Colors', points: 3750, accuracy: 75, date: 'Yesterday', badge: '🌟 GOLD SHOGUN' },
-  { id: '4', name: 'Aoi 🔢', category: 'Numbers', points: 3500, accuracy: 75, date: 'Yesterday', badge: '🌟 GOLD SHOGUN' },
-  { id: '5', name: 'Ryu 💬', category: 'Daily Phrases', points: 2750, accuracy: 50, date: '2 days ago', badge: '⭐ NINJA WARRIOR' },
-];
-
 export default function ScoreboardPage() {
-  const [scores, setScores] = useState<ScoreEntry[]>(DEFAULT_SCORES);
+  const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('nihongo-hall-of-fame');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setScores(parsed);
-        }
-      } catch {}
+    async function fetchLeaderboard() {
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .select('*')
+        .order('points', { ascending: false })
+        .limit(50);
+        
+      if (!error && data) {
+        setScores(data);
+      }
+      setLoading(false);
     }
+    
+    fetchLeaderboard();
+    
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('leaderboard_changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leaderboard' }, payload => {
+        setScores(current => {
+          const newScores = [...current, payload.new as ScoreEntry];
+          return newScores.sort((a, b) => b.points - a.points).slice(0, 50);
+        });
+      })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
@@ -57,6 +72,12 @@ export default function ScoreboardPage() {
         </div>
 
         {/* Top 3 Champions Podium Banner */}
+        {loading ? (
+          <div className="flex justify-center p-12"><div className="text-4xl animate-bounce">⛩️</div></div>
+        ) : scores.length === 0 ? (
+          <div className="text-center p-12 text-[#8a8a8a] font-bold">No scores yet! Be the first to play.</div>
+        ) : (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {scores.slice(0, 3).map((score, i) => {
             const crown = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
@@ -102,7 +123,7 @@ export default function ScoreboardPage() {
                   <div className="min-w-0">
                     <div className="font-extrabold text-base text-[#2d2d2d] truncate">{entry.name}</div>
                     <div className="text-xs text-[#8a8a8a] font-medium">
-                      Topic: <span className="font-semibold text-[#5a5a5a]">{entry.category}</span> • {entry.date}
+                      Topic: <span className="font-semibold text-[#5a5a5a]">{entry.category}</span> • {new Date(entry.created_at).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
@@ -119,6 +140,8 @@ export default function ScoreboardPage() {
             ))}
           </div>
         </div>
+        </>
+        )}
 
         {/* Bottom Actions */}
         <div className="flex justify-center gap-4">

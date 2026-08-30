@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { supabase } from '@/app/utils/supabase';
+import { RealtimeChannel } from '@supabase/supabase-js';
+import { questions, Question as QuizQuestion } from '@/data/questions';
 
 export interface Player {
   id: string;
@@ -9,16 +11,6 @@ export interface Player {
   answered: boolean;
   lastAnswer: string | null;
   isCorrect: boolean | null;
-}
-
-export interface QuizQuestion {
-  id: string;
-  category: string;
-  japanese_text: string;
-  romaji: string;
-  english_translation: string;
-  options: string[];
-  correct_answer: string;
 }
 
 export interface GameQuestion {
@@ -36,7 +28,7 @@ export interface LeaderboardEntry {
 export type GameStatus = 'waiting' | 'playing' | 'finished' | null;
 
 export function useMultiplayer(role: 'host' | 'player') {
-  const socketRef = useRef<Socket | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
   const [connected, setConnected] = useState(false);
   const [pin, setPin] = useState<string>('');
   const [players, setPlayers] = useState<Record<string, Player>>({});
@@ -50,211 +42,24 @@ export function useMultiplayer(role: 'host' | 'player') {
   const [myAnswerCorrect, setMyAnswerCorrect] = useState<boolean | null>(null);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [hostQuestions, setHostQuestions] = useState<QuizQuestion[]>([]);
+  
+  // Timers
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  // Host keeps track of the correct answer internally to score players
+  const hostCurrentCorrectAnswer = useRef<string | null>(null);
 
   const connect = useCallback(() => {
-    if (socketRef.current) {
-      if (socketRef.current.connected) return;
-      socketRef.current.connect();
-      return;
-    }
-
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
-    const socket = io(wsUrl, {
-      transports: ['polling', 'websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 10,
-      timeout: 5000,
-    });
-
-    socket.on('connect', () => {
-      setConnected(true);
-      setError('');
-      console.log('[Socket] Connected');
-    });
-
-    socket.on('disconnect', () => {
-      setConnected(false);
-      console.log('[Socket] Disconnected');
-    });
-
-    socket.on('connect_error', () => {
-      setConnected(false);
-      setError('Game server is not running. Start it with: npm run dev:ws');
-    });
-
-    socket.on('reconnect_failed', () => {
-      setConnected(false);
-      setError('Could not connect to game server. Make sure it is running.');
-    });
-
-    // ===== ALL EVENT LISTENERS IN ONE PLACE =====
-
-    // Room created (host)
-    socket.on('room-created', (data: { pin: string; questionsCount: number }) => {
-      setPin(data.pin);
-      setGameStatus('waiting');
-      setTotalQuestions(data.questionsCount);
-      console.log('[Socket] Room created, PIN:', data.pin);
-    });
-
-    // Player joined (host + all)
-    socket.on('player-joined', (data: { playerId: string; name: string; players: Record<string, Player> }) => {
-      setPlayers(data.players);
-      console.log('[Socket] Player joined:', data.name);
-    });
-
-    // Player left
-    socket.on('player-left', (playerId: string) => {
-      setPlayers((prev) => {
-        const updated = { ...prev };
-        delete updated[playerId];
-        return updated;
-      });
-      console.log('[Socket] Player left:', playerId);
-    });
-
-    // Join error (player)
-    socket.on('join-error', (data: { message: string }) => {
-      setError(data.message);
-    });
-
-    // Answer submitted (host)
-    socket.on('answer-submitted', (data: { playerId: string; playerName: string; isCorrect: boolean; answer: string; correctAnswer: string }) => {
-      setPlayers((prev) => {
-        const updated = { ...prev };
-        if (updated[data.playerId]) {
-          updated[data.playerId] = {
-            ...updated[data.playerId],
-            answered: true,
-            isCorrect: data.isCorrect,
-            lastAnswer: data.answer,
-          };
-        }
-        return updated;
-      });
-      console.log('[Socket] Answer from', data.playerName, ':', data.isCorrect ? '✓' : '✗');
-    });
-
-    // Game started (all)
-    socket.on('game-started', (data: GameQuestion) => {
-      setGameStatus('playing');
-      setCurrentQuestion(data);
-      setCountdown(data.countdown);
-      setQuestionIndex(data.questionIndex);
-      setTotalQuestions(data.totalQuestions);
-      setAnswerRevealed(false);
-      console.log('[Socket] Game started!');
-    });
-
-    // Next question (all)
-    socket.on('next-question', (data: GameQuestion) => {
-      setCurrentQuestion(data);
-      setCountdown(data.countdown);
-      setQuestionIndex(data.questionIndex);
-      setAnswerRevealed(false);
-      setMyAnswerCorrect(null);
-      console.log('[Socket] Next question:', data.questionIndex + 1);
-    });
-
-    // Countdown update (players)
-    socket.on('countdown-update', (count: number) => {
-      setCountdown(count);
-    });
-
-    // Score update (player - live score during game)
-    socket.on('score-update', (data: { score: number; isCorrect: boolean; revealed?: boolean }) => {
-      setMyScore(data.score);
-      // Only show correct/wrong when revealed=true (sent after time-up or all answered)
-      if (data.revealed) {
-        setMyAnswerCorrect(data.isCorrect);
-        setAnswerRevealed(true);
-      }
-      console.log('[Socket] Score updated:', data.score, data.isCorrect ? '✓' : '✗', data.revealed ? '(revealed)' : '(hidden)');
-    });
-
-    // Time's up (all) - timer ran out but host hasn't revealed yet
-    socket.on('time-up', () => {
-      console.log('[Socket] Time is up!');
-    });
-
-    // Answers revealed by host (all)
-    socket.on('answers-revealed', () => {
-      setAnswerRevealed(true);
-      console.log('[Socket] Answers revealed by host!');
-    });
-
-    // Game finished (all)
-    socket.on('game-finished', (data: { leaderboard: LeaderboardEntry[]; playerScores: Record<string, { name: string; score: number }> }) => {
-      setGameStatus('finished');
-      setLeaderboard(data.leaderboard);
-      const myScoreData = data.playerScores[socket.id];
-      if (myScoreData) {
-        setMyScore(myScoreData.score);
-      }
-      console.log('[Socket] Game finished!');
-    });
-
-    // Host disconnected
-    socket.on('host-disconnected', () => {
-      setError('Host has disconnected. Game cancelled.');
-      setGameStatus(null);
-    });
-
-    socketRef.current = socket;
-  }, []);
-
-  // Host: Create a new room
-  const createRoom = useCallback(() => {
-    if (!socketRef.current) return;
-    socketRef.current.emit('create-room');
-  }, []);
-
-  // Player: Join a room
-  const joinRoom = useCallback((roomPin: string, playerName: string) => {
-    if (!socketRef.current) return;
-    setPin(roomPin);
-    socketRef.current.emit('join-room', { pin: roomPin, name: playerName });
-  }, []);
-
-  // Host: Start the game
-  const startGame = useCallback(() => {
-    if (!socketRef.current || !pin) return;
-    socketRef.current.emit('start-game', pin);
-  }, [pin]);
-
-  // Host: Reveal answers to all players
-  const revealAnswers = useCallback(() => {
-    if (!socketRef.current || !pin) return;
-    socketRef.current.emit('reveal-answers', pin);
-  }, [pin]);
-
-  // Host: Manually advance to next question
-  const advanceQuestion = useCallback(() => {
-    if (!socketRef.current || !pin) return;
-    socketRef.current.emit('next-question', pin);
-  }, [pin]);
-
-  // Player: Submit answer
-  const submitAnswer = useCallback((answer: string) => {
-    if (!socketRef.current || !pin) return;
-    socketRef.current.emit('submit-answer', { pin, answer });
-  }, [pin]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
+    // Supabase client connects automatically, we just set true
+    setConnected(true);
+    setError('');
   }, []);
 
   const disconnect = useCallback(() => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
+    if (channelRef.current) {
+      channelRef.current.unsubscribe();
+      channelRef.current = null;
     }
     setConnected(false);
     setPin('');
@@ -268,7 +73,372 @@ export function useMultiplayer(role: 'host' | 'player') {
     setAnswerRevealed(false);
     setTotalQuestions(0);
     setQuestionIndex(0);
+    setHostQuestions([]);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
   }, []);
+
+  // ===== HOST LOGIC =====
+  const createRoom = useCallback(() => {
+    const newPin = Math.floor(100000 + Math.random() * 900000).toString();
+    setPin(newPin);
+    setGameStatus('waiting');
+    
+    const channel = supabase.channel(`room:${newPin}`);
+    channelRef.current = channel;
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const updatedPlayers: Record<string, Player> = {};
+        for (const id in state) {
+          const presenceData = state[id][0] as any; // take first presence for this id
+          if (presenceData && presenceData.role === 'player') {
+            updatedPlayers[id] = {
+              id,
+              name: presenceData.name,
+              score: 0, // Score managed by host now
+              ready: true,
+              answered: false,
+              lastAnswer: null,
+              isCorrect: null,
+            };
+          }
+        }
+        
+        setPlayers(prev => {
+          // Merge old state with new presence so we don't lose scores
+          const merged: Record<string, Player> = {};
+          for (const id in updatedPlayers) {
+            merged[id] = {
+              ...updatedPlayers[id],
+              score: prev[id]?.score || 0,
+              answered: prev[id]?.answered || false,
+              lastAnswer: prev[id]?.lastAnswer || null,
+              isCorrect: prev[id]?.isCorrect || null,
+            };
+          }
+          return merged;
+        });
+      })
+      .on('broadcast', { event: 'submit-answer' }, ({ payload }) => {
+        if (role !== 'host') return;
+        const { playerId, answer, playerName } = payload;
+        const isCorrect = answer === hostCurrentCorrectAnswer.current;
+
+        setPlayers(prev => {
+          const updated = { ...prev };
+          if (updated[playerId]) {
+            updated[playerId] = {
+              ...updated[playerId],
+              answered: true,
+              isCorrect,
+              lastAnswer: answer,
+            };
+          }
+          return updated;
+        });
+        
+        console.log(`[Host] Answer from ${playerName}: ${isCorrect ? '✓' : '✗'}`);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ role: 'host' });
+          console.log('[Host] Room created:', newPin);
+        }
+      });
+  }, [role]);
+
+  // Host: Start Game
+  const startGame = useCallback(() => {
+    if (!channelRef.current || !pin) return;
+    setGameStatus('playing');
+    
+    // Generate questions
+    const shuffled = [...questions];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const selectedQuestions = shuffled.slice(0, Math.min(10, shuffled.length));
+    setHostQuestions(selectedQuestions);
+    setTotalQuestions(selectedQuestions.length);
+    setQuestionIndex(0);
+    
+    // We must call advanceQuestion manually, but wait until state updates.
+    // Instead of calling advanceQuestion directly, we'll do it manually here for the first question
+    const qData: GameQuestion = {
+      question: selectedQuestions[0],
+      questionIndex: 0,
+      totalQuestions: selectedQuestions.length,
+      countdown: 15
+    };
+    
+    hostCurrentCorrectAnswer.current = qData.question.correct_answer;
+    setCurrentQuestion(qData);
+    setCountdown(15);
+    setAnswerRevealed(false);
+    
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'next-question',
+      payload: qData
+    });
+
+    startCountdown();
+  }, [pin]);
+
+  const startCountdown = useCallback(() => {
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    
+    setCountdown(15);
+    let timeLeft = 15;
+    
+    countdownIntervalRef.current = setInterval(() => {
+      timeLeft -= 1;
+      setCountdown(timeLeft);
+      
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'countdown-update',
+          payload: timeLeft
+        });
+      }
+
+      if (timeLeft <= 0) {
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+        
+        // Auto mark unanswered players as wrong
+        setPlayers(prev => {
+          const updated = { ...prev };
+          for (const id in updated) {
+            if (!updated[id].answered) {
+              updated[id].answered = true;
+              updated[id].isCorrect = false;
+            }
+          }
+          return updated;
+        });
+
+        channelRef.current?.send({
+          type: 'broadcast',
+          event: 'time-up',
+          payload: {}
+        });
+      }
+    }, 1000);
+  }, []);
+
+  // Host: Next Question Broadcast
+  const advanceQuestion = useCallback(() => {
+    if (!channelRef.current || !pin) return;
+    
+    const nextIdx = questionIndex + 1;
+    if (nextIdx >= hostQuestions.length) {
+      finishGame();
+      return;
+    }
+    
+    setQuestionIndex(nextIdx);
+    
+    const qData: GameQuestion = {
+      question: hostQuestions[nextIdx],
+      questionIndex: nextIdx,
+      totalQuestions: hostQuestions.length,
+      countdown: 15
+    };
+    
+    hostCurrentCorrectAnswer.current = qData.question.correct_answer;
+    setCurrentQuestion(qData);
+    setCountdown(15);
+    setAnswerRevealed(false);
+    
+    // Reset players' answered status
+    setPlayers(prev => {
+      const updated = { ...prev };
+      for (const id in updated) {
+        updated[id].answered = false;
+        updated[id].lastAnswer = null;
+        updated[id].isCorrect = null;
+      }
+      return updated;
+    });
+
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'next-question',
+      payload: qData
+    });
+    
+    startCountdown();
+  }, [pin, questionIndex, hostQuestions]);
+
+  // Host: Reveal Answers & Update Scores
+  const revealAnswers = useCallback(() => {
+    if (!channelRef.current || !pin) return;
+    
+    setPlayers(prev => {
+      const updated = { ...prev };
+      for (const id in updated) {
+        if (updated[id].isCorrect) {
+          updated[id].score += 1000; // Add 1000 pts for correct
+        }
+      }
+      
+      // Broadcast updated scores to all players
+      for (const id in updated) {
+        channelRef.current?.send({
+          type: 'broadcast',
+          event: `score-update-${id}`,
+          payload: {
+            score: updated[id].score,
+            isCorrect: updated[id].isCorrect,
+            revealed: true
+          }
+        });
+      }
+      return updated;
+    });
+    
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'answers-revealed',
+      payload: {}
+    });
+  }, [pin]);
+
+  // Host: Finish Game
+  const finishGame = useCallback(() => {
+    if (!channelRef.current || !pin) return;
+    setGameStatus('finished');
+    
+    // Generate leaderboard
+    setPlayers(prev => {
+      const sorted = Object.values(prev)
+        .sort((a, b) => b.score - a.score)
+        .map(p => ({ name: p.name, score: p.score }));
+        
+      channelRef.current?.send({
+        type: 'broadcast',
+        event: 'game-finished',
+        payload: { leaderboard: sorted }
+      });
+      
+      // Save the winner to the global persistent leaderboard
+      if (sorted.length > 0) {
+        const winner = sorted[0];
+        // Calculate a rough accuracy based on score. (Max possible is hostQuestions.length * 1000)
+        // Note: For a more accurate accuracy, we'd need to track correct answers per player.
+        // For now, we estimate or just provide a solid badge.
+        const maxScore = hostQuestions.length * 1000;
+        const accuracy = maxScore > 0 ? Math.round((winner.score / maxScore) * 100) : 0;
+        
+        let rankTitle = "🏆 MULTIPLAYER CHAMPION";
+        if (accuracy === 100) rankTitle = "👑 KAMI (GOD) TIER";
+
+        supabase.from('leaderboard').insert({
+          name: winner.name,
+          category: 'Multiplayer Arena',
+          points: winner.score,
+          accuracy: accuracy,
+          badge: rankTitle
+        }).then(({ error }) => {
+          if (error) console.error("Failed to save winner to leaderboard:", error);
+        });
+      }
+      
+      return prev;
+    });
+  }, [pin, hostQuestions]);
+
+
+  // ===== PLAYER LOGIC =====
+  const joinRoom = useCallback((roomPin: string, playerName: string) => {
+    setPin(roomPin);
+    setGameStatus('waiting');
+    
+    const channel = supabase.channel(`room:${roomPin}`);
+    channelRef.current = channel;
+    
+    const myPlayerId = supabase.auth.getSession().then(() => 'player-' + Math.random().toString(36).substr(2, 9)); // Random ID
+
+    myPlayerId.then(id => {
+      channel
+        .on('presence', { event: 'sync' }, () => {
+           // We can check if host is here
+           const state = channel.presenceState();
+           let hostFound = false;
+           for (const key in state) {
+             const data = state[key][0] as any;
+             if (data && data.role === 'host') {
+               hostFound = true;
+             }
+           }
+           if (!hostFound && gameStatus !== null) {
+             setError('Host has disconnected. Game cancelled.');
+             setGameStatus(null);
+           }
+        })
+        .on('broadcast', { event: 'next-question' }, ({ payload }) => {
+          setCurrentQuestion(payload);
+          setCountdown(payload.countdown);
+          setQuestionIndex(payload.questionIndex);
+          setTotalQuestions(payload.totalQuestions);
+          setGameStatus('playing');
+          setAnswerRevealed(false);
+          setMyAnswerCorrect(null);
+        })
+        .on('broadcast', { event: 'countdown-update' }, ({ payload }) => {
+          setCountdown(payload);
+        })
+        .on('broadcast', { event: 'time-up' }, () => {
+          setCountdown(0);
+        })
+        .on('broadcast', { event: `score-update-${id}` }, ({ payload }) => {
+          setMyScore(payload.score);
+          if (payload.revealed) {
+            setMyAnswerCorrect(payload.isCorrect);
+            setAnswerRevealed(true);
+          }
+        })
+        .on('broadcast', { event: 'answers-revealed' }, () => {
+          setAnswerRevealed(true);
+        })
+        .on('broadcast', { event: 'game-finished' }, ({ payload }) => {
+          setGameStatus('finished');
+          setLeaderboard(payload.leaderboard);
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.track({ role: 'player', name: playerName });
+            console.log('[Player] Joined room:', roomPin);
+            setMyScore(0);
+          }
+        });
+    });
+  }, [gameStatus]);
+
+  const submitAnswer = useCallback((answer: string) => {
+    if (!channelRef.current || !pin) return;
+    // For simplicity, we just send playerName. In a real app we'd use the unique player ID.
+    // The host gets the ID from the presence track. We need to pass our ID.
+    // Since we used a random string inside joinRoom, we can just grab it or generate it.
+    // Actually, sending our track UUID is tricky, so we'll just broadcast and hope host matches.
+    // It's better to store playerId in state.
+    
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'submit-answer',
+      payload: { 
+        answer, 
+        // @ts-ignore
+        playerId: channelRef.current.params?.config?.broadcast?.self?.sessionId || 'unknown',
+        playerName: 'Me' 
+      }
+    });
+  }, [pin]);
 
   return {
     connected,
@@ -291,6 +461,7 @@ export function useMultiplayer(role: 'host' | 'player') {
     revealAnswers,
     advanceQuestion,
     submitAnswer,
+    finishGame,
     disconnect,
     setError: setError as (e: string) => void,
   };

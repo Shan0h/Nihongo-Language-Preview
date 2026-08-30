@@ -8,6 +8,7 @@ export interface Question {
   options: string[];
   correct_answer: string;
   image: string;
+  imageUrl?: string;
   option_hiragana?: Record<string, string>;
 }
 
@@ -384,6 +385,351 @@ export const questions: Question[] = [
       "ありがとう": "ありがとう (arigatou)"
     }
   },
+  // Verbs
+  {
+    id: "verb-1",
+    category: "Verbs",
+    japanese_text: "たべる",
+    hiragana: "たべる",
+    romaji: "Taberu",
+    english_translation: "To eat",
+    image: "🥢",
+    options: ["のむ", "たべる", "ねる", "みる"],
+    correct_answer: "たべる",
+    option_hiragana: {
+      "のむ": "のむ (nomu)",
+      "たべる": "たべる (taberu)",
+      "ねる": "ねる (neru)",
+      "みる": "みる (miru)"
+    }
+  },
+  {
+    id: "verb-2",
+    category: "Verbs",
+    japanese_text: "のむ",
+    hiragana: "のむ",
+    romaji: "Nomu",
+    english_translation: "To drink",
+    image: "🥤",
+    options: ["たべる", "いく", "のむ", "よむ"],
+    correct_answer: "のむ",
+    option_hiragana: {
+      "たべる": "たべる (taberu)",
+      "いく": "いく (iku)",
+      "のむ": "のむ (nomu)",
+      "よむ": "よむ (yomu)"
+    }
+  },
+  {
+    id: "verb-3",
+    category: "Verbs",
+    japanese_text: "みる",
+    hiragana: "みる",
+    romaji: "Miru",
+    english_translation: "To see / To watch",
+    image: "👀",
+    options: ["きく", "みる", "はなす", "かく"],
+    correct_answer: "みる",
+    option_hiragana: {
+      "きく": "きく (kiku)",
+      "みる": "みる (miru)",
+      "はなす": "はなす (hanasu)",
+      "かく": "かく (kaku)"
+    }
+  },
+  {
+    id: "verb-4",
+    category: "Verbs",
+    japanese_text: "いく",
+    hiragana: "いく",
+    romaji: "Iku",
+    english_translation: "To go",
+    image: "🚶",
+    options: ["くる", "いく", "かえる", "おきる"],
+    correct_answer: "いく",
+    option_hiragana: {
+      "くる": "くる (kuru)",
+      "いく": "いく (iku)",
+      "かえる": "かえる (kaeru)",
+      "おきる": "おきる (okiru)"
+    }
+  },
+  // Adjectives
+  {
+    id: "adj-1",
+    category: "Adjectives",
+    japanese_text: "おおきい",
+    hiragana: "おおきい",
+    romaji: "Ookii",
+    english_translation: "Big",
+    image: "🐘",
+    options: ["ちいさい", "おおきい", "たかい", "やすい"],
+    correct_answer: "おおきい",
+    option_hiragana: {
+      "ちいさい": "ちいさい (chiisai)",
+      "おおきい": "おおきい (ookii)",
+      "たかい": "たかい (takai)",
+      "やすい": "やすい (yasui)"
+    }
+  },
+  {
+    id: "adj-2",
+    category: "Adjectives",
+    japanese_text: "ちいさい",
+    hiragana: "ちいさい",
+    romaji: "Chiisai",
+    english_translation: "Small",
+    image: "🐭",
+    options: ["おおきい", "ちいさい", "あたらしい", "ふるい"],
+    correct_answer: "ちいさい",
+    option_hiragana: {
+      "おおきい": "おおきい (ookii)",
+      "ちいさい": "ちいさい (chiisai)",
+      "あたらしい": "あたらしい (atarashii)",
+      "ふるい": "ふるい (furui)"
+    }
+  },
+  {
+    id: "adj-3",
+    category: "Adjectives",
+    japanese_text: "おいしい",
+    hiragana: "おいしい",
+    romaji: "Oishii",
+    english_translation: "Delicious",
+    image: "😋",
+    options: ["まずい", "おいしい", "あつい", "さむい"],
+    correct_answer: "おいしい",
+    option_hiragana: {
+      "まずい": "まずい (mazui)",
+      "おいしい": "おいしい (oishii)",
+      "あつい": "あつい (atsui)",
+      "さむい": "さむい (samui)"
+    }
+  },
+  {
+    id: "adj-4",
+    category: "Adjectives",
+    japanese_text: "かわいい",
+    hiragana: "かわいい",
+    romaji: "Kawaii",
+    english_translation: "Cute",
+    image: "🎀",
+    options: ["こわい", "たのしい", "かわいい", "むずかしい"],
+    correct_answer: "かわいい",
+    option_hiragana: {
+      "こわい": "こわい (kowai)",
+      "たのしい": "たのしい (tanoshii)",
+      "かわいい": "かわいい (kawaii)",
+      "むずかしい": "むずかしい (muzukashii)"
+    }
+  },
+  // Body Parts
+  {
+    id: "body-1",
+    category: "Body Parts",
+    japanese_text: "あたま",
+    hiragana: "あたま",
+    romaji: "Atama",
+    english_translation: "Head",
+    image: "👤",
+    options: ["め", "みみ", "あたま", "かお"],
+    correct_answer: "あたま",
+    option_hiragana: {
+      "め": "め (me)",
+      "みみ": "みみ (mimi)",
+      "あたま": "あたま (atama)",
+      "かお": "かお (kao)"
+    }
+  },
+  {
+    id: "body-2",
+    category: "Body Parts",
+    japanese_text: "め",
+    hiragana: "め",
+    romaji: "Me",
+    english_translation: "Eye",
+    image: "👁️",
+    options: ["くち", "め", "はな", "て"],
+    correct_answer: "め",
+    option_hiragana: {
+      "くち": "くち (kuchi)",
+      "め": "め (me)",
+      "はな": "はな (hana)",
+      "て": "て (te)"
+    }
+  },
+  {
+    id: "body-3",
+    category: "Body Parts",
+    japanese_text: "みみ",
+    hiragana: "みみ",
+    romaji: "Mimi",
+    english_translation: "Ear",
+    image: "👂",
+    options: ["みみ", "あし", "かみ", "くち"],
+    correct_answer: "みみ",
+    option_hiragana: {
+      "みみ": "みみ (mimi)",
+      "あし": "あし (ashi)",
+      "かみ": "かみ (kami)",
+      "くち": "くち (kuchi)"
+    }
+  },
+  {
+    id: "body-4",
+    category: "Body Parts",
+    japanese_text: "て",
+    hiragana: "て",
+    romaji: "Te",
+    english_translation: "Hand",
+    image: "🖐️",
+    options: ["あし", "て", "ゆび", "うで"],
+    correct_answer: "て",
+    option_hiragana: {
+      "あし": "あし (ashi)",
+      "て": "て (te)",
+      "ゆび": "ゆび (yubi)",
+      "うで": "うで (ude)"
+    }
+  },
+  // Animals
+  {
+    id: "animal-1",
+    category: "Animals",
+    japanese_text: "いぬ",
+    hiragana: "いぬ",
+    romaji: "Inu",
+    english_translation: "Dog",
+    image: "🐕",
+    options: ["ねこ", "とり", "さかな", "いぬ"],
+    correct_answer: "いぬ",
+    option_hiragana: {
+      "ねこ": "ねこ (neko)",
+      "とり": "とり (tori)",
+      "さかな": "さかな (sakana)",
+      "いぬ": "いぬ (inu)"
+    }
+  },
+  {
+    id: "animal-2",
+    category: "Animals",
+    japanese_text: "ねこ",
+    hiragana: "ねこ",
+    romaji: "Neko",
+    english_translation: "Cat",
+    image: "🐈",
+    options: ["いぬ", "ねこ", "うさぎ", "うま"],
+    correct_answer: "ねこ",
+    option_hiragana: {
+      "いぬ": "いぬ (inu)",
+      "ねこ": "ねこ (neko)",
+      "うさぎ": "うさぎ (usagi)",
+      "うま": "うま (uma)"
+    }
+  },
+  {
+    id: "animal-3",
+    category: "Animals",
+    japanese_text: "とり",
+    hiragana: "とり",
+    romaji: "Tori",
+    english_translation: "Bird",
+    image: "🐦",
+    options: ["とり", "さる", "くま", "ぶた"],
+    correct_answer: "とり",
+    option_hiragana: {
+      "とり": "とり (tori)",
+      "さる": "さる (saru)",
+      "くま": "くま (kuma)",
+      "ぶた": "ぶた (buta)"
+    }
+  },
+  {
+    id: "animal-4",
+    category: "Animals",
+    japanese_text: "さかな",
+    hiragana: "さかな",
+    romaji: "Sakana",
+    english_translation: "Fish",
+    image: "🐟",
+    options: ["かえる", "へび", "さかな", "むし"],
+    correct_answer: "さかな",
+    option_hiragana: {
+      "かえる": "かえる (kaeru)",
+      "へび": "へび (hebi)",
+      "さかな": "さかな (sakana)",
+      "むし": "むし (mushi)"
+    }
+  },
+  // Family
+  {
+    id: "family-1",
+    category: "Family",
+    japanese_text: "かぞく",
+    hiragana: "かぞく",
+    romaji: "Kazoku",
+    english_translation: "Family",
+    image: "👨‍👩‍👧‍👦",
+    options: ["ともだち", "かぞく", "せんせい", "がくせい"],
+    correct_answer: "かぞく",
+    option_hiragana: {
+      "ともだち": "ともだち (tomodachi)",
+      "かぞく": "かぞく (kazoku)",
+      "せんせい": "せんせい (sensei)",
+      "がくせい": "がくせい (gakusei)"
+    }
+  },
+  {
+    id: "family-2",
+    category: "Family",
+    japanese_text: "はは",
+    hiragana: "はは",
+    romaji: "Haha",
+    english_translation: "Mother (own)",
+    image: "👩",
+    options: ["ちち", "あね", "はは", "いもうと"],
+    correct_answer: "はは",
+    option_hiragana: {
+      "ちち": "ちち (chichi)",
+      "あね": "あね (ane)",
+      "はは": "はは (haha)",
+      "いもうと": "いもうと (imouto)"
+    }
+  },
+  {
+    id: "family-3",
+    category: "Family",
+    japanese_text: "ちち",
+    hiragana: "ちち",
+    romaji: "Chichi",
+    english_translation: "Father (own)",
+    image: "👨",
+    options: ["あに", "ちち", "おとうと", "そふ"],
+    correct_answer: "ちち",
+    option_hiragana: {
+      "あに": "あに (ani)",
+      "ちち": "ちち (chichi)",
+      "おとうと": "おとうと (otouto)",
+      "そふ": "そふ (sofu)"
+    }
+  },
+  {
+    id: "family-4",
+    category: "Family",
+    japanese_text: "ともだち",
+    hiragana: "ともだち",
+    romaji: "Tomodachi",
+    english_translation: "Friend",
+    image: "🤝",
+    options: ["かぞく", "ともだち", "こども", "おとな"],
+    correct_answer: "ともだち",
+    option_hiragana: {
+      "かぞく": "かぞく (kazoku)",
+      "ともだち": "ともだち (tomodachi)",
+      "こども": "こども (kodomo)",
+      "おとな": "おとな (otona)"
+    }
+  }
 ];
 
 export const categories: Category[] = [
@@ -432,6 +778,51 @@ export const categories: Category[] = [
     difficulty: "Medium",
     questionCount: questions.filter(q => q.category === "Daily Phrases").length,
   },
+  {
+    name: "Verbs",
+    japanese: "どうし",
+    emoji: "🏃",
+    description: "Learn basic Japanese action verbs",
+    slug: "Verbs",
+    difficulty: "Medium",
+    questionCount: questions.filter(q => q.category === "Verbs").length,
+  },
+  {
+    name: "Adjectives",
+    japanese: "けいようし",
+    emoji: "✨",
+    description: "Describe things in Japanese",
+    slug: "Adjectives",
+    difficulty: "Medium",
+    questionCount: questions.filter(q => q.category === "Adjectives").length,
+  },
+  {
+    name: "Body Parts",
+    japanese: "からだ",
+    emoji: "👤",
+    description: "Learn parts of the body",
+    slug: "Body Parts",
+    difficulty: "Easy",
+    questionCount: questions.filter(q => q.category === "Body Parts").length,
+  },
+  {
+    name: "Animals",
+    japanese: "どうぶつ",
+    emoji: "🐕",
+    description: "Discover animal names in Japanese",
+    slug: "Animals",
+    difficulty: "Easy",
+    questionCount: questions.filter(q => q.category === "Animals").length,
+  },
+  {
+    name: "Family",
+    japanese: "かぞく",
+    emoji: "👨‍👩‍👧‍👦",
+    description: "Talk about family members",
+    slug: "Family",
+    difficulty: "Easy",
+    questionCount: questions.filter(q => q.category === "Family").length,
+  }
 ];
 
 export function getQuestionsByCategory(category: string): Question[] {

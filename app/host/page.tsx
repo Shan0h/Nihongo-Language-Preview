@@ -121,25 +121,25 @@ export default function HostPage() {
 
           {/* PIN Display */}
           {pin && (
-            <div className="card-cultural p-8 mb-6 text-center bg-gradient-to-br from-white to-[#fff5f5]">
-              <p className="text-sm text-[#8a8a8a] mb-2 tracking-widest uppercase">Game PIN</p>
-              <div className="text-6xl sm:text-7xl font-black text-[#d32f2f] tracking-[0.2em] font-mono mb-4">
+            <div className="card-zen p-10 mb-8 text-center">
+              <p className="text-sm zen-text-secondary mb-3 tracking-[0.2em] uppercase font-medium">Join Code</p>
+              <div className="text-6xl sm:text-8xl font-light text-gray-900 tracking-[0.1em] font-mono mb-6 zen-text-primary">
                 {pin}
               </div>
-              <p className="text-sm text-[#5a5a5a]">
-                Students enter this PIN on their phones to join
+              <p className="text-sm zen-text-secondary">
+                Students enter this code on their phones to join
               </p>
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#f4c2c2]/30 rounded-lg">
-                <span className="text-2xl">📱</span>
-                <span className="text-sm font-medium text-[#d32f2f]">
-                  Join at: {joinUrl}
+              <div className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50/80 rounded-full border border-gray-200">
+                <span className="text-xl">📱</span>
+                <span className="text-sm font-medium zen-text-primary">
+                  {joinUrl}
                 </span>
               </div>
             </div>
           )}
 
           {/* Player List */}
-          <div className="card-cultural p-6 mb-6">
+          <div className="card-zen p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#2d2d2d]">
                 Players ({playerList.length})
@@ -161,9 +161,9 @@ export default function HostPage() {
                 {playerList.map((player, i) => (
                   <div
                     key={player.id}
-                    className="flex items-center gap-3 p-3 bg-[#fdfbf7] rounded-xl border border-[#f4c2c2]/50"
+                    className="flex items-center gap-4 p-4 bg-white/40 rounded-2xl border border-gray-100 shadow-sm"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#d32f2f] text-white flex items-center justify-center font-bold text-sm">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-medium text-lg border border-gray-200">
                       {i + 1}
                     </div>
                     <div>
@@ -180,13 +180,13 @@ export default function HostPage() {
           <button
             onClick={handleStart}
             disabled={playerList.length === 0 || !connected}
-            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+            className={`w-full py-4 rounded-full font-medium text-lg transition-all ${
               playerList.length > 0 && connected
-                ? 'btn-torii shadow-lg hover:shadow-xl'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-gray-900 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            {playerList.length === 0 ? 'Waiting for Players...' : '🎮 Start Game'}
+            {playerList.length === 0 ? 'Waiting for Players...' : 'Start Game'}
           </button>
         </div>
       </div>
@@ -224,41 +224,33 @@ export default function HostPage() {
           )}
 
           {/* Current Question */}
-          <div className="card-cultural p-6 mb-6">
-            <div className="text-xs text-[#d32f2f] font-semibold mb-2">
+          <div className="card-zen p-6 sm:p-8 mb-6">
+            <div className="text-xs zen-text-secondary font-medium tracking-widest uppercase mb-4 text-center sm:text-left">
               QUESTION {questionIndex + 1} OF {totalQuestions}
             </div>
-            <div className="flex items-center gap-4 mb-3">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#fce4ec] border-2 border-[#f4c2c2] flex items-center justify-center text-4xl sm:text-5xl shadow-md flex-shrink-0 overflow-hidden ring-4 ring-[#f4c2c2]/20">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-4 text-center sm:text-left">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white flex items-center justify-center text-5xl sm:text-6xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0">
                 {currentQuestion.question.imageUrl ? (
                   <img src={currentQuestion.question.imageUrl} alt={currentQuestion.question.japanese_text} className="w-full h-full object-cover" />
                 ) : (
                   <span>{currentQuestion.question.image || "🇯🇵"}</span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl sm:text-3xl font-black">
+              <div className="flex-1 min-w-0 mt-4 sm:mt-0">
+                <div className="flex flex-col sm:flex-row items-center sm:items-baseline justify-between gap-3">
+                  <h2 className="text-4xl sm:text-5xl font-light zen-text-primary">
                     {currentQuestion.question.japanese_text}
                   </h2>
                   <button
                     onClick={() => speakJapanese(currentQuestion.question.japanese_text)}
-                    className="p-2 bg-[#fce4ec] text-[#d32f2f] rounded-full hover:bg-[#d32f2f] hover:text-white transition-all shadow-xs active:scale-95 text-xs font-bold"
-                    title="Read Out Loud in Japanese"
-                    aria-label="Read Out Loud"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-full transition-all shadow-sm active:scale-95 text-xs font-medium border border-gray-200/50"
                   >
-                    🔊 Listen
+                    <span className="text-base">🔊</span> Listen
                   </button>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-0.5 bg-[#d32f2f]/10 text-[#d32f2f] rounded-md text-xs font-bold border border-[#d32f2f]/20">
-                    🈁 {currentQuestion.question.hiragana}
-                  </span>
-                  <span className="px-2.5 py-0.5 bg-[#f4c2c2]/40 text-[#d32f2f] rounded-md text-xs font-bold">
-                    🔤 {currentQuestion.question.romaji}
-                  </span>
-                  <span className="px-2.5 py-0.5 bg-gray-100 text-[#5a5a5a] rounded-md text-xs font-semibold">
-                    💬 {currentQuestion.question.english_translation}
+                <div className="mt-4 flex flex-wrap justify-center sm:justify-start items-center gap-3">
+                  <span className="px-4 py-1.5 bg-white/60 backdrop-blur-sm zen-text-secondary rounded-full text-xs sm:text-sm font-medium border border-gray-200/50 shadow-sm">
+                    {currentQuestion.question.english_translation}
                   </span>
                 </div>
               </div>
@@ -275,8 +267,8 @@ export default function HostPage() {
           </div>
 
           {/* Player Answers */}
-          <div className="card-cultural p-6 mb-6">
-            <h3 className="text-lg font-bold mb-4">
+          <div className="card-zen p-6 mb-8">
+            <h3 className="text-lg font-medium mb-4 zen-text-primary">
               Player Answers ({answeredCount}/{playerList.length})
             </h3>
 
@@ -287,19 +279,19 @@ export default function HostPage() {
                 {playerList.map((player) => (
                   <div
                     key={player.id}
-                    className={`flex items-center justify-between p-3 rounded-xl border-2 ${
+                    className={`flex items-center justify-between p-4 rounded-2xl border ${
                       player.answered
                         ? player.isCorrect
-                          ? 'bg-green-50 border-green-200'
-                          : 'bg-red-50 border-red-200'
-                        : 'bg-[#fdfbf7] border-[#e5e7eb]'
+                          ? 'bg-emerald-50 border-emerald-200'
+                          : 'bg-rose-50 border-rose-200'
+                        : 'bg-white border-gray-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#d32f2f] text-white flex items-center justify-center font-bold text-xs">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-medium text-sm border border-gray-200">
                         {player.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-semibold text-[#2d2d2d]">{player.name}</span>
+                      <span className="font-medium zen-text-primary">{player.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {player.answered ? (
@@ -322,19 +314,19 @@ export default function HostPage() {
             )}
           </div>
 
-          {/* Kahoot-style Host Controls */}
-          <div className="space-y-3">
+          {/* Host Controls */}
+          <div className="flex flex-col gap-3 max-w-sm mx-auto">
             {/* Show Reveal button when timer is up or some players answered */}
             {!answerRevealed && countdown === 0 && (
               <button
                 onClick={revealAnswers}
-                className="w-full py-4 bg-[#f59e0b] text-white rounded-xl font-bold text-lg hover:bg-[#d97706] transition-colors shadow-lg"
+                className="w-full py-3.5 bg-gray-800 text-white rounded-full font-medium text-lg hover:bg-gray-900 transition-all shadow-md"
               >
-                👁️ Reveal Answers
+                Reveal Answers
               </button>
             )}
             {!answerRevealed && countdown > 0 && (
-              <div className="text-center text-sm text-[#8a8a8a]">
+              <div className="text-center text-sm zen-text-secondary">
                 Waiting for timer... ({answeredCount}/{playerList.length} answered)
               </div>
             )}
@@ -342,7 +334,7 @@ export default function HostPage() {
             {answerRevealed && (
               <button
                 onClick={advanceQuestion}
-                className="w-full py-4 bg-[#d32f2f] text-white rounded-xl font-bold text-lg hover:bg-[#b71c1c] transition-colors shadow-lg"
+                className="w-full py-3.5 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-lg"
               >
                 Next Question →
               </button>

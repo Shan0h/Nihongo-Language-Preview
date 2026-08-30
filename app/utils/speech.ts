@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cross-browser Web Speech API Speech Recognition utility for Japanese
  * Supports Chrome, Edge, and Android Chrome using webkitSpeechRecognition
@@ -79,7 +80,7 @@ export class JapaneseSpeechRecognizer {
 
     try {
       this.recognition.start();
-    } catch (err) {
+    } catch {
       this.isListening = false;
       onError('Could not start microphone. Please try again.');
     }
@@ -92,7 +93,7 @@ export class JapaneseSpeechRecognizer {
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
-      } catch (e) {
+      } catch {
         // Ignore stop errors
       }
       this.isListening = false;

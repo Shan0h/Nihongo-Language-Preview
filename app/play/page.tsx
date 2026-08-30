@@ -6,6 +6,7 @@ import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { JapaneseSpeechRecognizer } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
+import AudioWave from '@/app/components/AudioWave';
 
 export default function PlayPage() {
   const {
@@ -174,26 +175,26 @@ export default function PlayPage() {
             </div>
           )}
 
-          <form onSubmit={handleJoin} className="card-cultural p-6 sm:p-8 space-y-4 sm:space-y-6">
+          <form onSubmit={handleJoin} className="card-zen p-6 sm:p-8 space-y-4 sm:space-y-6 mb-8">
             <div>
-              <label className="block text-xs sm:text-sm font-semibold mb-2">Your Name</label>
+              <label className="block text-xs sm:text-sm font-semibold mb-2 zen-text-secondary">Your Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border-2 border-[#f4c2c2] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg focus:outline-none focus:border-[#d32f2f]"
+                className="w-full border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 bg-white/50 backdrop-blur-sm transition-all"
                 placeholder="Enter your name"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs sm:text-sm font-semibold mb-2">Game PIN</label>
+              <label className="block text-xs sm:text-sm font-semibold mb-2 zen-text-secondary">Game PIN</label>
               <input
                 type="text"
                 value={roomPin}
                 onChange={(e) => setRoomPin(e.target.value)}
-                className="w-full border-2 border-[#f4c2c2] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xl sm:text-2xl tracking-[6px] sm:tracking-[8px] text-center font-mono focus:outline-none focus:border-[#d32f2f]"
+                className="w-full border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xl sm:text-2xl tracking-[6px] sm:tracking-[8px] text-center font-mono focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 bg-white/50 backdrop-blur-sm transition-all uppercase"
                 placeholder="123456"
                 maxLength={6}
                 required
@@ -203,10 +204,10 @@ export default function PlayPage() {
             <button
               type="submit"
               disabled={!connected}
-              className={`w-full py-3 sm:py-4 text-lg sm:text-xl font-bold rounded-xl transition-all ${
+              className={`w-full py-3 sm:py-4 text-lg sm:text-xl font-medium rounded-full transition-all shadow-md hover:-translate-y-0.5 ${
                 connected
-                  ? 'btn-gold'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-900 text-white hover:bg-gray-800'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
               {connected ? 'Join Game' : 'Connecting...'}
@@ -276,59 +277,55 @@ export default function PlayPage() {
           </div>
 
           {/* Question */}
-          <div className="card-cultural p-6 sm:p-8 mb-6">
-            <div className="flex items-center gap-3.5 mb-2">
+          <div className="card-zen p-6 sm:p-8 mb-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-4 text-center sm:text-left">
               {/* Question Image Illustration Badge */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-[#fce4ec] via-white to-[#f4c2c2]/40 border-2 border-[#f4c2c2] flex items-center justify-center text-3xl sm:text-4xl shadow-sm flex-shrink-0 overflow-hidden ring-2 ring-[#f4c2c2]/30">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white flex items-center justify-center text-4xl sm:text-5xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0">
                 {question.imageUrl ? (
                   <img src={question.imageUrl} alt={question.japanese_text} className="w-full h-full object-cover" />
                 ) : (
                   <span>{question.image || "🇯🇵"}</span>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl sm:text-2xl font-black">
+              <div className="flex-1 min-w-0 mt-3 sm:mt-0">
+                <div className="flex flex-col sm:flex-row items-center sm:items-baseline justify-between gap-3">
+                  <h2 className="text-3xl sm:text-4xl font-light zen-text-primary">
                     {question.japanese_text}
                   </h2>
                   <button
                     onClick={() => speakJapanese(question.japanese_text)}
-                    className="p-1.5 sm:p-2 bg-[#fce4ec] text-[#d32f2f] rounded-full hover:bg-[#d32f2f] hover:text-white transition-all shadow-xs active:scale-95 text-xs font-bold"
-                    title="Listen to Japanese Pronunciation"
-                    aria-label="Listen"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-full transition-all shadow-sm active:scale-95 text-xs font-medium border border-gray-200/50"
                   >
-                    🔊 Listen
+                    <span className="text-base">🔊</span> Listen
                   </button>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  <span className="px-2 py-0.5 bg-[#d32f2f]/10 text-[#d32f2f] rounded-md text-[11px] font-bold border border-[#d32f2f]/20">
-                    🈁 {question.hiragana}
-                  </span>
-                  <span className="px-2 py-0.5 bg-[#f4c2c2]/40 text-[#d32f2f] rounded-md text-[11px] font-bold">
-                    🔤 {question.romaji}
-                  </span>
-                  <span className="px-2 py-0.5 bg-gray-100 text-[#5a5a5a] rounded-md text-[11px] font-semibold">
-                    💬 {question.english_translation}
+                <div className="mt-4 flex flex-wrap justify-center sm:justify-start items-center gap-2">
+                  <span className="px-3 py-1 bg-white/60 backdrop-blur-sm zen-text-secondary rounded-full text-[11px] font-medium border border-gray-200/50 shadow-sm">
+                    {question.english_translation}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Microphone Voice Answer Button */}
-            <div className="mt-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-[#f4c2c2]/60 text-center">
+            <div className="mt-6 p-4 bg-white/40 backdrop-blur-md rounded-2xl border border-gray-100 text-center">
               <button
                 onClick={handleMicListen}
                 disabled={hasAnswered || isListening}
-                className={`w-full py-2.5 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-sm ${
+                className={`w-full py-3 px-4 rounded-full font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm border ${
                   isListening
-                    ? 'bg-red-600 text-white animate-pulse'
+                    ? 'bg-rose-100 text-rose-600 border-rose-200 shadow-[0_0_15px_rgba(225,29,72,0.2)]'
                     : hasAnswered
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-[#d32f2f] text-white hover:bg-[#b71c1c] active:scale-95'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 active:scale-95 border-gray-200'
                 }`}
               >
-                <span className="text-lg">{isListening ? '🎙️' : '🎤'}</span>
-                <span>{isListening ? 'Listening... Speak Japanese Answer!' : 'Speak Answer with Mic'}</span>
+                {isListening ? (
+                  <AudioWave />
+                ) : (
+                  <span className="text-lg">🎤</span>
+                )}
+                <span>{isListening ? 'Listening...' : 'Speak Answer'}</span>
               </button>
 
               {spokenTranscript && (
@@ -345,33 +342,25 @@ export default function PlayPage() {
             </div>
           </div>
 
-          {/* Kahoot 4-Color Shape Pads */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          {/* Zen Options Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
             {question.options.map((option, index) => {
               const isSelected = option === selectedAnswer;
               const isCorrectOption = option === question.correct_answer;
 
-              const kahootStyles = [
-                { bg: 'btn-kahoot-red', shape: '🔺' },
-                { bg: 'btn-kahoot-blue', shape: '🔷' },
-                { bg: 'btn-kahoot-yellow', shape: '🟡' },
-                { bg: 'btn-kahoot-green', shape: '🟩' },
-              ];
-              const kStyle = kahootStyles[index % 4];
-
-              let className = `w-full text-left p-4 rounded-2xl text-base font-black transition-all shadow-md active:scale-95 ${kStyle.bg} `;
+              let className = `w-full text-left p-4 sm:p-5 btn-zen-option `;
 
               if (answerRevealed) {
                 if (isCorrectOption) {
-                  className += 'ring-4 ring-green-400 brightness-110 scale-[1.01]';
+                  className += '!bg-emerald-50/80 !border-emerald-300 !shadow-[0_0_20px_rgba(52,211,153,0.15)] scale-[1.02]';
                 } else if (isSelected) {
-                  className += 'ring-4 ring-red-400 opacity-90';
+                  className += '!bg-rose-50/80 !border-rose-200 opacity-90';
                 } else {
-                  className += 'opacity-40 grayscale-[0.3]';
+                  className += 'opacity-40 grayscale-[0.5]';
                 }
               } else if (hasAnswered) {
                 if (isSelected) {
-                  className += 'ring-4 ring-white brightness-125';
+                  className += '!border-gray-400 !bg-white/90 scale-[1.02]';
                 } else {
                   className += 'opacity-40';
                 }
@@ -385,19 +374,16 @@ export default function PlayPage() {
                   className={className}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl drop-shadow-sm">{kStyle.shape}</span>
-                      <div>
-                        <div className="text-base sm:text-lg font-black text-white">{option}</div>
-                        {question.option_hiragana?.[option] && (
-                          <div className="text-xs text-white/90 font-semibold mt-0.5">
-                            🈁 {question.option_hiragana[option]}
-                          </div>
-                        )}
-                      </div>
+                    <div>
+                      <div className={`text-lg sm:text-xl font-medium ${answerRevealed && isCorrectOption ? 'text-emerald-700' : answerRevealed && isSelected ? 'text-rose-700' : 'zen-text-primary'}`}>{option}</div>
+                      {question.option_hiragana?.[option] && (
+                        <div className={`text-xs mt-1 ${answerRevealed && isCorrectOption ? 'text-emerald-600' : answerRevealed && isSelected ? 'text-rose-600' : 'zen-text-secondary'}`}>
+                          {question.option_hiragana[option]}
+                        </div>
+                      )}
                     </div>
-                    {answerRevealed && isCorrectOption && <span className="text-2xl drop-shadow-md">✅</span>}
-                    {answerRevealed && isSelected && !isCorrectOption && <span className="text-2xl drop-shadow-md">❌</span>}
+                    {answerRevealed && isCorrectOption && <span className="text-2xl drop-shadow-sm">✨</span>}
+                    {answerRevealed && isSelected && !isCorrectOption && <span className="text-xl opacity-60">✕</span>}
                   </div>
                 </button>
               );
@@ -448,12 +434,12 @@ export default function PlayPage() {
           <h1 className="text-3xl font-extrabold mb-2">Game Complete!</h1>
 
           {myScore !== null && (
-            <div className="card-cultural p-6 mb-6">
-              <div className="text-sm text-[#8a8a8a] mb-1">Your Score</div>
-              <div className="text-5xl font-black text-[#d32f2f] mb-2">{myScore}</div>
+            <div className="card-zen p-8 mb-8 text-center border border-gray-100 shadow-sm">
+              <div className="text-sm zen-text-secondary uppercase tracking-widest font-medium mb-2">Final Score</div>
+              <div className="text-6xl font-light text-gray-900 mb-4">{myScore}</div>
               {myRank > 0 && (
-                <div className="text-sm text-[#5a5a5a]">
-                  Rank: {myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `#${myRank}`}
+                <div className="text-sm font-medium bg-gray-50 inline-block px-4 py-1.5 rounded-full border border-gray-200 text-gray-600">
+                  Rank: {myRank === 1 ? '🥇 1st Place' : myRank === 2 ? '🥈 2nd Place' : myRank === 3 ? '🥉 3rd Place' : `#${myRank}`}
                 </div>
               )}
             </div>
@@ -461,28 +447,28 @@ export default function PlayPage() {
 
           {/* Leaderboard */}
           {leaderboard.length > 0 && (
-            <div className="card-cultural p-6 mb-6">
-              <h3 className="font-bold mb-4">Leaderboard</h3>
+            <div className="card-zen p-6 mb-8 text-left">
+              <h3 className="font-medium mb-4 zen-text-primary px-2">Final Rankings</h3>
               <div className="space-y-2">
                 {leaderboard.map((entry, i) => (
                   <div
                     key={i}
-                    className={`flex items-center justify-between p-3 rounded-xl ${
+                    className={`flex items-center justify-between p-4 rounded-2xl ${
                       entry.score === myScore
-                        ? 'bg-[#fce4ec] border-2 border-[#d32f2f]'
-                        : 'bg-[#fdfbf7]'
+                        ? 'bg-gray-100 border-none'
+                        : 'bg-white border-none'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg w-6 text-center">
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                    <div className="flex items-center gap-4">
+                      <span className="text-xl w-6 text-center">
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-gray-400 text-sm font-medium">#{i + 1}</span>}
                       </span>
-                      <span className={`font-semibold ${entry.score === myScore ? 'text-[#d32f2f]' : 'text-[#2d2d2d]'}`}>
+                      <span className={`font-medium ${entry.score === myScore ? 'text-gray-900' : 'text-gray-600'}`}>
                         {entry.name}
                         {entry.score === myScore ? ' (You)' : ''}
                       </span>
                     </div>
-                    <span className="font-bold text-[#d32f2f]">{entry.score} pts</span>
+                    <span className="font-medium text-gray-500">{entry.score} pts</span>
                   </div>
                 ))}
               </div>
@@ -492,15 +478,15 @@ export default function PlayPage() {
           <div className="flex flex-col gap-3">
             <button
               onClick={handlePlayAgain}
-              className="btn-torii w-full py-3 text-lg font-bold"
+              className="w-full py-4 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-md"
             >
-              🔄 Play Again
+              Play Again
             </button>
             <Link
               href="/"
-              className="btn-gold w-full py-3 text-lg font-bold text-center inline-block"
+              className="w-full py-4 bg-white border border-gray-200 text-gray-600 rounded-full font-medium text-lg text-center inline-block hover:bg-gray-50 transition-all"
             >
-              ← Back to Home
+              Back to Home
             </Link>
           </div>
         </div>
@@ -520,24 +506,24 @@ export default function PlayPage() {
           </p>
 
           {myScore !== null && (
-            <div className="card-cultural p-4 mb-6">
-              <div className="text-sm text-[#8a8a8a] mb-1">Your Final Score</div>
-              <div className="text-4xl font-black text-[#d32f2f]">{myScore} pts</div>
+            <div className="card-zen p-6 mb-8 text-center border border-gray-100 shadow-sm">
+              <div className="text-sm zen-text-secondary uppercase tracking-widest font-medium mb-2">Your Final Score</div>
+              <div className="text-5xl font-light text-gray-900">{myScore} pts</div>
             </div>
           )}
 
           <div className="flex flex-col gap-3">
             <button
               onClick={handlePlayAgain}
-              className="btn-torii w-full py-3 text-lg font-bold"
+              className="w-full py-4 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-md"
             >
-              🔄 Join New Game
+              Join New Game
             </button>
             <Link
               href="/"
-              className="btn-gold w-full py-3 text-lg font-bold text-center inline-block"
+              className="w-full py-4 bg-white border border-gray-200 text-gray-600 rounded-full font-medium text-lg text-center inline-block hover:bg-gray-50 transition-all"
             >
-              ← Back to Home
+              Back to Home
             </Link>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
 // Icons components - simplified for better performance
 const SakuraIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -95,17 +95,17 @@ interface InstructionCardProps {
 }
 
 const InstructionCard = ({ step, icon, title, subtitle }: InstructionCardProps) => (
-  <div className="flex flex-col items-center justify-center p-3.5 sm:p-4 bg-white dark:bg-[#1a1728] rounded-2xl border-2 border-red-200 dark:border-red-900/60 shadow-md hover:shadow-lg transition-all">
+  <div className="flex flex-col items-center justify-center p-3.5 sm:p-4 bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-white/60 dark:border-white/10 shadow-sm hover:shadow-[0_8px_25px_rgba(220,38,38,0.25)] dark:hover:shadow-[0_8px_25px_rgba(220,38,38,0.4)] hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/50 transition-all duration-300 group cursor-default">
     {/* Step Badge */}
     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#d32f2f] text-white flex items-center justify-center font-black text-xs sm:text-sm mb-2 shadow-xs">
       {step}
     </div>
-    
+
     {/* Icon */}
     <div className="text-[#d32f2f] dark:text-red-400 mb-2">
       {icon}
     </div>
-    
+
     {/* Content */}
     <h3 className="text-xs sm:text-sm font-black text-[#0f172a] dark:text-white mb-0.5 text-center">
       {title}
@@ -124,7 +124,16 @@ interface WelcomeModalProps {
 }
 
 export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalProps) {
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleAction = (action: () => void) => {
+    if (dontShowAgain) {
+      localStorage.setItem('nihongo-hide-welcome', 'true');
+    }
+    action();
+  };
 
   const instructionCards: InstructionCardProps[] = [
     {
@@ -166,33 +175,33 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
   ];
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="welcome-modal-title"
     >
       {/* Backdrop with blur effect */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Modal Container */}
-      <div className="relative w-full max-w-md bg-white dark:bg-[#12101f] dark:border-2 dark:border-[#dc2626]/50 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
+      <div className="relative w-full max-w-md bg-white/70 dark:bg-[#12101f]/70 backdrop-blur-xl border border-white/50 dark:border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(220,38,38,0.15)] overflow-hidden flex flex-col max-h-[90vh] animate-scale-in">
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={() => handleAction(onClose)}
           className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-white transition-colors backdrop-blur-md"
           aria-label="Close modal"
         >
-          <svg 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
             strokeLinejoin="round"
             className="w-4 h-4"
           >
@@ -201,74 +210,108 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
         </button>
 
         {/* Header Section */}
-        <div className="bg-[#8B0000] relative px-6 py-8 text-center">
-          {/* Sakura Icons in Header */}
-          <div className="absolute top-3 left-3 text-[#f4c2c2] opacity-80">
-            <SakuraIcon className="w-5 h-5" />
+        <div className="bg-gradient-to-br from-rose-400/90 to-pink-500/80 dark:from-rose-800/90 dark:to-pink-900/90 backdrop-blur-md relative px-6 py-6 text-center border-b border-white/30">
+          {/* Decorative Sakura */}
+          <div className="absolute top-4 left-4 text-white/40 animate-pulse">
+            <SakuraIcon className="w-6 h-6" />
           </div>
-          <div className="absolute top-3 right-3 text-[#f4c2c2] opacity-80">
+          <div className="absolute bottom-4 right-4 text-white/40 animate-pulse" style={{ animationDelay: '1s' }}>
             <SakuraIcon className="w-5 h-5" />
           </div>
 
-          {/* Daruma Icon */}
-          <div className="mb-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-white/10 backdrop-blur-sm p-2">
-              <DarumaIcon className="w-full h-full" />
+          {/* Friendly Mascot / Icon */}
+          <div className="mb-5 relative inline-block">
+            <div className="w-24 h-24 mx-auto rounded-full bg-white/20 backdrop-blur-md p-3 shadow-lg flex items-center justify-center animate-bounce duration-[2000ms]">
+              <span className="text-6xl" role="img" aria-label="waving hand">👋</span>
+            </div>
+            {/* Friendly Chat Bubble */}
+            <div className="absolute -top-2 -right-6 bg-white text-rose-500 text-xs font-black px-3 py-1.5 rounded-2xl rounded-bl-none shadow-md transform rotate-12 animate-scale-in" style={{ animationDelay: '400ms' }}>
+              Konnichiwa!
             </div>
           </div>
 
           {/* Typography */}
           <div className="space-y-2">
-            <p className="text-[#f4c2c2] text-xs tracking-[0.15em] uppercase font-medium">
-              ようこそ・WELCOME
-            </p>
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
-              Nihongo Education
+            <h1 className="text-3xl font-extrabold text-white tracking-tight animate-fade-in-up animation-delay-100">
+              Welcome to Nihongo!
             </h1>
-            <p className="text-[#f4c2c2] text-sm font-medium">
-              Speak, Play & Learn Basic Japanese!
+            <p className="text-rose-50 text-base font-medium animate-fade-in-up animation-delay-200">
+              The most fun way to speak, play, and learn basic Japanese. 🌸
             </p>
           </div>
         </div>
 
-        {/* Body Section */}
-        <div className="flex-1 overflow-y-auto bg-white dark:bg-[#12101f] p-6">
-          <h2 className="text-center text-[11px] font-black text-[#0f172a] dark:text-slate-200 tracking-[0.2em] uppercase mb-5">
-            HOW IT WORKS
-          </h2>
-
-          {/* 2x3 Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {instructionCards.map((card, index) => (
-              <InstructionCard
-                key={index}
-                step={card.step}
-                icon={card.icon}
-                title={card.title}
-                subtitle={card.subtitle}
-              />
-            ))}
+        {/* Body Section (Friendly 3-Step Guide) */}
+        <div className="flex-1 overflow-hidden bg-white/40 dark:bg-black/20 p-5 sm:p-6 space-y-4">
+          
+          <div className="flex items-center gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+            <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm border border-blue-200 dark:border-blue-800">
+              <HeadphonesIcon className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">1. Listen Carefully 🎧</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Hear the native pronunciation for everyday words.</p>
+            </div>
           </div>
+
+          <div className="flex items-center gap-4 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200 dark:border-emerald-800">
+              <MicrophoneIcon className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">2. Speak Out Loud 🎤</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Use your microphone to practice your accent.</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center flex-shrink-0 shadow-sm border border-amber-200 dark:border-amber-800">
+              <TrophyIcon className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">3. Climb the Ranks 🏆</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Earn points, unlock badges, and rule the leaderboard!</p>
+            </div>
+          </div>
+
         </div>
 
         {/* Footer Section */}
-        <div className="bg-white dark:bg-[#12101f] px-6 py-5 border-t border-gray-100 dark:border-red-900/40">
+        <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md px-6 py-4 border-t border-white/40 dark:border-white/10">
+          
           {/* CTA Button */}
           <button
-            onClick={onStart}
-            className="w-full bg-[#d32f2f] hover:bg-[#b71c1c] active:bg-[#a31717] text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group"
+            onClick={() => handleAction(onStart)}
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 active:scale-[0.98] text-white font-black py-4 px-4 rounded-2xl shadow-[0_8px_20px_rgba(244,63,94,0.3)] hover:shadow-[0_8px_25px_rgba(244,63,94,0.5)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group relative overflow-hidden mb-4"
             aria-label="Start learning Japanese"
           >
-            <span className="text-lg group-hover:translate-x-0.5 transition-transform">🏁</span>
-            <span>Let's Start!</span>
+            {/* Shimmer effect overlay */}
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"></div>
+            
+            <span className="text-xl group-hover:translate-x-1 transition-transform relative z-10">🚀</span>
+            <span className="relative z-10 tracking-wider text-lg">Let's Go! はじめましょう</span>
           </button>
 
-          {/* Footer Text */}
-          <div className="mt-3.5 py-2.5 px-3 bg-[#d32f2f] rounded-xl text-center shadow-sm border border-red-400">
-            <p className="text-xs sm:text-sm font-extrabold text-white tracking-wide">
-              University Tun Hussein Onn Malaysia
-            </p>
+          {/* Don't Show Again Checkbox */}
+          <div className="flex items-center justify-center">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="relative flex items-center justify-center">
+                <input 
+                  type="checkbox" 
+                  checked={dontShowAgain}
+                  onChange={(e) => setDontShowAgain(e.target.checked)}
+                  className="peer appearance-none w-4 h-4 border-2 border-rose-300 dark:border-rose-900/60 rounded focus:ring-2 focus:ring-rose-500 checked:bg-rose-500 checked:border-rose-500 transition-all cursor-pointer"
+                />
+                <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors">
+                Don't show this welcoming message again
+              </span>
+            </label>
           </div>
+
         </div>
       </div>
     </div>
