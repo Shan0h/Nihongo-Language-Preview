@@ -30,6 +30,25 @@ export default function TopicsPage() {
       setActiveIndex(closestIndex);
     }
   };
+
+  const scrollToIndex = (index: number) => {
+    if (!scrollRef.current || index < 0 || index >= categories.length) return;
+    const container = scrollRef.current;
+    const cards = Array.from(container.children).filter(c => c.id === 'topic-card');
+    const target = cards[index] as HTMLElement;
+    if (target) {
+      container.scrollTo({
+        left: target.offsetLeft - container.clientWidth / 2 + target.clientWidth / 2,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollRef.current && Math.abs(e.deltaY) > 0) {
+      scrollRef.current.scrollBy({ left: e.deltaY, behavior: 'auto' });
+    }
+  };
   return (
     <div className="h-screen max-h-screen p-3 sm:p-4 select-none transition-colors duration-500 relative overflow-hidden flex flex-col">
       <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-0">
@@ -73,10 +92,32 @@ export default function TopicsPage() {
         </div>
 
         {/* Cover Flow Topics Album */}
-        <div className="relative w-full overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 flex-1 flex flex-col min-h-0 mb-4">
+        <div className="relative w-full overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 flex-1 flex flex-col min-h-0 mb-4 group">
+          
+          {/* Left Nav Button */}
+          <button
+            onClick={() => scrollToIndex(activeIndex - 1)}
+            disabled={activeIndex === 0}
+            className={`absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md border border-white dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-xl sm:text-2xl transition-all duration-300 ${activeIndex === 0 ? 'opacity-0 cursor-default scale-90 pointer-events-none' : 'opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 text-[#4c0519] dark:text-white hover:shadow-[0_8px_30px_rgb(244,63,94,0.3)]'}`}
+            aria-label="Previous Topic"
+          >
+            ←
+          </button>
+
+          {/* Right Nav Button */}
+          <button
+            onClick={() => scrollToIndex(activeIndex + 1)}
+            disabled={activeIndex === categories.length - 1}
+            className={`absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md border border-white dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center text-xl sm:text-2xl transition-all duration-300 ${activeIndex === categories.length - 1 ? 'opacity-0 cursor-default scale-90 pointer-events-none' : 'opacity-70 hover:opacity-100 hover:scale-110 active:scale-95 text-[#4c0519] dark:text-white hover:shadow-[0_8px_30px_rgb(244,63,94,0.3)]'}`}
+            aria-label="Next Topic"
+          >
+            →
+          </button>
+
           <div 
             ref={scrollRef}
             onScroll={handleScroll}
+            onWheel={handleWheel}
             className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 pt-4 flex-1 items-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             style={{ paddingLeft: 'calc(50vw - 160px)', paddingRight: 'calc(50vw - 160px)' }}
           >
@@ -93,13 +134,8 @@ export default function TopicsPage() {
                   `}
                   onClick={() => {
                     // Smooth scroll to this card if clicked and not active
-                    if (!isActive && scrollRef.current) {
-                      const cards = Array.from(scrollRef.current.children).filter(c => c.id === 'topic-card');
-                      const target = cards[idx] as HTMLElement;
-                      scrollRef.current.scrollTo({
-                        left: target.offsetLeft - scrollRef.current.clientWidth / 2 + target.clientWidth / 2,
-                        behavior: 'smooth'
-                      });
+                    if (!isActive) {
+                      scrollToIndex(idx);
                     }
                   }}
                 >
