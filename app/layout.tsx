@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import DarkModeToggle from "@/app/components/DarkModeToggle";
+import BgmPlayer from "@/app/components/BgmPlayer";
+import AfkScreensaver from "@/app/components/AfkScreensaver";
 
 // Lazy load fonts for faster initial load
 const outfit = Outfit({
@@ -34,6 +36,8 @@ export default function RootLayout({
     <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans antialiased transition-colors duration-300" suppressHydrationWarning>
         <DarkModeToggle />
+        <BgmPlayer />
+        <AfkScreensaver />
         {children}
       </body>
     </html>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import AudioWave from '@/app/components/AudioWave';
 
@@ -71,6 +71,7 @@ export default function PlayPage() {
 
   // Reset answer state when new question index arrives
   const questionIdx = currentQuestion?.questionIndex;
+  const playedRevealSoundRef = useRef<number | null>(null);
   useEffect(() => {
     if (questionIdx !== undefined) {
       setSelectedAnswer(null);
@@ -79,6 +80,22 @@ export default function PlayPage() {
       setSpeechError('');
     }
   }, [questionIdx]);
+
+  // Play sound effect when answer is revealed for player
+  useEffect(() => {
+    if (answerRevealed && currentQuestion) {
+      if (playedRevealSoundRef.current === currentQuestion.questionIndex) return;
+      playedRevealSoundRef.current = currentQuestion.questionIndex;
+      const isCorrect = myAnswerCorrect !== null
+        ? myAnswerCorrect
+        : (selectedAnswer ? selectedAnswer === currentQuestion.question.correct_answer : false);
+      if (isCorrect) {
+        sfx.playCorrect();
+      } else {
+        sfx.playWrong();
+      }
+    }
+  }, [answerRevealed, myAnswerCorrect, selectedAnswer, currentQuestion]);
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,15 +125,16 @@ export default function PlayPage() {
           const spoken = result.transcript;
           setSpokenTranscript(spoken);
 
-          const qOptions = currentQuestion.question.options;
-          const matchedOption = qOptions.find(
-            (opt) => spoken.includes(opt) || opt.includes(spoken)
+          const matchedOption = matchOptionFromSpeech(
+            spoken,
+            currentQuestion.question.options,
+            currentQuestion.question.correct_answer,
+            currentQuestion.question.option_hiragana,
+            result.alternatives
           );
 
           if (matchedOption) {
             handleAnswer(matchedOption);
-          } else if (spoken.includes(currentQuestion.question.correct_answer)) {
-            handleAnswer(currentQuestion.question.correct_answer);
           } else {
             setSpeechError(`You said "${spoken}". Tap one of the options or try speaking again.`);
           }
@@ -206,11 +224,10 @@ export default function PlayPage() {
             <button
               type="submit"
               disabled={!connected}
-              className={`w-full py-3 sm:py-4 text-lg sm:text-xl font-medium rounded-full transition-all shadow-md hover:-translate-y-0.5 ${
-                connected
+              className={`w-full py-3 sm:py-4 text-lg sm:text-xl font-medium rounded-full transition-all shadow-md hover:-translate-y-0.5 ${connected
                   ? 'bg-gray-900 text-white hover:bg-gray-800'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
+                }`}
             >
               {connected ? 'Join Game' : 'Connecting...'}
             </button>
@@ -271,9 +288,8 @@ export default function PlayPage() {
           {/* Countdown Progress Bar */}
           <div className="h-2 bg-[#f4c2c2] rounded-full mb-4 overflow-hidden shadow-xs">
             <div
-              className={`h-full transition-all duration-1000 ease-linear rounded-full ${
-                countdown <= 5 ? 'bg-gradient-to-r from-red-600 to-amber-500' : 'bg-gradient-to-r from-[#d32f2f] to-[#f59e0b]'
-              }`}
+              className={`h-full transition-all duration-1000 ease-linear rounded-full ${countdown <= 5 ? 'bg-gradient-to-r from-red-600 to-amber-500' : 'bg-gradient-to-r from-[#d32f2f] to-[#f59e0b]'
+                }`}
               style={{ width: `${(countdown / 15) * 100}%` }}
             />
           </div>
@@ -284,13 +300,13 @@ export default function PlayPage() {
               {/* Question Image Illustration Badge */}
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white flex items-center justify-center text-4xl sm:text-5xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0 relative">
                 {question.imageUrl ? (
-                  <Image 
-                    src={question.imageUrl} 
-                    alt={question.japanese_text} 
-                    fill 
+                  <Image
+                    src={question.imageUrl}
+                    alt={question.japanese_text}
+                    fill
                     sizes="96px"
-                    className="object-cover" 
-                    unoptimized 
+                    className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span>{question.image || '🇯🇵'}</span>
@@ -303,9 +319,9 @@ export default function PlayPage() {
                   </h2>
                   <button
                     onClick={() => speakJapanese(question.japanese_text)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-full transition-all shadow-sm active:scale-95 text-xs font-medium border border-gray-200/50"
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-red-600 rounded-full transition-all shadow-xs active:scale-95 text-xs font-bold border border-rose-200"
                   >
-                    <span className="text-base">🔊</span> Listen
+                    <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs shadow-xs">🔊</span> Tap to listen
                   </button>
                 </div>
                 <div className="mt-4 flex flex-wrap justify-center sm:justify-start items-center gap-2">
@@ -321,20 +337,19 @@ export default function PlayPage() {
               <button
                 onClick={handleMicListen}
                 disabled={hasAnswered || isListening}
-                className={`w-full py-3 px-4 rounded-full font-medium text-sm transition-all flex items-center justify-center gap-2 shadow-sm border ${
-                  isListening
-                    ? 'bg-rose-100 text-rose-600 border-rose-200 shadow-[0_0_15px_rgba(225,29,72,0.2)]'
+                className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs border ${isListening
+                    ? 'bg-rose-100 text-rose-600 border-rose-300 shadow-[0_0_15px_rgba(225,29,72,0.25)] ring-4 ring-rose-200'
                     : hasAnswered
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 active:scale-95 border-gray-200'
-                }`}
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                      : 'bg-white text-stone-800 hover:bg-rose-50/50 hover:text-red-600 active:scale-95 border-rose-200'
+                  }`}
               >
                 {isListening ? (
                   <AudioWave />
                 ) : (
-                  <span className="text-lg">🎤</span>
+                  <span className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-sm shadow-xs">🎤</span>
                 )}
-                <span>{isListening ? 'Listening...' : 'Speak Answer'}</span>
+                <span>{isListening ? 'Listening...' : 'Tap to Speak'}</span>
               </button>
 
               {spokenTranscript && (
@@ -400,16 +415,23 @@ export default function PlayPage() {
           </div>
 
           {/* Status Message */}
-          {hasAnswered && (
+          {(hasAnswered || answerRevealed) && (
             <div className="text-center">
-              {answerRevealed && myAnswerCorrect !== null ? (
-                <div className={`p-4 rounded-xl ${myAnswerCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                  <div className="text-2xl mb-1">{myAnswerCorrect ? '🎉' : '😅'}</div>
-                  <div className="font-bold">{myAnswerCorrect ? 'Correct!' : 'Wrong!'}</div>
-                  {!myAnswerCorrect && (
-                    <div className="text-sm mt-1">Answer: {question.correct_answer}</div>
-                  )}
-                </div>
+              {answerRevealed ? (
+                (() => {
+                  const isCorrect = myAnswerCorrect !== null
+                    ? myAnswerCorrect
+                    : (selectedAnswer ? selectedAnswer === question.correct_answer : false);
+                  return (
+                    <div className={`p-4 rounded-xl ${isCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                      <div className="text-2xl mb-1">{isCorrect ? '🎉' : '😅'}</div>
+                      <div className="font-bold">{isCorrect ? 'Correct!' : 'Wrong!'}</div>
+                      {!isCorrect && (
+                        <div className="text-sm mt-1">Answer: {question.correct_answer}</div>
+                      )}
+                    </div>
+                  );
+                })()
               ) : (
                 <div className="p-4 bg-blue-50 text-blue-700 rounded-xl">
                   <div className="text-2xl mb-1">✅</div>
@@ -434,7 +456,10 @@ export default function PlayPage() {
 
   // Game finished
   if (phase === 'finished') {
-    const myRank = leaderboard.findIndex((e) => e.score === myScore) + 1;
+    const finalLeaderboard = leaderboard.length > 0
+      ? leaderboard
+      : (myScore !== null ? [{ name: name || 'You', score: myScore }] : []);
+    const myRank = finalLeaderboard.findIndex((e) => e.name === name || e.score === myScore) + 1;
 
     return (
       <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
@@ -455,26 +480,25 @@ export default function PlayPage() {
           )}
 
           {/* Leaderboard */}
-          {leaderboard.length > 0 && (
+          {finalLeaderboard.length > 0 && (
             <div className="card-zen p-6 mb-8 text-left">
               <h3 className="font-medium mb-4 zen-text-primary px-2">Final Rankings</h3>
               <div className="space-y-2">
-                {leaderboard.map((entry, i) => (
+                {finalLeaderboard.map((entry, i) => (
                   <div
                     key={i}
-                    className={`flex items-center justify-between p-4 rounded-2xl ${
-                      entry.score === myScore
+                    className={`flex items-center justify-between p-4 rounded-2xl ${entry.name === name || (entry.score === myScore && entry.name === 'You')
                         ? 'bg-gray-100 border-none'
                         : 'bg-white border-none'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-4">
                       <span className="text-xl w-6 text-center">
                         {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-gray-400 text-sm font-medium">#{i + 1}</span>}
                       </span>
-                      <span className={`font-medium ${entry.score === myScore ? 'text-gray-900' : 'text-gray-600'}`}>
+                      <span className={`font-medium ${entry.name === name || (entry.score === myScore && entry.name === 'You') ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
                         {entry.name}
-                        {entry.score === myScore ? ' (You)' : ''}
+                        {entry.name === name || (entry.score === myScore && entry.name === 'You') ? ' (You)' : ''}
                       </span>
                     </div>
                     <span className="font-medium text-gray-500">{entry.score} pts</span>

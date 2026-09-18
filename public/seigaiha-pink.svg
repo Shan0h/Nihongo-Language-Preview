@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="30" viewBox="0 0 60 30">
+    
+    <path d="
+      M 0 30 A 30 30 0 0 1 60 30
+      M 7.5 30 A 22.5 22.5 0 0 1 52.5 30
+      M 15 30 A 15 15 0 0 1 45 30
+      M 22.5 30 A 7.5 7.5 0 0 1 37.5 30
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+    
+    <path d="
+      M -30 15 A 30 30 0 0 1 30 15
+      M -22.5 15 A 22.5 22.5 0 0 1 22.5 15
+      M -15 15 A 15 15 0 0 1 15 15
+      M -7.5 15 A 7.5 7.5 0 0 1 7.5 15
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+    
+    <path d="
+      M 30 15 A 30 30 0 0 1 90 15
+      M 37.5 15 A 22.5 22.5 0 0 1 82.5 15
+      M 45 15 A 15 15 0 0 1 75 15
+      M 52.5 15 A 7.5 7.5 0 0 1 67.5 15
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+    
+    <path d="
+      M 0 0 A 30 30 0 0 1 60 0
+      M 7.5 0 A 22.5 22.5 0 0 1 52.5 0
+      M 15 0 A 15 15 0 0 1 45 0
+      M 22.5 0 A 7.5 7.5 0 0 1 37.5 0
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+    
+    <path d="
+      M -30 45 A 30 30 0 0 1 30 45
+      M -22.5 45 A 22.5 22.5 0 0 1 22.5 45
+      M -15 45 A 15 15 0 0 1 15 45
+      M -7.5 45 A 7.5 7.5 0 0 1 7.5 45
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+    
+    <path d="
+      M 30 45 A 30 30 0 0 1 90 45
+      M 37.5 45 A 22.5 22.5 0 0 1 82.5 45
+      M 45 45 A 15 15 0 0 1 75 45
+      M 52.5 45 A 7.5 7.5 0 0 1 67.5 45
+    " fill="none" stroke="#fca5a5" stroke-width="1.35" stroke-linecap="round" />
+  </svg>

@@ -325,25 +325,33 @@ export default function HostPage() {
 
           {/* Host Controls */}
           <div className="flex flex-col gap-3 max-w-sm mx-auto">
-            {!answerRevealed && countdown === 0 && (
-              <button
-                onClick={revealAnswers}
-                className="w-full py-3.5 bg-gray-800 text-white rounded-full font-medium text-lg hover:bg-gray-900 transition-all shadow-md"
-              >
-                Reveal Answers
-              </button>
-            )}
-            {!answerRevealed && countdown > 0 && (
-              <div className="text-center text-sm zen-text-secondary">
-                Waiting for timer... ({answeredCount}/{playerList.length} answered)
-              </div>
+            {!answerRevealed && (
+              <>
+                <button
+                  onClick={revealAnswers}
+                  className={`w-full py-3.5 rounded-full font-medium text-lg transition-all shadow-md ${
+                    countdown === 0 || (playerList.length > 0 && answeredCount === playerList.length)
+                      ? 'bg-gray-900 text-white hover:bg-gray-800 hover:-translate-y-0.5'
+                      : 'bg-gray-800 text-white hover:bg-gray-900'
+                  }`}
+                >
+                  Reveal Answers {playerList.length > 0 && answeredCount === playerList.length ? '✓ (All Answered)' : ''}
+                </button>
+                {countdown > 0 && (
+                  <div className="text-center text-xs zen-text-secondary">
+                    {playerList.length > 0 && answeredCount === playerList.length
+                      ? 'All players have submitted their answers!'
+                      : `Timer running... (${answeredCount}/${playerList.length} answered)`}
+                  </div>
+                )}
+              </>
             )}
             {answerRevealed && (
               <button
                 onClick={advanceQuestion}
                 className="w-full py-3.5 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-lg"
               >
-                Next Question →
+                {questionIndex + 1 >= totalQuestions ? 'Show Final Results 🏆' : 'Next Question →'}
               </button>
             )}
           </div>
@@ -354,9 +362,21 @@ export default function HostPage() {
 
   // Game finished - Kahoot Podium Leaderboard
   if (gameStatus === 'finished') {
-    const top1 = leaderboard[0];
-    const top2 = leaderboard[1];
-    const top3 = leaderboard[2];
+    const finalLeaderboard = (leaderboard && leaderboard.length > 0)
+      ? leaderboard 
+      : Object.values(players)
+          .sort((a, b) => b.score - a.score)
+          .map(p => ({ name: p.name, score: p.score }));
+
+    const top1 = finalLeaderboard[0];
+    const top2 = finalLeaderboard[1];
+    const top3 = finalLeaderboard[2];
+
+    const totalScore = finalLeaderboard.reduce((acc, curr) => acc + curr.score, 0);
+    const avgScore = finalLeaderboard.length > 0 ? Math.round(totalScore / finalLeaderboard.length) : 0;
+    const topAccuracy = top1 && totalQuestions > 0 
+      ? Math.round((top1.score / (totalQuestions * 1000)) * 100) 
+      : 0;
 
     return (
       <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6 select-none">
@@ -367,52 +387,117 @@ export default function HostPage() {
             <p className="text-sm sm:text-base text-[#5a5a5a] font-bold">Nihongo Communication 1 Exhibition Victory 🌸</p>
           </div>
 
-          {/* Animated 3D Kahoot Winner Podium */}
-          <div className="flex items-end justify-center gap-3 sm:gap-6 mb-8 h-64 sm:h-72 px-2">
-            {top2 ? (
-              <div className="flex-1 flex flex-col items-center">
-                <div className="text-2xl sm:text-3xl mb-1">🥈</div>
-                <div className="font-black text-sm sm:text-base text-[#2d2d2d] truncate max-w-[100px]">{top2.name}</div>
-                <div className="text-xs font-bold text-[#d32f2f] mb-2">{top2.score} pts</div>
-                <div className="w-full bg-gradient-to-t from-slate-400 to-slate-200 h-32 sm:h-40 rounded-t-2xl shadow-lg border-2 border-slate-300 flex items-center justify-center text-2xl font-black text-slate-700">
-                  2
-                </div>
-              </div>
-            ) : null}
-
-            {top1 ? (
-              <div className="flex-1 flex flex-col items-center">
-                <div className="text-4xl sm:text-5xl mb-1 animate-bounce">🥇</div>
-                <div className="font-black text-base sm:text-xl text-[#2d2d2d] truncate max-w-[120px]">{top1.name}</div>
-                <div className="text-xs sm:text-sm font-black text-[#d32f2f] mb-2">{top1.score} pts</div>
-                <div className="w-full bg-gradient-to-t from-amber-500 to-yellow-300 h-44 sm:h-52 rounded-t-2xl shadow-2xl border-4 border-amber-300 flex items-center justify-center text-4xl font-black text-amber-900 ring-4 ring-yellow-300/50">
-                  1
-                </div>
-              </div>
-            ) : null}
-
-            {top3 ? (
-              <div className="flex-1 flex flex-col items-center">
-                <div className="text-2xl sm:text-3xl mb-1">🥉</div>
-                <div className="font-black text-sm sm:text-base text-[#2d2d2d] truncate max-w-[100px]">{top3.name}</div>
-                <div className="text-xs font-bold text-[#d32f2f] mb-2">{top3.score} pts</div>
-                <div className="w-full bg-gradient-to-t from-amber-700 to-amber-500 h-24 sm:h-32 rounded-t-2xl shadow-lg border-2 border-amber-600 flex items-center justify-center text-2xl font-black text-amber-100">
-                  3
-                </div>
-              </div>
-            ) : null}
+          {/* Game Stats Summary */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="card-zen p-4 text-center">
+              <span className="text-2xl mb-1 block">👥</span>
+              <div className="text-2xl font-bold text-gray-900">{finalLeaderboard.length}</div>
+              <div className="text-xs zen-text-secondary font-medium uppercase tracking-wider">Players</div>
+            </div>
+            <div className="card-zen p-4 text-center">
+              <span className="text-2xl mb-1 block">❓</span>
+              <div className="text-2xl font-bold text-gray-900">{totalQuestions}</div>
+              <div className="text-xs zen-text-secondary font-medium uppercase tracking-wider">Questions</div>
+            </div>
+            <div className="card-zen p-4 text-center">
+              <span className="text-2xl mb-1 block">🎯</span>
+              <div className="text-2xl font-bold text-[#d32f2f]">{avgScore}</div>
+              <div className="text-xs zen-text-secondary font-medium uppercase tracking-wider">Avg Score</div>
+            </div>
+            <div className="card-zen p-4 text-center">
+              <span className="text-2xl mb-1 block">👑</span>
+              <div className="text-2xl font-bold text-emerald-600">{topAccuracy}%</div>
+              <div className="text-xs zen-text-secondary font-medium uppercase tracking-wider">Top Accuracy</div>
+            </div>
           </div>
 
-          <div className="card-cultural p-5 mb-6">
-            <h3 className="text-sm font-bold text-[#8a8a8a] uppercase tracking-wider mb-3 text-center">Full Rankings</h3>
-            <div className="space-y-2">
-              {leaderboard.map((entry, i) => (
-                <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-sm">
-                  <span className="font-bold text-[#2d2d2d]">#{i + 1} {entry.name}</span>
-                  <span className="font-black text-[#d32f2f]">{entry.score} pts</span>
+          {/* Animated 3D Kahoot Winner Podium */}
+          {finalLeaderboard.length > 0 && (
+            <div className="flex items-end justify-center gap-3 sm:gap-6 mb-8 h-64 sm:h-72 px-2">
+              {top2 ? (
+                <div className="flex-1 flex flex-col items-center">
+                  <div className="text-2xl sm:text-3xl mb-1">🥈</div>
+                  <div className="font-black text-sm sm:text-base text-[#2d2d2d] truncate max-w-[120px] text-center">{top2.name}</div>
+                  <div className="text-xs font-bold text-[#d32f2f] mb-2">{top2.score} pts</div>
+                  <div className="w-full bg-gradient-to-t from-slate-400 to-slate-200 h-32 sm:h-40 rounded-t-2xl shadow-lg border-2 border-slate-300 flex items-center justify-center text-2xl font-black text-slate-700">
+                    2
+                  </div>
                 </div>
-              ))}
+              ) : null}
+
+              {top1 ? (
+                <div className="flex-1 flex flex-col items-center">
+                  <div className="text-4xl sm:text-5xl mb-1 animate-bounce">🥇</div>
+                  <div className="font-black text-base sm:text-xl text-[#2d2d2d] truncate max-w-[140px] text-center">{top1.name}</div>
+                  <div className="text-xs sm:text-sm font-black text-[#d32f2f] mb-2">{top1.score} pts</div>
+                  <div className="w-full bg-gradient-to-t from-amber-500 to-yellow-300 h-44 sm:h-52 rounded-t-2xl shadow-2xl border-4 border-amber-300 flex items-center justify-center text-4xl font-black text-amber-900 ring-4 ring-yellow-300/50">
+                    1
+                  </div>
+                </div>
+              ) : null}
+
+              {top3 ? (
+                <div className="flex-1 flex flex-col items-center">
+                  <div className="text-2xl sm:text-3xl mb-1">🥉</div>
+                  <div className="font-black text-sm sm:text-base text-[#2d2d2d] truncate max-w-[120px] text-center">{top3.name}</div>
+                  <div className="text-xs font-bold text-[#d32f2f] mb-2">{top3.score} pts</div>
+                  <div className="w-full bg-gradient-to-t from-amber-700 to-amber-500 h-24 sm:h-32 rounded-t-2xl shadow-lg border-2 border-amber-600 flex items-center justify-center text-2xl font-black text-amber-100">
+                    3
+                  </div>
+                </div>
+              ) : null}
             </div>
+          )}
+
+          {/* Full Rankings */}
+          <div className="card-zen p-6 mb-6 text-left">
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h3 className="font-bold text-base zen-text-primary">
+                Full Rankings ({finalLeaderboard.length} {finalLeaderboard.length === 1 ? 'Player' : 'Players'})
+              </h3>
+              <span className="text-xs zen-text-secondary font-medium">
+                Max: {totalQuestions * 1000} pts
+              </span>
+            </div>
+
+            {finalLeaderboard.length === 0 ? (
+              <p className="text-center text-[#8a8a8a] py-6 text-sm">No player scores available.</p>
+            ) : (
+              <div className="space-y-2.5">
+                {finalLeaderboard.map((entry, i) => {
+                  const correctCount = Math.floor(entry.score / 1000);
+                  const accuracy = totalQuestions > 0 
+                    ? Math.round((entry.score / (totalQuestions * 1000)) * 100) 
+                    : 0;
+
+                  return (
+                    <div 
+                      key={i} 
+                      className="flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/60 border border-gray-100 shadow-xs"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-gray-50 border border-gray-200 shrink-0">
+                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-semibold text-gray-900 block truncate text-sm sm:text-base">
+                            {entry.name}
+                          </span>
+                          <span className="text-xs text-gray-500 block">
+                            {correctCount} / {totalQuestions} correct ({accuracy}%)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-black text-[#d32f2f] text-base sm:text-lg font-mono">
+                          {entry.score} pts
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">

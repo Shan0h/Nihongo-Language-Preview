@@ -35,6 +35,8 @@ interface PresencePayload {
 
 export function useMultiplayer(role: 'host' | 'player') {
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const playerIdRef = useRef<string>('');
+  const playerNameRef = useRef<string>('');
   const [connected, setConnected] = useState(false);
   const [pin, setPin] = useState<string>('');
   const [players, setPlayers] = useState<Record<string, Player>>({});
@@ -66,6 +68,8 @@ export function useMultiplayer(role: 'host' | 'player') {
       channelRef.current.unsubscribe();
       channelRef.current = null;
     }
+    playerIdRef.current = '';
+    playerNameRef.current = '';
     setConnected(false);
     setPin('');
     setPlayers({});
@@ -76,6 +80,7 @@ export function useMultiplayer(role: 'host' | 'player') {
     setError('');
     setCountdown(15);
     setAnswerRevealed(false);
+    setMyAnswerCorrect(null);
     setTotalQuestions(0);
     setQuestionIndex(0);
     setHostQuestions([]);
@@ -94,6 +99,9 @@ export function useMultiplayer(role: 'host' | 'player') {
       const sorted = Object.values(prev)
         .sort((a, b) => b.score - a.score)
         .map(p => ({ name: p.name, score: p.score }));
+
+      // Set leaderboard on host so Game Champions view displays all rankings
+      setLeaderboard(sorted);
 
       channelRef.current?.send({
         type: 'broadcast',
@@ -225,13 +233,14 @@ export function useMultiplayer(role: 'host' | 'player') {
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
         const updatedPlayers: Record<string, Player> = {};
-        for (const id in state) {
-          const presenceList = state[id] as unknown as PresencePayload[];
+        for (const presenceKey in state) {
+          const presenceList = state[presenceKey] as unknown as PresencePayload[];
           const presenceData = presenceList?.[0];
           if (presenceData && presenceData.role === 'player') {
-            updatedPlayers[id] = {
-              id,
-              name: presenceData.name || 'Anonymous',
+            const pId = (presenceData.playerId as string) || presenceKey;
+            updatedPlayers[pId] = {
+              id: pId,
+              name: (presenceData.name as string) || 'Anonymous',
               score: 0,
               ready: true,
               answered: false,
@@ -269,6 +278,16 @@ export function useMultiplayer(role: 'host' | 'player') {
           if (updated[playerId]) {
             updated[playerId] = {
               ...updated[playerId],
+              answered: true,
+              isCorrect,
+              lastAnswer: answer,
+            };
+          } else {
+            updated[playerId] = {
+              id: playerId,
+              name: playerName || 'Player',
+              score: 0,
+              ready: true,
               answered: true,
               isCorrect,
               lastAnswer: answer,
@@ -327,9 +346,17 @@ export function useMultiplayer(role: 'host' | 'player') {
   const revealAnswers = useCallback(() => {
     if (!channelRef.current || !pin) return;
 
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setCountdown(0);
+    setAnswerRevealed(true);
+
     setPlayers(prev => {
       const updated = { ...prev };
       for (const id in updated) {
+        if (!updated[id].answered) {
+          updated[id].answered = true;
+          updated[id].isCorrect = false;
+        }
         if (updated[id].isCorrect) {
           updated[id].score += 1000;
         }
@@ -349,12 +376,12 @@ export function useMultiplayer(role: 'host' | 'player') {
       return updated;
     });
 
-    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-
     channelRef.current.send({
       type: 'broadcast',
       event: 'answers-revealed',
-      payload: {}
+      payload: {
+        correctAnswer: hostCurrentCorrectAnswer.current
+      }
     });
   }, [pin]);
 
@@ -363,65 +390,68 @@ export function useMultiplayer(role: 'host' | 'player') {
     setPin(roomPin);
     setGameStatus('waiting');
 
+    playerNameRef.current = playerName;
+    if (!playerIdRef.current) {
+      playerIdRef.current = 'player_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+    }
+    const myId = playerIdRef.current;
+
     const channel = supabase.channel(`room:${roomPin}`);
     channelRef.current = channel;
 
-    const myPlayerId = supabase.auth.getSession().then(() => 'player-' + Math.random().toString(36).substring(2, 11));
-
-    myPlayerId.then(id => {
-      channel
-        .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState();
-          let hostFound = false;
-          for (const key in state) {
-            const presenceList = state[key] as unknown as PresencePayload[];
-            const data = presenceList?.[0];
-            if (data && data.role === 'host') {
-              hostFound = true;
-            }
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        let hostFound = false;
+        for (const key in state) {
+          const presenceList = state[key] as unknown as PresencePayload[];
+          const data = presenceList?.[0];
+          if (data && data.role === 'host') {
+            hostFound = true;
           }
-          if (!hostFound && gameStatus !== null) {
-            setError('Host has disconnected. Game cancelled.');
-            setGameStatus(null);
-          }
-        })
-        .on('broadcast', { event: 'next-question' }, ({ payload }) => {
-          setCurrentQuestion(payload);
-          setCountdown(payload.countdown);
-          setQuestionIndex(payload.questionIndex);
-          setTotalQuestions(payload.totalQuestions);
-          setGameStatus('playing');
-          setAnswerRevealed(false);
-          setMyAnswerCorrect(null);
-        })
-        .on('broadcast', { event: 'countdown-update' }, ({ payload }) => {
-          setCountdown(payload);
-        })
-        .on('broadcast', { event: 'time-up' }, () => {
-          setCountdown(0);
-        })
-        .on('broadcast', { event: `score-update-${id}` }, ({ payload }) => {
-          setMyScore(payload.score);
-          if (payload.revealed) {
-            setMyAnswerCorrect(payload.isCorrect);
-            setAnswerRevealed(true);
-          }
-        })
-        .on('broadcast', { event: 'answers-revealed' }, () => {
+        }
+        if (!hostFound && gameStatus !== null) {
+          setError('Host has disconnected. Game cancelled.');
+          setGameStatus(null);
+        }
+      })
+      .on('broadcast', { event: 'next-question' }, ({ payload }) => {
+        setCurrentQuestion(payload);
+        setCountdown(payload.countdown);
+        setQuestionIndex(payload.questionIndex);
+        setTotalQuestions(payload.totalQuestions);
+        setGameStatus('playing');
+        setAnswerRevealed(false);
+        setMyAnswerCorrect(null);
+      })
+      .on('broadcast', { event: 'countdown-update' }, ({ payload }) => {
+        setCountdown(payload);
+      })
+      .on('broadcast', { event: 'time-up' }, () => {
+        setCountdown(0);
+      })
+      .on('broadcast', { event: `score-update-${myId}` }, ({ payload }) => {
+        setMyScore(payload.score);
+        if (payload.revealed) {
+          setMyAnswerCorrect(payload.isCorrect);
           setAnswerRevealed(true);
-        })
-        .on('broadcast', { event: 'game-finished' }, ({ payload }) => {
-          setGameStatus('finished');
-          setLeaderboard(payload.leaderboard);
-        })
-        .subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            await channel.track({ role: 'player', name: playerName });
-            console.log('[Player] Joined room:', roomPin);
-            setMyScore(0);
-          }
-        });
-    });
+        }
+      })
+      .on('broadcast', { event: 'answers-revealed' }, () => {
+        setAnswerRevealed(true);
+        setCountdown(0);
+      })
+      .on('broadcast', { event: 'game-finished' }, ({ payload }) => {
+        setGameStatus('finished');
+        setLeaderboard(payload.leaderboard);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ role: 'player', name: playerName, playerId: myId });
+          console.log('[Player] Joined room:', roomPin, 'with ID:', myId);
+          setMyScore(0);
+        }
+      });
   }, [gameStatus]);
 
   const submitAnswer = useCallback((answer: string) => {
@@ -432,9 +462,8 @@ export function useMultiplayer(role: 'host' | 'player') {
       event: 'submit-answer',
       payload: {
         answer,
-        // @ts-expect-error Supabase channel internal config is not fully typed on RealtimeChannel
-        playerId: channelRef.current.params?.config?.broadcast?.self?.sessionId || 'unknown',
-        playerName: 'Me'
+        playerId: playerIdRef.current,
+        playerName: playerNameRef.current || 'Player'
       }
     });
   }, [pin]);

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="70%" stop-color="#dbeafe"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </radialGradient>
+    
+    <!-- Koi Body Gradient -->
+    <linearGradient id="koiOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="50%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+
+    <!-- Shading -->
+    <linearGradient id="finShade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#fed7aa" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <!-- Lotus Petal -->
+    <linearGradient id="lotusPink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#fda4af"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Soft Water Pool -->
+  <rect width="512" height="512" rx="48" fill="url(#bgGrad)"/>
+
+  <!-- Water Ripple Rings -->
+  <ellipse cx="256" cy="256" rx="190" ry="170" fill="none" stroke="#93c5fd" stroke-width="2.5" stroke-dasharray="6,6" opacity="0.5"/>
+  <ellipse cx="256" cy="256" rx="140" ry="120" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.4"/>
+  <ellipse cx="256" cy="256" rx="80" ry="70" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Water Lilies / Floating Petals -->
+  <g transform="translate(80, 100) scale(0.7)">
+    <circle cx="0" cy="0" r="40" fill="#86efac" opacity="0.9"/>
+    <path d="M0 0 L30 -30 A40 40 0 0 1 0 40 Z" fill="#dbeafe"/>
+    <ellipse cx="0" cy="-5" rx="12" ry="24" fill="url(#lotusPink)"/>
+    <ellipse cx="-12" cy="5" rx="10" ry="20" fill="url(#lotusPink)" transform="rotate(-30)"/>
+    <ellipse cx="12" cy="5" rx="10" ry="20" fill="url(#lotusPink)" transform="rotate(30)"/>
+    <circle cx="0" cy="0" r="5" fill="#fef08a"/>
+  </g>
+
+  <g transform="translate(420, 390) scale(0.55)">
+    <circle cx="0" cy="0" r="35" fill="#86efac" opacity="0.8"/>
+    <ellipse cx="0" cy="-5" rx="10" ry="20" fill="url(#lotusPink)"/>
+    <circle cx="0" cy="0" r="4" fill="#fef08a"/>
+  </g>
+
+  <!-- Sakura Petals on Water -->
+  <path d="M380,120 C375,110 365,115 368,125 C372,135 385,135 388,128 C388,122 383,120 380,120 Z" fill="#f472b6" opacity="0.7"/>
+  <path d="M120,380 C115,370 105,375 108,385 C112,395 125,395 128,388 C128,382 123,380 120,380 Z" fill="#f472b6" opacity="0.7"/>
+
+  <!-- Japanese Koi Fish (Curved S-shape Swimming) -->
+  <g transform="translate(256, 260) rotate(-25)">
+    
+    <!-- Large Flowing Tail Fin -->
+    <path d="M-10,130 Q-60,190 -20,220 Q10,180 0,140 Z" fill="url(#finShade)" stroke="#f97316" stroke-width="1.5" opacity="0.9"/>
+    <path d="M10,130 Q60,190 20,220 Q-10,180 0,140 Z" fill="url(#finShade)" stroke="#f97316" stroke-width="1.5" opacity="0.9"/>
+    <path d="M0,135 Q-30,185 0,215 Q30,185 0,135 Z" fill="#ffffff" opacity="0.6"/>
+
+    <!-- Pectoral Fins (Left & Right) -->
+    <path d="M-45,20 Q-110,30 -85,75 Q-55,50 -40,30 Z" fill="url(#finShade)" stroke="#f97316" stroke-width="1.5"/>
+    <path d="M45,20 Q110,30 85,75 Q55,50 40,30 Z" fill="url(#finShade)" stroke="#f97316" stroke-width="1.5"/>
+
+    <!-- Main Fish Body -->
+    <path d="M0,-110 C60,-70 65,50 15,140 C-15,140 -65,50 -60,-70 Z" fill="#ffffff" stroke="#fed7aa" stroke-width="2"/>
+    
+    <!-- Red/Orange Koi Patterns (Kohaku Patches) -->
+    <!-- Head Patch (Tancho / Crown) -->
+    <ellipse cx="0" cy="-65" rx="32" ry="36" fill="url(#koiOrange)"/>
+    
+    <!-- Body Patches -->
+    <path d="M-15,-20 Q25,-30 35,10 Q20,50 -25,40 Q-40,10 -15,-20 Z" fill="url(#koiOrange)"/>
+    <path d="M5,60 Q-20,75 5,110 Q25,95 20,70 Z" fill="url(#koiOrange)"/>
+
+    <!-- Cute Anime Eyes -->
+    <ellipse cx="-34" cy="-75" rx="7" ry="9" fill="#1e293b"/>
+    <circle cx="-36" cy="-78" r="3" fill="#ffffff"/>
+    <ellipse cx="34" cy="-75" rx="7" ry="9" fill="#1e293b"/>
+    <circle cx="32" cy="-78" r="3" fill="#ffffff"/>
+
+    <!-- Whisker Barbels -->
+    <path d="M-18,-102 Q-35,-115 -42,-105" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M18,-102 Q35,-115 42,-105" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Gentle Cute Mouth -->
+    <path d="M-8,-98 Q0,-93 8,-98" fill="none" stroke="#ea580c" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Dorsal Fin Ridge -->
+    <path d="M0,-30 L0,90" stroke="#f97316" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  </g>
+</svg>

@@ -32,6 +32,7 @@ export const questions: Question[] = [
     romaji: "Konnichiwa",
     english_translation: "Hello / Good afternoon",
     image: "👋",
+    imageUrl: "/images/questions/greetings/greet-1.jpg",
     options: ["こんにちは", "こんばんは", "おはよう", "さようなら"],
     correct_answer: "こんにちは",
     option_hiragana: {
@@ -49,6 +50,7 @@ export const questions: Question[] = [
     romaji: "Ohayou gozaimasu",
     english_translation: "Good morning (polite)",
     image: "🌅",
+    imageUrl: "/images/questions/greetings/greet-2.jpg",
     options: ["おはようございます", "こんばんは", "ありがとう", "すみません"],
     correct_answer: "おはようございます",
     option_hiragana: {
@@ -66,6 +68,7 @@ export const questions: Question[] = [
     romaji: "Sayounara",
     english_translation: "Goodbye",
     image: "👋",
+    imageUrl: "/images/questions/greetings/greet-3.jpg",
     options: ["おやすみ", "さようなら", "こんにちは", "おはよう"],
     correct_answer: "さようなら",
     option_hiragana: {
@@ -83,6 +86,7 @@ export const questions: Question[] = [
     romaji: "Konbanwa",
     english_translation: "Good evening",
     image: "🌙",
+    imageUrl: "/images/questions/greetings/greet-4.jpg",
     options: ["おはよう", "こんにちは", "こんばんは", "おやすみなさい"],
     correct_answer: "こんばんは",
     option_hiragana: {
@@ -100,6 +104,7 @@ export const questions: Question[] = [
     romaji: "Oyasuminasai",
     english_translation: "Good night",
     image: "🛏️",
+    imageUrl: "/images/questions/greetings/greet-5.jpg",
     options: ["さようなら", "こんばんは", "おやすみなさい", "おはよう"],
     correct_answer: "おやすみなさい",
     option_hiragana: {
@@ -187,6 +192,7 @@ export const questions: Question[] = [
     romaji: "Gohan",
     english_translation: "Rice / Meal",
     image: "🍚",
+    imageUrl: "/images/questions/food/food-1.jpg",
     options: ["りんご", "ごはん", "パン", "さかな"],
     correct_answer: "ごはん",
     option_hiragana: {
@@ -204,6 +210,7 @@ export const questions: Question[] = [
     romaji: "Sushi",
     english_translation: "Sushi",
     image: "🍣",
+    imageUrl: "/images/questions/food/food-2.jpg",
     options: ["ラーメン", "すし", "うどん", "てんぷら"],
     correct_answer: "すし",
     option_hiragana: {
@@ -221,6 +228,7 @@ export const questions: Question[] = [
     romaji: "Ringo",
     english_translation: "Apple",
     image: "🍎",
+    imageUrl: "/images/questions/food/food-3.jpg",
     options: ["みかん", "ぶどう", "りんご", "いちご"],
     correct_answer: "りんご",
     option_hiragana: {
@@ -238,6 +246,7 @@ export const questions: Question[] = [
     romaji: "Raamen",
     english_translation: "Ramen Noodles",
     image: "🍜",
+    imageUrl: "/images/questions/food/food-4.jpg",
     options: ["うどん", "そば", "ラーメン", "カレー"],
     correct_answer: "ラーメン",
     option_hiragana: {
@@ -325,6 +334,7 @@ export const questions: Question[] = [
     romaji: "Arigatou gozaimasu",
     english_translation: "Thank you very much",
     image: "🙏",
+    imageUrl: "/images/questions/phrases/phrase-1.jpg",
     options: ["すみません", "ありがとうございます", "ごめんなさい", "おねがいします"],
     correct_answer: "ありがとうございます",
     option_hiragana: {
@@ -342,6 +352,7 @@ export const questions: Question[] = [
     romaji: "Sumimasen",
     english_translation: "Excuse me / I'm sorry",
     image: "🙇",
+    imageUrl: "/images/questions/phrases/phrase-2.jpg",
     options: ["ありがとう", "おはよう", "すみません", "いただきます"],
     correct_answer: "すみません",
     option_hiragana: {
@@ -359,6 +370,7 @@ export const questions: Question[] = [
     romaji: "Onegaishimasu",
     english_translation: "Please",
     image: "🤝",
+    imageUrl: "/images/questions/phrases/phrase-3.jpg",
     options: ["おねがいします", "ごめんなさい", "ありがとう", "すみません"],
     correct_answer: "おねがいします",
     option_hiragana: {
@@ -376,6 +388,7 @@ export const questions: Question[] = [
     romaji: "Itadakimasu",
     english_translation: "Let's eat! (before a meal)",
     image: "🥢",
+    imageUrl: "/images/questions/phrases/phrase-4.jpg",
     options: ["ごちそうさま", "いただきます", "おはよう", "ありがとう"],
     correct_answer: "いただきます",
     option_hiragana: {
@@ -601,6 +614,7 @@ export const questions: Question[] = [
     romaji: "Inu",
     english_translation: "Dog",
     image: "🐕",
+    imageUrl: "/images/questions/animals/animal-1.jpg",
     options: ["ねこ", "とり", "さかな", "いぬ"],
     correct_answer: "いぬ",
     option_hiragana: {
@@ -618,6 +632,7 @@ export const questions: Question[] = [
     romaji: "Neko",
     english_translation: "Cat",
     image: "🐈",
+    imageUrl: "/images/questions/animals/animal-2.jpg",
     options: ["いぬ", "ねこ", "うさぎ", "うま"],
     correct_answer: "ねこ",
     option_hiragana: {
@@ -635,6 +650,7 @@ export const questions: Question[] = [
     romaji: "Tori",
     english_translation: "Bird",
     image: "🐦",
+    imageUrl: "/images/questions/animals/animal-3.jpg",
     options: ["とり", "さる", "くま", "ぶた"],
     correct_answer: "とり",
     option_hiragana: {
@@ -652,6 +668,7 @@ export const questions: Question[] = [
     romaji: "Sakana",
     english_translation: "Fish",
     image: "🐟",
+    imageUrl: "/images/questions/animals/animal-4.svg",
     options: ["かえる", "へび", "さかな", "むし"],
     correct_answer: "さかな",
     option_hiragana: {

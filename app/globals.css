@@ -457,3 +457,67 @@ html.dark .zen-text-secondary {
   animation: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
 }
+
+/* Quiz Feedback Modal Animations */
+@keyframes modal-backdrop-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes modal-card-in {
+  0% { opacity: 0; transform: scale(0.9) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease-out forwards;
+}
+
+.animate-modal-card {
+  animation: modal-card-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Authentic Japanese Seigaiha Wave Pattern */
+.bg-seigaiha {
+  background-color: #fff0f3;
+  background-image: 
+    radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 240, 243, 0.45) 75%),
+    url('/seigaiha-pink.svg');
+  background-repeat: repeat;
+  background-size: 60px 30px;
+}
+
+html.dark .bg-seigaiha {
+  background-color: #080808;
+  background-image: 
+    radial-gradient(circle at 50% 35%, rgba(225, 29, 72, 0.14) 0%, rgba(8, 8, 8, 0.85) 75%),
+    url('/seigaiha-dark.svg');
+  background-repeat: repeat;
+  background-size: 60px 30px;
+}
+
+/* Frosted Glass Seigaiha with Deep Backdrop Blur for AFK */
+.bg-seigaiha-blur {
+  background-color: rgba(255, 240, 243, 0.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  background-image: 
+    radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 240, 243, 0.25) 75%),
+    url('/seigaiha-pink.svg');
+  background-repeat: repeat;
+  background-size: 60px 30px;
+}
+
+html.dark .bg-seigaiha-blur {
+  background-color: rgba(8, 8, 8, 0.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  background-image: 
+    radial-gradient(circle at 50% 35%, rgba(225, 29, 72, 0.12) 0%, rgba(8, 8, 8, 0.7) 75%),
+    url('/seigaiha-dark.svg');
+  background-repeat: repeat;
+  background-size: 60px 30px;
+}
+
+
+

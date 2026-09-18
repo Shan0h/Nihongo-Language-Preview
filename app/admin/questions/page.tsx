@@ -57,7 +57,7 @@ export default function AdminQuestions() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleDelete = () => {
+  const handleDelete = (_id?: string) => {
     if (confirm('Are you sure you want to delete this question?')) {
       alert('Delete functionality needs to be implemented');
     }
