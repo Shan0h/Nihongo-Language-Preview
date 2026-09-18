@@ -51,9 +51,7 @@ export default function QuizPage() {
       const randomJitter = Math.random() * 0.1 - 0.05;
       return (weightB - weightA) + randomJitter;
     });
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setQuizQuestions(sorted);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsReady(true);
   }, [slug]);
 
@@ -61,9 +59,7 @@ export default function QuizPage() {
   useEffect(() => {
     if (isReady && quizQuestions[currentIndex] && !showResult) {
       speakJapanese(quizQuestions[currentIndex].japanese_text);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSpokenTranscript('');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSpeechError('');
     }
   }, [currentIndex, showResult, isReady, quizQuestions]);

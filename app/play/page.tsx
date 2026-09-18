@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { JapaneseSpeechRecognizer } from '@/app/utils/speech';
@@ -53,7 +54,7 @@ export default function PlayPage() {
   // Connect on mount
   useEffect(() => {
     connect();
-  }, []);
+  }, [connect]);
 
   // Update phase based on game status and error
   useEffect(() => {
@@ -68,15 +69,16 @@ export default function PlayPage() {
     }
   }, [gameStatus, error]);
 
-  // Reset answer state when new question arrives
+  // Reset answer state when new question index arrives
+  const questionIdx = currentQuestion?.questionIndex;
   useEffect(() => {
-    if (currentQuestion) {
+    if (questionIdx !== undefined) {
       setSelectedAnswer(null);
       setHasAnswered(false);
       setSpokenTranscript('');
       setSpeechError('');
     }
-  }, [currentQuestion?.questionIndex]);
+  }, [questionIdx]);
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,11 +282,18 @@ export default function PlayPage() {
           <div className="card-zen p-6 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-4 text-center sm:text-left">
               {/* Question Image Illustration Badge */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white flex items-center justify-center text-4xl sm:text-5xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white flex items-center justify-center text-4xl sm:text-5xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0 relative">
                 {question.imageUrl ? (
-                  <img src={question.imageUrl} alt={question.japanese_text} className="w-full h-full object-cover" />
+                  <Image 
+                    src={question.imageUrl} 
+                    alt={question.japanese_text} 
+                    fill 
+                    sizes="96px"
+                    className="object-cover" 
+                    unoptimized 
+                  />
                 ) : (
-                  <span>{question.image || "🇯🇵"}</span>
+                  <span>{question.image || '🇯🇵'}</span>
                 )}
               </div>
               <div className="flex-1 min-w-0 mt-3 sm:mt-0">
@@ -330,7 +339,7 @@ export default function PlayPage() {
 
               {spokenTranscript && (
                 <div className="mt-2 text-xs font-semibold text-green-700">
-                  🎙️ Spoken: "{spokenTranscript}"
+                  🎙️ Spoken: &quot;{spokenTranscript}&quot;
                 </div>
               )}
 

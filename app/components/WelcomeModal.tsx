@@ -9,33 +9,6 @@ const SakuraIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   </svg>
 );
 
-const DarumaIcon = ({ className = "w-16 h-16" }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-    <path d="M30 25C30 18.3726 35.3726 13 42 13H58C64.6274 13 70 18.3726 70 25V55C70 61.6274 64.6274 67 58 67H42C35.3726 67 30 61.6274 30 55V25Z" fill="#DC2626" />
-    <circle cx="45" cy="35" r="3" fill="white" />
-    <circle cx="55" cy="35" r="3" fill="white" />
-    <path d="M45 45H55" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <path d="M40 30L48 33" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <path d="M60 30L52 33" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <path d="M45 50H55" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <circle cx="42" cy="42" r="2" fill="#FCA5A5" opacity="0.6" />
-    <circle cx="58" cy="42" r="2" fill="#FCA5A5" opacity="0.6" />
-  </svg>
-);
-
-const WavingHandIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <path d="M17 11l-4-4-4 4" />
-    <path d="M13 7V3" />
-    <path d="M21 13l-4 4-4-4" />
-    <path d="M17 17v4" />
-    <path d="M7 11l4 4 4-4" />
-    <path d="M11 15v4" />
-    <path d="M3 13l4 4 4-4" />
-    <path d="M7 17v4" />
-  </svg>
-);
-
 const HeadphonesIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
     <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
@@ -52,12 +25,6 @@ const MicrophoneIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
   </svg>
 );
 
-const PencilIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-  </svg>
-);
-
 const TrophyIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
@@ -67,53 +34,6 @@ const TrophyIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
     <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
     <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
   </svg>
-);
-
-const CertificateIcon = ({ className = "w-8 h-8" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-    <line x1="16" y1="13" x2="8" y2="13" />
-    <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10 9 9 9 8 9" />
-  </svg>
-);
-
-const CheckeredFlagIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" y1="22" x2="4" y2="15" />
-  </svg>
-);
-
-// Instruction Card Component
-interface InstructionCardProps {
-  step: number;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-}
-
-const InstructionCard = ({ step, icon, title, subtitle }: InstructionCardProps) => (
-  <div className="flex flex-col items-center justify-center p-3.5 sm:p-4 bg-white/40 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-white/60 dark:border-white/10 shadow-sm hover:shadow-[0_8px_25px_rgba(220,38,38,0.25)] dark:hover:shadow-[0_8px_25px_rgba(220,38,38,0.4)] hover:-translate-y-1 hover:border-red-300 dark:hover:border-red-500/50 transition-all duration-300 group cursor-default">
-    {/* Step Badge */}
-    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#d32f2f] text-white flex items-center justify-center font-black text-xs sm:text-sm mb-2 shadow-xs">
-      {step}
-    </div>
-
-    {/* Icon */}
-    <div className="text-[#d32f2f] dark:text-red-400 mb-2">
-      {icon}
-    </div>
-
-    {/* Content */}
-    <h3 className="text-xs sm:text-sm font-black text-[#0f172a] dark:text-white mb-0.5 text-center">
-      {title}
-    </h3>
-    <p className="text-[11px] sm:text-xs text-[#334155] dark:text-slate-200 font-extrabold text-center leading-tight">
-      {subtitle}
-    </p>
-  </div>
 );
 
 // Welcome Modal Component
@@ -134,45 +54,6 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
     }
     action();
   };
-
-  const instructionCards: InstructionCardProps[] = [
-    {
-      step: 1,
-      icon: <WavingHandIcon />,
-      title: "Welcome",
-      subtitle: "Tap a topic to begin"
-    },
-    {
-      step: 2,
-      icon: <HeadphonesIcon />,
-      title: "Listen",
-      subtitle: "Hear the Japanese word"
-    },
-    {
-      step: 3,
-      icon: <MicrophoneIcon />,
-      title: "Practice",
-      subtitle: "Repeat it out loud"
-    },
-    {
-      step: 4,
-      icon: <PencilIcon />,
-      title: "Answer",
-      subtitle: "Choose the correct option"
-    },
-    {
-      step: 5,
-      icon: <TrophyIcon />,
-      title: "Score",
-      subtitle: "See your final result"
-    },
-    {
-      step: 6,
-      icon: <CertificateIcon />,
-      title: "Certificate",
-      subtitle: "Save and share!"
-    }
-  ];
 
   return (
     <div
@@ -243,7 +124,6 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
 
         {/* Body Section (Friendly 3-Step Guide) */}
         <div className="flex-1 overflow-hidden bg-white/40 dark:bg-black/20 p-5 sm:p-6 space-y-4">
-          
           <div className="flex items-center gap-4 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
             <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm border border-blue-200 dark:border-blue-800">
               <HeadphonesIcon className="w-7 h-7" />
@@ -273,12 +153,10 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
               <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Earn points, unlock badges, and rule the leaderboard!</p>
             </div>
           </div>
-
         </div>
 
         {/* Footer Section */}
         <div className="bg-white/60 dark:bg-black/40 backdrop-blur-md px-6 py-4 border-t border-white/40 dark:border-white/10">
-          
           {/* CTA Button */}
           <button
             onClick={() => handleAction(onStart)}
@@ -289,7 +167,7 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
             <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"></div>
             
             <span className="text-xl group-hover:translate-x-1 transition-transform relative z-10">🚀</span>
-            <span className="relative z-10 tracking-wider text-lg">Let's Go! はじめましょう</span>
+            <span className="relative z-10 tracking-wider text-lg">Let&apos;s Go! はじめましょう</span>
           </button>
 
           {/* Don't Show Again Checkbox */}
@@ -307,11 +185,10 @@ export default function WelcomeModal({ isOpen, onClose, onStart }: WelcomeModalP
                 </svg>
               </div>
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors">
-                Don't show this welcoming message again
+                Don&apos;t show this welcoming message again
               </span>
             </label>
           </div>
-
         </div>
       </div>
     </div>

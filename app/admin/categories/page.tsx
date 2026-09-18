@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { categories, Category } from '@/data/questions';
 import Link from 'next/link';
 
 export default function AdminCategories() {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('isAdmin') === 'true';
+    }
+    return false;
+  });
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showForm, setShowForm] = useState(false);
-
-  useEffect(() => {
-    setIsAdmin(localStorage.getItem('isAdmin') === 'true');
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('isAdmin');
@@ -34,7 +35,7 @@ export default function AdminCategories() {
     );
   }
 
-  const handleDelete = (slug: string) => {
+  const handleDelete = () => {
     if (confirm('Are you sure you want to delete this category?')) {
       alert('Delete functionality needs to be implemented');
     }
@@ -129,7 +130,7 @@ export default function AdminCategories() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(cat.slug)}
+                      onClick={() => handleDelete()}
                       className="px-4 py-2 bg-[#d32f2f] text-white rounded-lg text-sm hover:bg-[#b71c1c] transition-colors"
                     >
                       Delete

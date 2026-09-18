@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { questions, getQuestionsByCategory, Category, Question } from '@/data/questions';
+import { questions, Category, Question } from '@/data/questions';
 import Link from 'next/link';
 
 export default function AdminQuestions() {
@@ -57,7 +57,7 @@ export default function AdminQuestions() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleDelete = (id: string) => {
+  const handleDelete = () => {
     if (confirm('Are you sure you want to delete this question?')) {
       alert('Delete functionality needs to be implemented');
     }

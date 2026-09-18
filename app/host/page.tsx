@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { sfx } from '@/app/utils/sfx';
@@ -58,11 +59,12 @@ export default function HostPage() {
   }, [connected, pin, roomCreated, createRoom]);
 
   // Auto-play Japanese pronunciation when a question loads for host
+  const japaneseText = currentQuestion?.question?.japanese_text;
   useEffect(() => {
-    if (gameStatus === 'playing' && currentQuestion?.question?.japanese_text) {
-      speakJapanese(currentQuestion.question.japanese_text);
+    if (gameStatus === 'playing' && japaneseText) {
+      speakJapanese(japaneseText);
     }
-  }, [gameStatus, currentQuestion?.questionIndex]);
+  }, [gameStatus, japaneseText]);
 
   const handleStart = () => {
     if (Object.keys(players).length === 0) {
@@ -229,9 +231,16 @@ export default function HostPage() {
               QUESTION {questionIndex + 1} OF {totalQuestions}
             </div>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-4 text-center sm:text-left">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white flex items-center justify-center text-5xl sm:text-6xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white flex items-center justify-center text-5xl sm:text-6xl shadow-sm flex-shrink-0 overflow-hidden zen-focus-ring mx-auto sm:mx-0 relative">
                 {currentQuestion.question.imageUrl ? (
-                  <img src={currentQuestion.question.imageUrl} alt={currentQuestion.question.japanese_text} className="w-full h-full object-cover" />
+                  <Image 
+                    src={currentQuestion.question.imageUrl} 
+                    alt={currentQuestion.question.japanese_text} 
+                    fill 
+                    sizes="112px" 
+                    className="object-cover" 
+                    unoptimized 
+                  />
                 ) : (
                   <span>{currentQuestion.question.image || "🇯🇵"}</span>
                 )}
@@ -316,7 +325,6 @@ export default function HostPage() {
 
           {/* Host Controls */}
           <div className="flex flex-col gap-3 max-w-sm mx-auto">
-            {/* Show Reveal button when timer is up or some players answered */}
             {!answerRevealed && countdown === 0 && (
               <button
                 onClick={revealAnswers}
@@ -330,7 +338,6 @@ export default function HostPage() {
                 Waiting for timer... ({answeredCount}/{playerList.length} answered)
               </div>
             )}
-            {/* Show Next button after answers revealed */}
             {answerRevealed && (
               <button
                 onClick={advanceQuestion}
@@ -362,7 +369,6 @@ export default function HostPage() {
 
           {/* Animated 3D Kahoot Winner Podium */}
           <div className="flex items-end justify-center gap-3 sm:gap-6 mb-8 h-64 sm:h-72 px-2">
-            {/* 2nd Place (Silver) */}
             {top2 ? (
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-2xl sm:text-3xl mb-1">🥈</div>
@@ -374,7 +380,6 @@ export default function HostPage() {
               </div>
             ) : null}
 
-            {/* 1st Place (Gold) */}
             {top1 ? (
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-4xl sm:text-5xl mb-1 animate-bounce">🥇</div>
@@ -386,7 +391,6 @@ export default function HostPage() {
               </div>
             ) : null}
 
-            {/* 3rd Place (Bronze) */}
             {top3 ? (
               <div className="flex-1 flex flex-col items-center">
                 <div className="text-2xl sm:text-3xl mb-1">🥉</div>
