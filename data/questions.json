@@ -917,5 +917,1303 @@
       "こども": "こども (kodomo)",
       "おとな": "おとな (otona)"
     }
+  },
+  {
+    "id": "greet-6",
+    "category": "Greetings",
+    "japanese_text": "はじめまして",
+    "hiragana": "はじめまして",
+    "romaji": "Hajimemashite",
+    "english_translation": "Nice to meet you (for the first time)",
+    "image": "🤝",
+    "options": [
+      "はじめまして",
+      "またあした",
+      "おやすみ",
+      "ありがとう"
+    ],
+    "correct_answer": "はじめまして",
+    "option_hiragana": {
+      "はじめまして": "はじめまして (hajimemashite)",
+      "またあした": "またあした (mata ashita)",
+      "おやすみ": "おやすみ (oyasumi)",
+      "ありがとう": "ありがとう (arigatou)"
+    }
+  },
+  {
+    "id": "greet-7",
+    "category": "Greetings",
+    "japanese_text": "よろしくおねがいします",
+    "hiragana": "よろしくおねがいします",
+    "romaji": "Yoroshiku onegaishimasu",
+    "english_translation": "Pleased to meet you / Let's work well together",
+    "image": "🙇",
+    "options": [
+      "よろしくおねがいします",
+      "おはようございます",
+      "すみません",
+      "さようなら"
+    ],
+    "correct_answer": "よろしくおねがいします",
+    "option_hiragana": {
+      "よろしくおねがいします": "よろしくおねがいします (yoroshiku onegaishimasu)",
+      "おはようございます": "おはようございます (ohayou gozaimasu)",
+      "すみません": "すみません (sumimasen)",
+      "さようなら": "さようなら (sayounara)"
+    }
+  },
+  {
+    "id": "greet-8",
+    "category": "Greetings",
+    "japanese_text": "じゃあ、また",
+    "hiragana": "じゃあ、また",
+    "romaji": "Jaa, mata",
+    "english_translation": "See you later / Bye",
+    "image": "👋",
+    "options": [
+      "じゃあ、また",
+      "こんにちは",
+      "いただきます",
+      "はじめまして"
+    ],
+    "correct_answer": "じゃあ、また",
+    "option_hiragana": {
+      "じゃあ、また": "じゃあ、また (jaa, mata)",
+      "こんにちは": "こんにちは (konnichiwa)",
+      "いただきます": "いただきます (itadakimasu)",
+      "はじめまして": "はじめまして (hajimemashite)"
+    }
+  },
+  {
+    "id": "greet-9",
+    "category": "Greetings",
+    "japanese_text": "おひさしぶりです",
+    "hiragana": "おひさしぶりです",
+    "romaji": "Ohisashiburi desu",
+    "english_translation": "Long time no see (polite)",
+    "image": "✨",
+    "options": [
+      "おひさしぶりです",
+      "こんばんは",
+      "ごめんなさい",
+      "またあした"
+    ],
+    "correct_answer": "おひさしぶりです",
+    "option_hiragana": {
+      "おひさしぶりです": "おひさしぶりです (ohisashiburi desu)",
+      "こんばんは": "こんばんは (konbanwa)",
+      "ごめんなさい": "ごめんなさい (gomennasai)",
+      "またあした": "またあした (mata ashita)"
+    }
+  },
+  {
+    "id": "greet-10",
+    "category": "Greetings",
+    "japanese_text": "またあした",
+    "hiragana": "またあした",
+    "romaji": "Mata ashita",
+    "english_translation": "See you tomorrow",
+    "image": "🌅",
+    "options": [
+      "またあした",
+      "おやすみなさい",
+      "こんにちは",
+      "はじめまして"
+    ],
+    "correct_answer": "またあした",
+    "option_hiragana": {
+      "またあした": "またあした (mata ashita)",
+      "おやすみなさい": "おやすみなさい (oyasuminasai)",
+      "こんにちは": "こんにちは (konnichiwa)",
+      "はじめまして": "はじめまして (hajimemashite)"
+    }
+  },
+  {
+    "id": "num-5",
+    "category": "Numbers",
+    "japanese_text": "に",
+    "hiragana": "に",
+    "romaji": "Ni",
+    "english_translation": "Two (2)",
+    "image": "2️⃣",
+    "options": [
+      "に",
+      "いち",
+      "よん",
+      "ろく"
+    ],
+    "correct_answer": "に",
+    "option_hiragana": {
+      "に": "に (ni)",
+      "いち": "いち (ichi)",
+      "よん": "よん (yon)",
+      "ろく": "ろく (roku)"
+    }
+  },
+  {
+    "id": "num-6",
+    "category": "Numbers",
+    "japanese_text": "よん",
+    "hiragana": "よん",
+    "romaji": "Yon",
+    "english_translation": "Four (4)",
+    "image": "4️⃣",
+    "options": [
+      "よん",
+      "さん",
+      "ご",
+      "はち"
+    ],
+    "correct_answer": "よん",
+    "option_hiragana": {
+      "よん": "よん (yon)",
+      "さん": "さん (san)",
+      "ご": "ご (go)",
+      "はち": "はち (hachi)"
+    }
+  },
+  {
+    "id": "num-7",
+    "category": "Numbers",
+    "japanese_text": "にじゅう",
+    "hiragana": "にじゅう",
+    "romaji": "Ni-juu",
+    "english_translation": "Twenty (20)",
+    "image": "🔢",
+    "options": [
+      "にじゅう",
+      "じゅう",
+      "さんじゅう",
+      "ごじゅう"
+    ],
+    "correct_answer": "にじゅう",
+    "option_hiragana": {
+      "にじゅう": "にじゅう (ni-juu)",
+      "じゅう": "じゅう (juu)",
+      "さんじゅう": "さんじゅう (san-juu)",
+      "ごじゅう": "ごじゅう (go-juu)"
+    }
+  },
+  {
+    "id": "num-8",
+    "category": "Numbers",
+    "japanese_text": "ごじゅう",
+    "hiragana": "ごじゅう",
+    "romaji": "Go-juu",
+    "english_translation": "Fifty (50)",
+    "image": "5️⃣",
+    "options": [
+      "ごじゅう",
+      "よんじゅう",
+      "ろくじゅう",
+      "ひゃく"
+    ],
+    "correct_answer": "ごじゅう",
+    "option_hiragana": {
+      "ごじゅう": "ごじゅう (go-juu)",
+      "よんじゅう": "よんじゅう (yon-juu)",
+      "ろくじゅう": "ろくじゅう (roku-juu)",
+      "ひゃく": "ひゃく (hyaku)"
+    }
+  },
+  {
+    "id": "num-9",
+    "category": "Numbers",
+    "japanese_text": "ななじゅう",
+    "hiragana": "ななじゅう",
+    "romaji": "Nana-juu",
+    "english_translation": "Seventy (70)",
+    "image": "7️⃣",
+    "options": [
+      "ななじゅう",
+      "はちじゅう",
+      "ごじゅう",
+      "きゅうじゅう"
+    ],
+    "correct_answer": "ななじゅう",
+    "option_hiragana": {
+      "ななじゅう": "ななじゅう (nana-juu)",
+      "はちじゅう": "はちじゅう (hachi-juu)",
+      "ごじゅう": "ごじゅう (go-juu)",
+      "きゅうじゅう": "きゅうじゅう (kyuu-juu)"
+    }
+  },
+  {
+    "id": "num-10",
+    "category": "Numbers",
+    "japanese_text": "ひゃく",
+    "hiragana": "ひゃく",
+    "romaji": "Hyaku",
+    "english_translation": "One Hundred (100)",
+    "image": "💯",
+    "options": [
+      "ひゃく",
+      "じゅう",
+      "ごじゅう",
+      "せん"
+    ],
+    "correct_answer": "ひゃく",
+    "option_hiragana": {
+      "ひゃく": "ひゃく (hyaku)",
+      "じゅう": "じゅう (juu)",
+      "ごじゅう": "ごじゅう (go-juu)",
+      "せん": "せん (sen)"
+    }
+  },
+  {
+    "id": "food-5",
+    "category": "Food",
+    "japanese_text": "みず",
+    "hiragana": "みず",
+    "romaji": "Mizu",
+    "english_translation": "Water",
+    "image": "💧",
+    "options": [
+      "みず",
+      "おちゃ",
+      "ごはん",
+      "にく"
+    ],
+    "correct_answer": "みず",
+    "option_hiragana": {
+      "みず": "みず (mizu)",
+      "おちゃ": "おちゃ (ocha)",
+      "ごはん": "ごはん (gohan)",
+      "にく": "にく (niku)"
+    }
+  },
+  {
+    "id": "food-6",
+    "category": "Food",
+    "japanese_text": "おちゃ",
+    "hiragana": "おちゃ",
+    "romaji": "Ocha",
+    "english_translation": "Green Tea / Tea",
+    "image": "🍵",
+    "options": [
+      "おちゃ",
+      "みず",
+      "コーヒー",
+      "すし"
+    ],
+    "correct_answer": "おちゃ",
+    "option_hiragana": {
+      "おちゃ": "おちゃ (ocha)",
+      "みず": "みず (mizu)",
+      "コーヒー": "コーヒー (koohii)",
+      "すし": "すし (sushi)"
+    }
+  },
+  {
+    "id": "food-7",
+    "category": "Food",
+    "japanese_text": "パン",
+    "hiragana": "パン",
+    "romaji": "Pan",
+    "english_translation": "Bread",
+    "image": "🍞",
+    "options": [
+      "パン",
+      "ごはん",
+      "たまご",
+      "りんご"
+    ],
+    "correct_answer": "パン",
+    "option_hiragana": {
+      "パン": "パン (pan)",
+      "ごはん": "ごはん (gohan)",
+      "たまご": "たまご (tamago)",
+      "りんご": "りんご (ringo)"
+    }
+  },
+  {
+    "id": "food-8",
+    "category": "Food",
+    "japanese_text": "にく",
+    "hiragana": "にく",
+    "romaji": "Niku",
+    "english_translation": "Meat",
+    "image": "🥩",
+    "options": [
+      "にく",
+      "さかな",
+      "やさい",
+      "パン"
+    ],
+    "correct_answer": "にく",
+    "option_hiragana": {
+      "にく": "にく (niku)",
+      "さかな": "さかな (sakana)",
+      "やさい": "やさい (yasai)",
+      "パン": "パン (pan)"
+    }
+  },
+  {
+    "id": "food-9",
+    "category": "Food",
+    "japanese_text": "たまご",
+    "hiragana": "たまご",
+    "romaji": "Tamago",
+    "english_translation": "Egg",
+    "image": "🥚",
+    "options": [
+      "たまご",
+      "すし",
+      "ごはん",
+      "にく"
+    ],
+    "correct_answer": "たまご",
+    "option_hiragana": {
+      "たまご": "たまご (tamago)",
+      "すし": "すし (sushi)",
+      "ごはん": "ごはん (gohan)",
+      "にく": "にく (niku)"
+    }
+  },
+  {
+    "id": "food-10",
+    "category": "Food",
+    "japanese_text": "さかな",
+    "hiragana": "さかな",
+    "romaji": "Sakana",
+    "english_translation": "Fish (as food)",
+    "image": "🐟",
+    "options": [
+      "さかな",
+      "にく",
+      "みず",
+      "ラーメン"
+    ],
+    "correct_answer": "さかな",
+    "option_hiragana": {
+      "さかな": "さかな (sakana)",
+      "にく": "にく (niku)",
+      "みず": "みず (mizu)",
+      "ラーメン": "ラーメン (raamen)"
+    }
+  },
+  {
+    "id": "color-5",
+    "category": "Colors",
+    "japanese_text": "しろ",
+    "hiragana": "しろ",
+    "romaji": "Shiro",
+    "english_translation": "White",
+    "image": "⚪",
+    "options": [
+      "しろ",
+      "くろ",
+      "あか",
+      "あお"
+    ],
+    "correct_answer": "しろ",
+    "option_hiragana": {
+      "しろ": "しろ (shiro)",
+      "くろ": "くろ (kuro)",
+      "あか": "あか (aka)",
+      "あお": "あお (ao)"
+    }
+  },
+  {
+    "id": "color-6",
+    "category": "Colors",
+    "japanese_text": "くろ",
+    "hiragana": "くろ",
+    "romaji": "Kuro",
+    "english_translation": "Black",
+    "image": "⚫",
+    "options": [
+      "くろ",
+      "しろ",
+      "きいろ",
+      "みどり"
+    ],
+    "correct_answer": "くろ",
+    "option_hiragana": {
+      "くろ": "くろ (kuro)",
+      "しろ": "しろ (shiro)",
+      "きいろ": "きいろ (kiiro)",
+      "みどり": "みどり (midori)"
+    }
+  },
+  {
+    "id": "color-7",
+    "category": "Colors",
+    "japanese_text": "ピンク",
+    "hiragana": "ピンク",
+    "romaji": "Pinku",
+    "english_translation": "Pink",
+    "image": "🌸",
+    "options": [
+      "ピンク",
+      "あか",
+      "むらさき",
+      "オレンジ"
+    ],
+    "correct_answer": "ピンク",
+    "option_hiragana": {
+      "ピンク": "ピンク (pinku)",
+      "あか": "あか (aka)",
+      "むらさき": "むらさき (murasaki)",
+      "オレンジ": "オレンジ (orenji)"
+    }
+  },
+  {
+    "id": "color-8",
+    "category": "Colors",
+    "japanese_text": "オレンジ",
+    "hiragana": "オレンジ",
+    "romaji": "Orenji",
+    "english_translation": "Orange",
+    "image": "🍊",
+    "options": [
+      "オレンジ",
+      "きいろ",
+      "あか",
+      "ちゃいろ"
+    ],
+    "correct_answer": "オレンジ",
+    "option_hiragana": {
+      "オレンジ": "オレンジ (orenji)",
+      "きいろ": "きいろ (kiiro)",
+      "あか": "あか (aka)",
+      "ちゃいろ": "ちゃいろ (chairo)"
+    }
+  },
+  {
+    "id": "color-9",
+    "category": "Colors",
+    "japanese_text": "むらさき",
+    "hiragana": "むらさき",
+    "romaji": "Murasaki",
+    "english_translation": "Purple",
+    "image": "🟣",
+    "options": [
+      "むらさき",
+      "あお",
+      "くろ",
+      "ピンク"
+    ],
+    "correct_answer": "むらさき",
+    "option_hiragana": {
+      "むらさき": "むらさき (murasaki)",
+      "あお": "あお (ao)",
+      "くろ": "くろ (kuro)",
+      "ピンク": "ピンク (pinku)"
+    }
+  },
+  {
+    "id": "color-10",
+    "category": "Colors",
+    "japanese_text": "ちゃいろ",
+    "hiragana": "ちゃいろ",
+    "romaji": "Chairo",
+    "english_translation": "Brown",
+    "image": "🟤",
+    "options": [
+      "ちゃいろ",
+      "くろ",
+      "みどり",
+      "しろ"
+    ],
+    "correct_answer": "ちゃいろ",
+    "option_hiragana": {
+      "ちゃいろ": "ちゃいろ (chairo)",
+      "くろ": "くろ (kuro)",
+      "みどり": "みどり (midori)",
+      "しろ": "しろ (shiro)"
+    }
+  },
+  {
+    "id": "phrase-5",
+    "category": "Daily Phrases",
+    "japanese_text": "ごちそうさまでした",
+    "hiragana": "ごちそうさまでした",
+    "romaji": "Gochisousama deshita",
+    "english_translation": "Thank you for the meal (said after eating)",
+    "image": "🙏",
+    "options": [
+      "ごちそうさまでした",
+      "いただきます",
+      "ありがとうございます",
+      "どういたしまして"
+    ],
+    "correct_answer": "ごちそうさまでした",
+    "option_hiragana": {
+      "ごちそうさまでした": "ごちそうさまでした (gochisousama deshita)",
+      "いただきます": "いただきます (itadakimasu)",
+      "ありがとうございます": "ありがとうございます (arigatou gozaimasu)",
+      "どういたしまして": "どういたしまして (douitashimashite)"
+    }
+  },
+  {
+    "id": "phrase-6",
+    "category": "Daily Phrases",
+    "japanese_text": "どういたしまして",
+    "hiragana": "どういたしまして",
+    "romaji": "Douitashimashite",
+    "english_translation": "You're welcome / Don't mention it",
+    "image": "😊",
+    "options": [
+      "どういたしまして",
+      "すみません",
+      "おねがいします",
+      "ごめんなさい"
+    ],
+    "correct_answer": "どういたしまして",
+    "option_hiragana": {
+      "どういたしまして": "どういたしまして (douitashimashite)",
+      "すみません": "すみません (sumimasen)",
+      "おねがいします": "おねがいします (onegaishimasu)",
+      "ごめんなさい": "ごめんなさい (gomennasai)"
+    }
+  },
+  {
+    "id": "phrase-7",
+    "category": "Daily Phrases",
+    "japanese_text": "ごめんなさい",
+    "hiragana": "ごめんなさい",
+    "romaji": "Gomennasai",
+    "english_translation": "I am sorry",
+    "image": "🙇‍♂️",
+    "options": [
+      "ごめんなさい",
+      "ありがとうございます",
+      "だいじょうぶです",
+      "さようなら"
+    ],
+    "correct_answer": "ごめんなさい",
+    "option_hiragana": {
+      "ごめんなさい": "ごめんなさい (gomennasai)",
+      "ありがとうございます": "ありがとうございます (arigatou gozaimasu)",
+      "だいじょうぶです": "だいじょうぶです (daijoubu desu)",
+      "さようなら": "さようなら (sayounara)"
+    }
+  },
+  {
+    "id": "phrase-8",
+    "category": "Daily Phrases",
+    "japanese_text": "はい",
+    "hiragana": "はい",
+    "romaji": "Hai",
+    "english_translation": "Yes",
+    "image": "⭕",
+    "options": [
+      "はい",
+      "いいえ",
+      "まあまあ",
+      "ちがいます"
+    ],
+    "correct_answer": "はい",
+    "option_hiragana": {
+      "はい": "はい (hai)",
+      "いいえ": "いいえ (iie)",
+      "まあまあ": "まあまあ (maamaa)",
+      "ちがいます": "ちがいます (chigaimasu)"
+    }
+  },
+  {
+    "id": "phrase-9",
+    "category": "Daily Phrases",
+    "japanese_text": "いいえ",
+    "hiragana": "いいえ",
+    "romaji": "Iie",
+    "english_translation": "No",
+    "image": "❌",
+    "options": [
+      "いいえ",
+      "はい",
+      "そうです",
+      "どうぞ"
+    ],
+    "correct_answer": "いいえ",
+    "option_hiragana": {
+      "いいえ": "いいえ (iie)",
+      "はい": "はい (hai)",
+      "そうです": "そうです (sou desu)",
+      "どうぞ": "どうぞ (douzo)"
+    }
+  },
+  {
+    "id": "phrase-10",
+    "category": "Daily Phrases",
+    "japanese_text": "だいじょうぶです",
+    "hiragana": "だいじょうぶです",
+    "romaji": "Daijoubu desu",
+    "english_translation": "It's okay / I'm fine",
+    "image": "👌",
+    "options": [
+      "だいじょうぶです",
+      "すみません",
+      "しりません",
+      "わかりました"
+    ],
+    "correct_answer": "だいじょうぶです",
+    "option_hiragana": {
+      "だいじょうぶです": "だいじょうぶです (daijoubu desu)",
+      "すみません": "すみません (sumimasen)",
+      "しりません": "しりません (shirimasen)",
+      "わかりました": "わかりました (wakarimashita)"
+    }
+  },
+  {
+    "id": "verb-5",
+    "category": "Verbs",
+    "japanese_text": "くる",
+    "hiragana": "くる",
+    "romaji": "Kuru",
+    "english_translation": "To come",
+    "image": "🚶‍♂️",
+    "options": [
+      "くる",
+      "いく",
+      "かえる",
+      "みる"
+    ],
+    "correct_answer": "くる",
+    "option_hiragana": {
+      "くる": "くる (kuru)",
+      "いく": "いく (iku)",
+      "かえる": "かえる (kaeru)",
+      "みる": "みる (miru)"
+    }
+  },
+  {
+    "id": "verb-6",
+    "category": "Verbs",
+    "japanese_text": "はなす",
+    "hiragana": "はなす",
+    "romaji": "Hanasu",
+    "english_translation": "To speak / To talk",
+    "image": "🗣️",
+    "options": [
+      "はなす",
+      "きく",
+      "よむ",
+      "かく"
+    ],
+    "correct_answer": "はなす",
+    "option_hiragana": {
+      "はなす": "はなす (hanasu)",
+      "きく": "きく (kiku)",
+      "よむ": "よむ (yomu)",
+      "かく": "かく (kaku)"
+    }
+  },
+  {
+    "id": "verb-7",
+    "category": "Verbs",
+    "japanese_text": "きく",
+    "hiragana": "きく",
+    "romaji": "Kiku",
+    "english_translation": "To listen / To hear",
+    "image": "👂",
+    "options": [
+      "きく",
+      "みる",
+      "はなす",
+      "たべる"
+    ],
+    "correct_answer": "きく",
+    "option_hiragana": {
+      "きく": "きく (kiku)",
+      "みる": "みる (miru)",
+      "はなす": "はなす (hanasu)",
+      "たべる": "たべる (taberu)"
+    }
+  },
+  {
+    "id": "verb-8",
+    "category": "Verbs",
+    "japanese_text": "よむ",
+    "hiragana": "よむ",
+    "romaji": "Yomu",
+    "english_translation": "To read",
+    "image": "📖",
+    "options": [
+      "よむ",
+      "かく",
+      "みる",
+      "きく"
+    ],
+    "correct_answer": "よむ",
+    "option_hiragana": {
+      "よむ": "よむ (yomu)",
+      "かく": "かく (kaku)",
+      "みる": "みる (miru)",
+      "きく": "きく (kiku)"
+    }
+  },
+  {
+    "id": "verb-9",
+    "category": "Verbs",
+    "japanese_text": "かく",
+    "hiragana": "かく",
+    "romaji": "Kaku",
+    "english_translation": "To write",
+    "image": "✍️",
+    "options": [
+      "かく",
+      "よむ",
+      "はなす",
+      "のむ"
+    ],
+    "correct_answer": "かく",
+    "option_hiragana": {
+      "かく": "かく (kaku)",
+      "よむ": "よむ (yomu)",
+      "はなす": "はなす (hanasu)",
+      "のむ": "のむ (nomu)"
+    }
+  },
+  {
+    "id": "verb-10",
+    "category": "Verbs",
+    "japanese_text": "ねる",
+    "hiragana": "ねる",
+    "romaji": "Neru",
+    "english_translation": "To sleep",
+    "image": "😴",
+    "options": [
+      "ねる",
+      "おきる",
+      "たべる",
+      "いく"
+    ],
+    "correct_answer": "ねる",
+    "option_hiragana": {
+      "ねる": "ねる (neru)",
+      "おきる": "おきる (okiru)",
+      "たべる": "たべる (taberu)",
+      "いく": "いく (iku)"
+    }
+  },
+  {
+    "id": "adj-5",
+    "category": "Adjectives",
+    "japanese_text": "たのしい",
+    "hiragana": "たのしい",
+    "romaji": "Tanoshii",
+    "english_translation": "Fun / Enjoyable",
+    "image": "🎉",
+    "options": [
+      "たのしい",
+      "おいしい",
+      "かわいい",
+      "むずかしい"
+    ],
+    "correct_answer": "たのしい",
+    "option_hiragana": {
+      "たのしい": "たのしい (tanoshii)",
+      "おいしい": "おいしい (oishii)",
+      "かわいい": "かわいい (kawaii)",
+      "むずかしい": "むずかしい (muzukashii)"
+    }
+  },
+  {
+    "id": "adj-6",
+    "category": "Adjectives",
+    "japanese_text": "あつい",
+    "hiragana": "あつい",
+    "romaji": "Atsui",
+    "english_translation": "Hot (weather / temperature)",
+    "image": "☀️",
+    "options": [
+      "あつい",
+      "さむい",
+      "おおきい",
+      "たかい"
+    ],
+    "correct_answer": "あつい",
+    "option_hiragana": {
+      "あつい": "あつい (atsui)",
+      "さむい": "さむい (samui)",
+      "おおきい": "おおきい (ookii)",
+      "たかい": "たかい (takai)"
+    }
+  },
+  {
+    "id": "adj-7",
+    "category": "Adjectives",
+    "japanese_text": "さむい",
+    "hiragana": "さむい",
+    "romaji": "Samui",
+    "english_translation": "Cold (weather)",
+    "image": "❄️",
+    "options": [
+      "さむい",
+      "あつい",
+      "すずしい",
+      "ちいさい"
+    ],
+    "correct_answer": "さむい",
+    "option_hiragana": {
+      "さむい": "さむい (samui)",
+      "あつい": "あつい (atsui)",
+      "すずしい": "すずしい (suzushii)",
+      "ちいさい": "ちいさい (chiisai)"
+    }
+  },
+  {
+    "id": "adj-8",
+    "category": "Adjectives",
+    "japanese_text": "たかい",
+    "hiragana": "たかい",
+    "romaji": "Takai",
+    "english_translation": "Expensive / High / Tall",
+    "image": "🏷️",
+    "options": [
+      "たかい",
+      "やすい",
+      "おおきい",
+      "あつい"
+    ],
+    "correct_answer": "たかい",
+    "option_hiragana": {
+      "たかい": "たかい (takai)",
+      "やすい": "やすい (yasui)",
+      "おおきい": "おおきい (ookii)",
+      "あつい": "あつい (atsui)"
+    }
+  },
+  {
+    "id": "adj-9",
+    "category": "Adjectives",
+    "japanese_text": "やすい",
+    "hiragana": "やすい",
+    "romaji": "Yasui",
+    "english_translation": "Cheap / Inexpensive",
+    "image": "🪙",
+    "options": [
+      "やすい",
+      "たかい",
+      "ちいさい",
+      "おいしい"
+    ],
+    "correct_answer": "やすい",
+    "option_hiragana": {
+      "やすい": "やすい (yasui)",
+      "たかい": "たかい (takai)",
+      "ちいさい": "ちいさい (chiisai)",
+      "おいしい": "おいしい (oishii)"
+    }
+  },
+  {
+    "id": "adj-10",
+    "category": "Adjectives",
+    "japanese_text": "むずかしい",
+    "hiragana": "むずかしい",
+    "romaji": "Muzukashii",
+    "english_translation": "Difficult / Hard",
+    "image": "🧩",
+    "options": [
+      "むずかしい",
+      "やさしい",
+      "たのしい",
+      "おもしろい"
+    ],
+    "correct_answer": "むずかしい",
+    "option_hiragana": {
+      "むずかしい": "むずかしい (muzukashii)",
+      "やさしい": "やさしい (yasashii)",
+      "たのしい": "たのしい (tanoshii)",
+      "おもしろい": "おもしろい (omoshiroi)"
+    }
+  },
+  {
+    "id": "body-5",
+    "category": "Body Parts",
+    "japanese_text": "はな",
+    "hiragana": "はな",
+    "romaji": "Hana",
+    "english_translation": "Nose",
+    "image": "👃",
+    "options": [
+      "はな",
+      "くち",
+      "め",
+      "みみ"
+    ],
+    "correct_answer": "はな",
+    "option_hiragana": {
+      "はな": "はな (hana)",
+      "くち": "くち (kuchi)",
+      "め": "め (me)",
+      "みみ": "みみ (mimi)"
+    }
+  },
+  {
+    "id": "body-6",
+    "category": "Body Parts",
+    "japanese_text": "くち",
+    "hiragana": "くち",
+    "romaji": "Kuchi",
+    "english_translation": "Mouth",
+    "image": "👄",
+    "options": [
+      "くち",
+      "はな",
+      "て",
+      "かお"
+    ],
+    "correct_answer": "くち",
+    "option_hiragana": {
+      "くち": "くち (kuchi)",
+      "はな": "はな (hana)",
+      "て": "て (te)",
+      "かお": "かお (kao)"
+    }
+  },
+  {
+    "id": "body-7",
+    "category": "Body Parts",
+    "japanese_text": "あし",
+    "hiragana": "あし",
+    "romaji": "Ashi",
+    "english_translation": "Foot / Leg",
+    "image": "🦶",
+    "options": [
+      "あし",
+      "て",
+      "かた",
+      "あたま"
+    ],
+    "correct_answer": "あし",
+    "option_hiragana": {
+      "あし": "あし (ashi)",
+      "て": "て (te)",
+      "かた": "かた (kata)",
+      "あたま": "あたま (atama)"
+    }
+  },
+  {
+    "id": "body-8",
+    "category": "Body Parts",
+    "japanese_text": "かた",
+    "hiragana": "かた",
+    "romaji": "Kata",
+    "english_translation": "Shoulder",
+    "image": "💪",
+    "options": [
+      "かた",
+      "あし",
+      "くび",
+      "て"
+    ],
+    "correct_answer": "かた",
+    "option_hiragana": {
+      "かた": "かた (kata)",
+      "あし": "あし (ashi)",
+      "くび": "くび (kubi)",
+      "て": "て (te)"
+    }
+  },
+  {
+    "id": "body-9",
+    "category": "Body Parts",
+    "japanese_text": "ゆび",
+    "hiragana": "ゆび",
+    "romaji": "Yubi",
+    "english_translation": "Finger / Toe",
+    "image": "☝️",
+    "options": [
+      "ゆび",
+      "て",
+      "つめ",
+      "あし"
+    ],
+    "correct_answer": "ゆび",
+    "option_hiragana": {
+      "ゆび": "ゆび (yubi)",
+      "て": "て (te)",
+      "つめ": "つめ (tsume)",
+      "あし": "あし (ashi)"
+    }
+  },
+  {
+    "id": "body-10",
+    "category": "Body Parts",
+    "japanese_text": "かお",
+    "hiragana": "かお",
+    "romaji": "Kao",
+    "english_translation": "Face",
+    "image": "😊",
+    "options": [
+      "かお",
+      "あたま",
+      "め",
+      "くち"
+    ],
+    "correct_answer": "かお",
+    "option_hiragana": {
+      "かお": "かお (kao)",
+      "あたま": "あたま (atama)",
+      "め": "め (me)",
+      "くち": "くち (kuchi)"
+    }
+  },
+  {
+    "id": "animal-5",
+    "category": "Animals",
+    "japanese_text": "うさぎ",
+    "hiragana": "うさぎ",
+    "romaji": "Usagi",
+    "english_translation": "Rabbit",
+    "image": "🐇",
+    "options": [
+      "うさぎ",
+      "いぬ",
+      "ねこ",
+      "くま"
+    ],
+    "correct_answer": "うさぎ",
+    "option_hiragana": {
+      "うさぎ": "うさぎ (usagi)",
+      "いぬ": "いぬ (inu)",
+      "ねこ": "ねこ (neko)",
+      "くま": "くま (kuma)"
+    }
+  },
+  {
+    "id": "animal-6",
+    "category": "Animals",
+    "japanese_text": "うま",
+    "hiragana": "うま",
+    "romaji": "Uma",
+    "english_translation": "Horse",
+    "image": "🐎",
+    "options": [
+      "うま",
+      "うし",
+      "ぶた",
+      "しか"
+    ],
+    "correct_answer": "うま",
+    "option_hiragana": {
+      "うま": "うま (uma)",
+      "うし": "うし (ushi)",
+      "ぶた": "ぶた (buta)",
+      "しか": "しか (shika)"
+    }
+  },
+  {
+    "id": "animal-7",
+    "category": "Animals",
+    "japanese_text": "くま",
+    "hiragana": "くま",
+    "romaji": "Kuma",
+    "english_translation": "Bear",
+    "image": "🐻",
+    "options": [
+      "くま",
+      "さる",
+      "いぬ",
+      "ぞう"
+    ],
+    "correct_answer": "くま",
+    "option_hiragana": {
+      "くま": "くま (kuma)",
+      "さる": "さる (saru)",
+      "いぬ": "いぬ (inu)",
+      "ぞう": "ぞう (zou)"
+    }
+  },
+  {
+    "id": "animal-8",
+    "category": "Animals",
+    "japanese_text": "さる",
+    "hiragana": "さる",
+    "romaji": "Saru",
+    "english_translation": "Monkey",
+    "image": "🐒",
+    "options": [
+      "さる",
+      "とり",
+      "ねこ",
+      "うさぎ"
+    ],
+    "correct_answer": "さる",
+    "option_hiragana": {
+      "さる": "さる (saru)",
+      "とり": "とり (tori)",
+      "ねこ": "ねこ (neko)",
+      "うさぎ": "うさぎ (usagi)"
+    }
+  },
+  {
+    "id": "animal-9",
+    "category": "Animals",
+    "japanese_text": "ぶた",
+    "hiragana": "ぶた",
+    "romaji": "Buta",
+    "english_translation": "Pig",
+    "image": "🐷",
+    "options": [
+      "ぶた",
+      "うし",
+      "うま",
+      "ひつじ"
+    ],
+    "correct_answer": "ぶた",
+    "option_hiragana": {
+      "ぶた": "ぶた (buta)",
+      "うし": "うし (ushi)",
+      "うま": "うま (uma)",
+      "ひつじ": "ひつじ (hitsuji)"
+    }
+  },
+  {
+    "id": "animal-10",
+    "category": "Animals",
+    "japanese_text": "ぞう",
+    "hiragana": "ぞう",
+    "romaji": "Zou",
+    "english_translation": "Elephant",
+    "image": "🐘",
+    "options": [
+      "ぞう",
+      "きりん",
+      "くま",
+      "さかな"
+    ],
+    "correct_answer": "ぞう",
+    "option_hiragana": {
+      "ぞう": "ぞう (zou)",
+      "きりん": "きりん (kirin)",
+      "くま": "くま (kuma)",
+      "さかな": "さかな (sakana)"
+    }
+  },
+  {
+    "id": "family-5",
+    "category": "Family",
+    "japanese_text": "あに",
+    "hiragana": "あに",
+    "romaji": "Ani",
+    "english_translation": "Older brother (own)",
+    "image": "👦",
+    "options": [
+      "あに",
+      "おとうと",
+      "あね",
+      "ちち"
+    ],
+    "correct_answer": "あに",
+    "option_hiragana": {
+      "あに": "あに (ani)",
+      "おとうと": "おとうと (otouto)",
+      "あね": "あね (ane)",
+      "ちち": "ちち (chichi)"
+    }
+  },
+  {
+    "id": "family-6",
+    "category": "Family",
+    "japanese_text": "あね",
+    "hiragana": "あね",
+    "romaji": "Ane",
+    "english_translation": "Older sister (own)",
+    "image": "👧",
+    "options": [
+      "あね",
+      "いもうと",
+      "あに",
+      "はは"
+    ],
+    "correct_answer": "あね",
+    "option_hiragana": {
+      "あね": "あね (ane)",
+      "いもうと": "いもうと (imouto)",
+      "あに": "あに (ani)",
+      "はは": "はは (haha)"
+    }
+  },
+  {
+    "id": "family-7",
+    "category": "Family",
+    "japanese_text": "おとうと",
+    "hiragana": "おとうと",
+    "romaji": "Otouto",
+    "english_translation": "Younger brother",
+    "image": "👶",
+    "options": [
+      "おとうと",
+      "あに",
+      "いもうと",
+      "ともだち"
+    ],
+    "correct_answer": "おとうと",
+    "option_hiragana": {
+      "おとうと": "おとうと (otouto)",
+      "あに": "あに (ani)",
+      "いもうと": "いもうと (imouto)",
+      "ともだち": "ともだち (tomodachi)"
+    }
+  },
+  {
+    "id": "family-8",
+    "category": "Family",
+    "japanese_text": "いもうと",
+    "hiragana": "いもうと",
+    "romaji": "Imouto",
+    "english_translation": "Younger sister",
+    "image": "🧒",
+    "options": [
+      "いもうと",
+      "あね",
+      "おとうと",
+      "はは"
+    ],
+    "correct_answer": "いもうと",
+    "option_hiragana": {
+      "いもうと": "いもうと (imouto)",
+      "あね": "あね (ane)",
+      "おとうと": "おとうと (otouto)",
+      "はは": "はは (haha)"
+    }
+  },
+  {
+    "id": "family-9",
+    "category": "Family",
+    "japanese_text": "そぼ",
+    "hiragana": "そぼ",
+    "romaji": "Sobo",
+    "english_translation": "Grandmother (own)",
+    "image": "👵",
+    "options": [
+      "そぼ",
+      "そふ",
+      "はは",
+      "おば"
+    ],
+    "correct_answer": "そぼ",
+    "option_hiragana": {
+      "そぼ": "そぼ (sobo)",
+      "そふ": "そふ (sofu)",
+      "はは": "はは (haha)",
+      "おば": "おば (oba)"
+    }
+  },
+  {
+    "id": "family-10",
+    "category": "Family",
+    "japanese_text": "そふ",
+    "hiragana": "そふ",
+    "romaji": "Sofu",
+    "english_translation": "Grandfather (own)",
+    "image": "👴",
+    "options": [
+      "そふ",
+      "そぼ",
+      "ちち",
+      "おじ"
+    ],
+    "correct_answer": "そふ",
+    "option_hiragana": {
+      "そふ": "そふ (sofu)",
+      "そぼ": "そぼ (sobo)",
+      "ちち": "ちち (chichi)",
+      "おじ": "おじ (oji)"
+    }
   }
 ]
