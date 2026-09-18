@@ -25,6 +25,11 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "Nihongo Education | 日本語教育 (UHB10802)",
   description: "Learn Japanese Beautifully 🌸 Interactive Quizzes, Vocabulary Drills & Live Classroom Multiplayer Arena",
+  icons: {
+    icon: "/images/logo.svg",
+    shortcut: "/images/logo.svg",
+    apple: "/images/logo.svg",
+  },
 };
 
 export default function RootLayout({

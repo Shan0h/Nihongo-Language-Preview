@@ -5,67 +5,83 @@ import Link from 'next/link';
 
 interface LogoProps {
   variant?: 'full' | 'compact' | 'icon';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   href?: string;
   className?: string;
 }
 
 export default function Logo({
   variant = 'full',
-  size = 'md',
+  size = 'lg',
   href = '/',
   className = '',
 }: LogoProps) {
-  // Dimensions
+  // Generous, readable dimensions
   const emblemSize =
-    size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-14 h-14' : 'w-10 h-10 sm:w-11 sm:h-11';
+    size === 'sm'
+      ? 'w-9 h-9'
+      : size === 'md'
+      ? 'w-12 h-12 sm:w-14 sm:h-14'
+      : size === 'xl'
+      ? 'w-18 h-18 sm:w-22 sm:h-22'
+      : 'w-14 h-14 sm:w-16 sm:h-16'; // default 'lg'
 
   const titleSize =
     size === 'sm'
-      ? 'text-base sm:text-lg'
-      : size === 'lg'
-      ? 'text-2xl sm:text-3xl'
-      : 'text-lg sm:text-xl font-bold';
+      ? 'text-lg'
+      : size === 'md'
+      ? 'text-xl sm:text-2xl'
+      : size === 'xl'
+      ? 'text-3xl sm:text-4xl'
+      : 'text-2xl sm:text-3xl font-black'; // default 'lg'
 
   const subSize =
-    size === 'sm' ? 'text-[9px]' : size === 'lg' ? 'text-xs' : 'text-[10px] sm:text-[11px]';
+    size === 'sm'
+      ? 'text-[10px]'
+      : size === 'md'
+      ? 'text-xs'
+      : size === 'xl'
+      ? 'text-sm'
+      : 'text-xs sm:text-[13px] tracking-[0.18em] font-extrabold'; // default 'lg'
 
   const content = (
-    <div className={`inline-flex items-center gap-2.5 sm:gap-3 group select-none ${className}`}>
+    <div className={`inline-flex items-center gap-3 sm:gap-3.5 group select-none ${className}`}>
       {/* Emblem Icon */}
       <div
-        className={`${emblemSize} relative rounded-2xl overflow-hidden shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300 flex-shrink-0 border border-rose-200/80 dark:border-rose-900/60 bg-white dark:bg-rose-950/40 p-0.5`}
+        className={`${emblemSize} relative rounded-2xl overflow-hidden shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300 flex-shrink-0 border-2 border-rose-200/90 dark:border-rose-800/80 bg-white dark:bg-rose-950/60 p-0.5`}
       >
         <img
           src="/images/logo.svg"
-          alt="Nihongo Education Logo"
+          alt="Nihongo Education Crest"
           className="w-full h-full object-contain"
         />
       </div>
 
       {/* Typography */}
       {variant !== 'icon' && (
-        <div className="flex flex-col justify-center leading-none">
-          {/* Main Title */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex flex-col justify-center">
+          {/* Main Title Row */}
+          <div className="flex items-center gap-2 flex-wrap leading-tight">
             <span
-              className={`${titleSize} font-bold tracking-tight text-[#4c0519] dark:text-rose-100 font-japanese transition-colors group-hover:text-red-600 dark:group-hover:text-rose-400`}
+              className={`${titleSize} font-black tracking-tight text-[#4c0519] dark:text-rose-100 font-japanese transition-colors group-hover:text-red-600 dark:group-hover:text-rose-400`}
             >
               日本語教育
             </span>
             {variant === 'full' && (
-              <span className="hidden sm:inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-red-100 dark:bg-rose-900/50 text-red-700 dark:text-rose-300 border border-red-200 dark:border-rose-800">
+              <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100/90 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 border border-rose-300/80 dark:border-rose-700 shadow-2xs">
                 UHB10802
               </span>
             )}
           </div>
 
-          {/* Subtitle */}
+          {/* Subtitle Row */}
           <div
-            className={`${subSize} tracking-[0.16em] uppercase font-bold text-gray-500 dark:text-rose-300/80 mt-0.5 flex items-center gap-1`}
+            className={`${subSize} uppercase text-[#9f1239] dark:text-rose-300 font-bold mt-1 flex items-center gap-1.5`}
           >
             <span>NIHONGO EDUCATION</span>
-            <span className="text-red-500 dark:text-rose-400">🌸</span>
+            <span className="text-red-500 dark:text-rose-400 text-sm inline-block animate-pulse">
+              🌸
+            </span>
           </div>
         </div>
       )}

@@ -176,18 +176,11 @@ export default function NihongoTalkScreen() {
         <div className="relative z-10 max-w-7xl mx-auto w-full h-full flex flex-col min-h-0">
           {/* HEADER */}
           <header className="animate-fade-in-up flex items-center justify-between mb-4 sm:mb-6 flex-shrink-0" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-3">
-              <Logo variant="full" />
-              <Link
-                href="/admin/login"
-                title="Admin Studio"
-                className="opacity-40 hover:opacity-100 transition-opacity text-base hover:scale-110 transform cursor-pointer p-1"
-              >
-                ⛩️
-              </Link>
+            <div className="flex items-center">
+              <Logo variant="full" size="lg" />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               <button
                 onClick={() => setShowHowToPlay(true)}
                 className="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#4c0519] dark:text-stone-200 bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 border border-white dark:border-white/10 shadow-xs hover:border-rose-400 transition-all flex items-center gap-1.5 cursor-pointer"
@@ -202,6 +195,15 @@ export default function NihongoTalkScreen() {
                 className="px-3.5 py-1.5 rounded-full text-xs font-bold text-red-600 bg-rose-50 dark:bg-rose-950/50 hover:bg-red-600 hover:text-white border border-rose-200 dark:border-rose-800 transition-all shadow-xs"
               >
                 👑 Quick Host
+              </Link>
+
+              <Link
+                href="/admin/login"
+                title="Admin Studio"
+                className="px-3 py-1.5 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 border border-white dark:border-white/10 shadow-xs hover:text-red-600 transition-all flex items-center gap-1"
+              >
+                <span>⛩️</span>
+                <span className="hidden md:inline">Admin</span>
               </Link>
             </div>
           </header>

@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Sun Gradient -->
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4b4b"/>
+      <stop offset="60%" stop-color="#c5221f"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+
+    <!-- Gold Ring Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="30%" stop-color="#f59e0b"/>
+      <stop offset="70%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Torii Red Gradient -->
+    <linearGradient id="toriiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+
+    <!-- Mountain Gradient -->
+    <linearGradient id="fujiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#c5221f" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Ring Shadow & Base -->
+  <circle cx="256" cy="256" r="240" fill="#fdfbf7" filter="url(#glow)"/>
+  
+  <!-- Outer Gold Crest Ring -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="url(#goldGrad)" stroke-width="8" stroke-dasharray="12 4"/>
+  <circle cx="256" cy="256" r="222" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+
+  <!-- Inner Deep Crimson Sun (Hinomaru) -->
+  <circle cx="256" cy="256" r="210" fill="url(#sunGrad)"/>
+
+  <!-- Subtle Wave Pattern / Seigaiha on Lower Half -->
+  <g fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="2">
+    <path d="M 60 380 Q 110 330 160 380 Q 210 330 260 380 Q 310 330 360 380 Q 410 330 460 380" />
+    <path d="M 40 410 Q 90 360 140 410 Q 190 360 240 410 Q 290 360 340 410 Q 390 360 440 410" />
+    <path d="M 60 440 Q 110 390 160 440 Q 210 390 260 440 Q 310 390 360 440 Q 410 390 460 440" />
+  </g>
+
+  <!-- Mount Fuji Silhouette -->
+  <g id="mount-fuji">
+    <!-- Fuji Base Silhouette -->
+    <path d="M 120 400 L 210 230 Q 256 215 302 230 L 392 400 Z" fill="url(#fujiGrad)"/>
+    <!-- Fuji Snow Cap -->
+    <path d="M 210 230 Q 256 215 302 230 L 290 260 L 275 250 L 260 265 L 245 250 L 230 265 L 222 255 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- Rising Sun Accent Behind Torii -->
+  <circle cx="256" cy="210" r="45" fill="#fef08a" opacity="0.4"/>
+
+  <!-- Grand Japanese Torii Gate -->
+  <g id="torii-gate" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.3))">
+    <!-- Top Curved Lintel (Kasagi & Shimaki) -->
+    <path d="M 115 150 Q 256 128 397 150 C 405 151 405 163 392 163 Q 256 142 120 163 C 107 163 107 151 115 150 Z" fill="#ffffff"/>
+    <path d="M 122 162 Q 256 144 390 162 C 395 163 395 174 386 174 Q 256 156 126 174 C 117 174 117 163 122 162 Z" fill="url(#toriiGrad)"/>
+
+    <!-- Middle Tie Beam (Nuki) -->
+    <rect x="135" y="196" width="242" height="15" rx="3" fill="#ffffff"/>
+    <rect x="138" y="198" width="236" height="11" rx="2" fill="url(#toriiGrad)"/>
+
+    <!-- Central Tablet (Gakuzuka) -->
+    <rect x="246" y="165" width="20" height="33" rx="2" fill="#1e293b"/>
+    <rect x="248" y="167" width="16" height="29" rx="1" fill="#f59e0b"/>
+
+    <!-- Left Main Pillar (Hashira) -->
+    <path d="M 172 174 L 160 410 L 188 410 L 194 174 Z" fill="url(#toriiGrad)"/>
+    <!-- Left Base Stone (Kamebara) -->
+    <rect x="154" y="398" width="40" height="14" rx="4" fill="#0f172a"/>
+
+    <!-- Right Main Pillar (Hashira) -->
+    <path d="M 340 174 L 324 174 L 330 410 L 358 410 Z" fill="url(#toriiGrad)"/>
+    <!-- Right Base Stone (Kamebara) -->
+    <rect x="324" y="398" width="40" height="14" rx="4" fill="#0f172a"/>
+  </g>
+
+  <!-- Floating Sakura Petals -->
+  <g id="sakura-petals" fill="#ffccd5">
+    <!-- Petal 1 -->
+    <path d="M 120 280 C 110 260 135 240 145 260 C 150 275 130 295 120 280 Z" opacity="0.9"/>
+    <!-- Petal 2 -->
+    <path d="M 370 290 C 360 270 385 250 395 270 C 400 285 380 305 370 290 Z" opacity="0.85" transform="rotate(25 380 280)"/>
+    <!-- Petal 3 -->
+    <path d="M 150 120 C 142 105 160 90 168 105 C 172 115 158 130 150 120 Z" opacity="0.8"/>
+    <!-- Petal 4 -->
+    <path d="M 350 110 C 342 95 360 80 368 95 C 372 105 358 120 350 110 Z" opacity="0.8" transform="rotate(-30 360 100)"/>
+  </g>
+
+  <!-- Traditional Hanko Seal Accent (Bottom Center/Right) -->
+  <g id="hanko-seal" transform="translate(380, 370)">
+    <rect x="0" y="0" width="46" height="46" rx="8" fill="#ffffff" stroke="#c5221f" stroke-width="3"/>
+    <text x="23" y="19" font-family="'Noto Sans JP', 'Hiragino Sans', sans-serif" font-weight="900" font-size="14" fill="#c5221f" text-anchor="middle">日本</text>
+    <text x="23" y="36" font-family="'Noto Sans JP', 'Hiragino Sans', sans-serif" font-weight="900" font-size="14" fill="#c5221f" text-anchor="middle">語</text>
+  </g>
+</svg>
