@@ -37,8 +37,8 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
           <div>
-            <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#8a8a8a] hover:text-[#d32f2f] mb-1">
-              ← Back to Nihongo Talk Screen
+            <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#8a8a8a] hover:text-[#d32f2f] mb-1 font-medium transition-colors">
+              ← Back to Nihongo Education
             </Link>
             <h1 className="text-2xl sm:text-3xl font-bold text-[#2d2d2d]">Admin Dashboard</h1>
           </div>

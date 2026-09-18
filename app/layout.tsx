@@ -23,8 +23,8 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "Nihongo Talk Screen | UHB10802",
-  description: "Speak, Play & Learn Basic Japanese! 🌸 Live Multiplayer Quiz Exhibition",
+  title: "Nihongo Education | 日本語教育 (UHB10802)",
+  description: "Learn Japanese Beautifully 🌸 Interactive Quizzes, Vocabulary Drills & Live Classroom Multiplayer Arena",
 };
 
 export default function RootLayout({

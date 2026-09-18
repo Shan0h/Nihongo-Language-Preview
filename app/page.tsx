@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { categories } from '@/data/questions';
 import WelcomeModal from '@/app/components/WelcomeModal';
 import { supabase } from '@/app/utils/supabase';
+import Logo from '@/app/components/Logo';
 
 // Lazy load Sakura animation for better performance
 const SakuraBackground = () => {
@@ -176,14 +177,14 @@ export default function NihongoTalkScreen() {
           {/* HEADER */}
           <header className="animate-fade-in-up flex items-center justify-between mb-4 sm:mb-6 flex-shrink-0" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center gap-3">
-              <Link href="/admin/login" className="cursor-pointer hover:scale-105 transition-transform">
-                <span className="text-3xl">⛩️</span>
+              <Logo variant="full" />
+              <Link
+                href="/admin/login"
+                title="Admin Studio"
+                className="opacity-40 hover:opacity-100 transition-opacity text-base hover:scale-110 transform cursor-pointer p-1"
+              >
+                ⛩️
               </Link>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-medium tracking-wide text-[#4c0519] dark:text-white">
-                  <span className="text-rose-600 dark:text-rose-400 font-medium">日本語</span> <span className="text-gray-400/50 mx-2 font-thin">|</span> Japanese
-                </h1>
-              </div>
             </div>
 
             <div className="flex items-center gap-2">

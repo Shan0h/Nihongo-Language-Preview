@@ -33,7 +33,7 @@ export default function AdminLogin() {
         {/* Back to Home */}
         <div className="mb-6">
           <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#8a8a8a] hover:text-[#d32f2f]">
-            ← Back to Nihongo Talk Screen
+            ← Back to Nihongo Education
           </Link>
         </div>
 
