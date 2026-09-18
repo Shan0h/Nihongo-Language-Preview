@@ -294,12 +294,17 @@ export default function NihongoTalkScreen() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: AVAILABLE TOPICS GRID (Spacious & Clean) */}
+            {/* RIGHT COLUMN: AVAILABLE TOPICS GRID (Spacious & Clean Overview) */}
             <div className="animate-fade-in-up flex-1 w-full h-full max-h-[500px] flex flex-col bg-white/60 dark:bg-black/40 backdrop-blur-2xl rounded-[2rem] p-4 sm:p-5 border border-white dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center justify-between mb-4 px-1 flex-shrink-0">
-                <h3 className="text-xs font-bold tracking-widest uppercase text-[#334155] dark:text-gray-300">
-                  AVAILABLE TOPICS
-                </h3>
+              <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0">
+                <div>
+                  <h3 className="text-xs font-bold tracking-widest uppercase text-[#334155] dark:text-gray-300">
+                    AVAILABLE TOPICS
+                  </h3>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                    Select your topic in Solo Practice to play
+                  </p>
+                </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowHowToPlay(true)}
@@ -314,23 +319,35 @@ export default function NihongoTalkScreen() {
                 </div>
               </div>
 
+              {/* Non-clickable Overview Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-2 sm:gap-3 overflow-hidden flex-1 items-start content-start">
                 {categories.map((item, idx) => (
-                  <Link
+                  <div
                     key={item.slug}
-                    href={`/quiz/${item.slug}`}
-                    className="animate-scale-in bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 border border-white dark:border-white/10 hover:border-rose-500 dark:hover:border-rose-500 rounded-2xl p-2.5 flex items-center gap-3 shadow-[0_4px_15px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_20px_rgb(244,63,94,0.15)] transition-all cursor-pointer group"
+                    className="animate-scale-in bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-2xl p-2.5 flex items-center gap-3 shadow-[0_4px_15px_rgb(0,0,0,0.02)] select-none"
                     style={{ animationDelay: `${0.5 + idx * 0.05}s` }}
                   >
-                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-white/10 flex items-center justify-center text-lg shadow-sm border border-white dark:border-white/5 flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-white/10 flex items-center justify-center text-lg shadow-sm border border-white dark:border-white/5 flex-shrink-0">
                       {item.emoji}
                     </div>
                     <div className="flex-1 min-w-0 pl-1">
-                      <div className="text-base font-semibold text-[#4c0519] dark:text-white truncate leading-tight group-hover:text-rose-600 transition-colors">{item.name}</div>
+                      <div className="text-base font-semibold text-[#4c0519] dark:text-white truncate leading-tight">{item.name}</div>
                       <div className="text-xs text-rose-700 dark:text-rose-200 mt-1 truncate">{item.questionCount} Questions</div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
+              </div>
+
+              {/* Guide to Solo Practice */}
+              <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-white/10 flex items-center justify-between text-xs flex-shrink-0">
+                <span className="text-gray-500 dark:text-gray-400 text-[11px]">Ready to learn?</span>
+                <Link
+                  href="/topics"
+                  className="font-bold text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400 flex items-center gap-1.5 hover:translate-x-0.5 transition-transform"
+                >
+                  <span>Choose in Solo Practice</span>
+                  <span>→</span>
+                </Link>
               </div>
             </div>
 
