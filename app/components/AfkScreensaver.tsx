@@ -228,26 +228,10 @@ export default function AfkScreensaver() {
   return (
     <div
       onClick={dismissAfk}
-      className="fixed inset-0 z-50 flex flex-col justify-between items-center bg-seigaiha-blur backdrop-blur-2xl cursor-pointer select-none transition-all duration-700 animate-fade-in p-5 sm:p-8 overflow-hidden"
+      className="fixed inset-0 z-50 flex flex-col justify-between items-center bg-black/40 dark:bg-black/60 backdrop-blur-xl cursor-pointer select-none transition-all duration-500 animate-fade-in p-5 sm:p-8 overflow-hidden"
     >
-      {/* Top Left Watermark Sakura Blossom */}
-      <div className="absolute top-6 left-6 sm:top-10 sm:left-10 opacity-20 pointer-events-none text-rose-300 dark:text-rose-700">
-        <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 35 C42 15, 25 15, 30 35 C20 28, 5 40, 25 50 C5 60, 20 72, 30 65 C25 85, 42 85, 50 65 C58 85, 75 85, 70 65 C80 72, 95 60, 75 50 C95 40, 80 28, 70 35 C75 15, 58 15, 50 35 Z" />
-          <circle cx="50" cy="50" r="8" fill="#fda4af" opacity="0.6" />
-        </svg>
-      </div>
-
-      {/* Bottom Right Watermark Sakura Blossom */}
-      <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 opacity-20 pointer-events-none text-rose-300 dark:text-rose-700 rotate-45">
-        <svg width="140" height="140" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 35 C42 15, 25 15, 30 35 C20 28, 5 40, 25 50 C5 60, 20 72, 30 65 C25 85, 42 85, 50 65 C58 85, 75 85, 70 65 C80 72, 95 60, 75 50 C95 40, 80 28, 70 35 C75 15, 58 15, 50 35 Z" />
-          <circle cx="50" cy="50" r="8" fill="#fda4af" opacity="0.6" />
-        </svg>
-      </div>
-
-      {/* Top Header */}
-      <div className="flex flex-col items-center pt-2 sm:pt-4 z-10">
+      {/* Top Header in clean frosted pill */}
+      <div className="flex flex-col items-center pt-2 sm:pt-3 z-10 px-5 py-2.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-md">
         {isScoreboard ? (
           <>
             <div className="flex items-center gap-2">
@@ -257,7 +241,7 @@ export default function AfkScreensaver() {
               </h1>
               <span className="text-xl animate-bounce">👑</span>
             </div>
-            <p className="text-[10px] sm:text-xs text-amber-700/80 dark:text-amber-300 font-bold tracking-widest mt-0.5">
+            <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-300 font-bold tracking-widest mt-0.5">
               トップ・スコアボード — TOP PLAYERS
             </p>
           </>
@@ -266,14 +250,14 @@ export default function AfkScreensaver() {
             <h1 className="text-xs sm:text-sm tracking-[0.35em] font-extrabold text-[#e15b64] dark:text-[#f472b6] uppercase text-center">
               NIHONGO EDUCATION
             </h1>
-            <p className="text-[10px] sm:text-xs text-[#f4a0a9] dark:text-rose-400 font-bold tracking-widest mt-0.5">
+            <p className="text-[10px] sm:text-xs text-rose-400 dark:text-rose-300 font-bold tracking-widest mt-0.5">
               にほんご・きょういく
             </p>
           </>
         )}
 
         {/* Carousel Progress Dots */}
-        <div className="flex items-center gap-1.5 mt-3">
+        <div className="flex items-center gap-1.5 mt-2.5">
           {AFK_SLIDES.map((slide, i) => (
             <div
               key={i}
@@ -284,7 +268,7 @@ export default function AfkScreensaver() {
                     : 'w-5 bg-[#e15b64] dark:bg-rose-500'
                   : slide.type === 'scoreboard'
                   ? 'w-2 bg-amber-300/60 dark:bg-amber-500/40'
-                  : 'w-1.5 bg-[#fbcfe8] dark:bg-white/20'
+                  : 'w-1.5 bg-gray-300 dark:bg-white/20'
               }`}
             />
           ))}
@@ -296,7 +280,7 @@ export default function AfkScreensaver() {
         /* ===== LEADERBOARD PODIUM SHOWCASE ===== */
         <div
           key="scoreboard"
-          className="flex flex-col items-center justify-center my-auto z-10 max-w-lg w-full animate-scale-in"
+          className="flex flex-col items-center justify-center my-auto z-10 max-w-lg w-full animate-scale-in bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-white/50 dark:border-white/10"
         >
           {/* Subtitle Badge */}
           <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 dark:bg-amber-950/60 border border-amber-300 text-amber-800 dark:text-amber-200 text-xs font-bold shadow-xs">
@@ -386,7 +370,7 @@ export default function AfkScreensaver() {
               {runnerUps.map((runner, idx) => (
                 <div
                   key={idx}
-                  className="px-3 py-1 rounded-xl bg-white/70 dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700 text-xs flex items-center gap-2 shadow-2xs"
+                  className="px-3 py-1 rounded-xl bg-white/80 dark:bg-zinc-800/90 border border-gray-200 dark:border-zinc-700 text-xs flex items-center gap-2 shadow-xs"
                 >
                   <span className="font-bold text-gray-500">#{idx + 4}</span>
                   <span className="font-bold text-[#2d2d2d] dark:text-white max-w-[90px] truncate">
@@ -404,18 +388,18 @@ export default function AfkScreensaver() {
         /* ===== VOCABULARY CARD SHOWCASE ===== */
         <div
           key={currentSlideIndex}
-          className="flex flex-col items-center justify-center my-auto z-10 max-w-sm w-full animate-scale-in"
+          className="flex flex-col items-center justify-center my-auto z-10 max-w-sm w-full animate-scale-in bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-white/50 dark:border-white/10"
         >
           {/* Character Illustration Card */}
-          <div className="w-60 h-60 sm:w-68 sm:h-68 bg-white/95 dark:bg-[#18181b] rounded-3xl p-3 shadow-[0_20px_45px_rgba(225,91,100,0.2)] border-4 border-rose-200/90 dark:border-rose-950/60 overflow-hidden flex items-center justify-center transition-transform duration-500 hover:scale-102">
+          <div className="w-56 h-56 sm:w-64 sm:h-64 bg-white dark:bg-[#18181b] rounded-2xl p-2.5 shadow-md border-2 border-rose-200/90 dark:border-rose-950/60 overflow-hidden flex items-center justify-center transition-transform duration-500 hover:scale-102">
             {currentSlide.image ? (
-              <div className="relative w-full h-full rounded-2xl overflow-hidden">
+              <div className="relative w-full h-full rounded-xl overflow-hidden">
                 <Image
                   src={currentSlide.image}
                   alt={currentSlide.japanese || 'Japanese Scenery'}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 240px, 272px"
+                  sizes="(max-width: 640px) 224px, 256px"
                   priority
                 />
               </div>
@@ -427,12 +411,12 @@ export default function AfkScreensaver() {
           </div>
 
           {/* Big Japanese Typography */}
-          <h2 className="text-4xl sm:text-5xl font-black text-[#4a1c1d] dark:text-white tracking-wide font-sans text-center mt-5 mb-0.5 transition-all duration-300 drop-shadow-2xs">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#4a1c1d] dark:text-white tracking-wide font-sans text-center mt-4 mb-0.5 transition-all duration-300">
             {currentSlide.japanese}
           </h2>
 
           {/* Romaji in Italic Red */}
-          <p className="text-base sm:text-lg font-black italic text-[#dc2626] dark:text-rose-400 mt-0.5">
+          <p className="text-sm sm:text-base font-black italic text-[#dc2626] dark:text-rose-400 mt-0.5">
             {currentSlide.romaji}
           </p>
 
@@ -444,11 +428,11 @@ export default function AfkScreensaver() {
       )}
 
       {/* Bottom Area: Tap to Play Challenge Button */}
-      <div className="flex flex-col items-center pb-2 sm:pb-4 z-10 w-full max-w-sm">
+      <div className="flex flex-col items-center pb-2 sm:pb-3 z-10 w-full max-w-sm">
         {/* Dynamic Tap Button */}
         <button
           onClick={dismissAfk}
-          className={`w-full py-3.5 px-6 rounded-full font-extrabold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 animate-bounce active:scale-95 flex items-center justify-center gap-2 shadow-lg ${
+          className={`w-full py-3.5 px-6 rounded-full font-extrabold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 animate-bounce active:scale-95 flex items-center justify-center gap-2 shadow-xl ${
             isScoreboard
               ? 'bg-gradient-to-r from-amber-500 to-[#d32f2f] hover:from-amber-600 hover:to-[#b71c1c] text-white shadow-amber-500/30'
               : 'bg-gradient-to-r from-[#e57373] to-[#ef5350] hover:from-[#ef5350] hover:to-[#e53935] text-white shadow-rose-500/30'
@@ -470,7 +454,7 @@ export default function AfkScreensaver() {
         </button>
 
         {/* Footer Text */}
-        <p className="text-[10px] sm:text-[11px] font-bold tracking-[0.25em] text-[#e57373] dark:text-rose-400 uppercase mt-3">
+        <p className="text-[10px] sm:text-[11px] font-bold tracking-[0.25em] text-white dark:text-rose-300 drop-shadow-md uppercase mt-3">
           {isScoreboard ? 'COMPETE • MASTER • CLIMB THE PODIUM' : 'SPEAK • PLAY • LEARN JAPANESE'}
         </p>
       </div>
