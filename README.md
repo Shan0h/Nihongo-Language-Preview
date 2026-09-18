@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Learn Japanese Beautifully. Interactive Quizzes, Vocabulary Drills & Live Classroom Multiplayer Arena.</strong><br>
+  <strong>Learn Japanese Beautifully. Interactive Quizzes, 100 Curated Vocabulary Cards & Live Classroom Multiplayer Arena.</strong><br>
   Built for <strong>UHB10802 — Japanese Communication 1</strong> at Universiti Tun Hussein Onn Malaysia (UTHM).
 </p>
 
@@ -13,6 +13,7 @@
   <img src="https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/React-19.2-61dafb?style=flat-square&logo=react" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Questions-100%20(10%20per%20Topic)-e11d48?style=flat-square" alt="Questions" />
   <img src="https://img.shields.io/badge/Supabase-Realtime-3ecf8e?style=flat-square&logo=supabase" alt="Supabase" />
   <img src="https://img.shields.io/badge/Course-UHB10802-c5221f?style=flat-square" alt="UHB10802" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
@@ -22,31 +23,52 @@
 
 ## ✨ What's New & Core Features
 
-### 1. 🎓 Classroom Game Studio (`/admin/multiplayer`)
+### 1. 🏆 Live Arcade-Style AFK Screensaver with Hall of Fame
+- **Intelligent Idle Detection**: Activates smoothly after 15 seconds of inactivity.
+- **Alternating Slide Rhythm**: Rotates between 2 Japanese vocabulary cards (with high-res photos and phonetic pronunciations) and an arcade-style **Champions Hall of Fame Scoreboard**.
+- **3-Tier Golden Championship Podium**:
+  - 🥇 **1st Place**: Center elevated pedestal with radiant glow, golden crown `👑`, and gold champion block.
+  - 🥈 **2nd Place**: Left silver podium with medal `🥈` and rank badge.
+  - 🥉 **3rd Place**: Right bronze podium with medal `🥉` and rank badge.
+  - 🎖️ **#4 & #5 Runner-Ups**: Pill tags with scores and player names.
+- **Real-Time Supabase Sync**: Subscribed to live database inserts; new high scores from multiplayer or quiz completions immediately update the podium!
+- **Pure Frosted Backdrop Blur**: Uses clean `backdrop-blur-xl` translucent glass overlay, ensuring the underlying website remains softly visible while floating glassmorphic cards display with 100% crystal clarity.
+- **Arcade CTA Challenge**: Dynamic button prompting idle spectators: `👑 CAN YOU BEAT #1? TAP TO PLAY! 🔥`.
+
+### 2. 📚 Complete 100-Question Curriculum (10 per Category)
+- **10 Core Modules**: Expanded to exactly **10 questions each** (100 questions total).
+- **Numbers up to 100**: The Numbers module teaches single digits (1–5), compound tens (10, 20, 50, 70), all the way to **100 (`ひゃく - Hyaku`)**!
+- **Full Phonetic Support**: Every question provides authentic Kanji/Kana, pure Hiragana readings, Hepburn Romaji, English definitions, 4 options, and an `option_hiragana` dictionary for native Text-to-Speech audio.
+
+### 3. 🎯 Streamlined Solo Practice & Topics Overview
+- **Overview Grid**: Homepage features a clean, non-clickable curriculum overview showing all 10 modules and question counts.
+- **Dedicated Topic Album**: Clicking **Solo Practice** takes learners to the interactive **Cover Flow Topic Album** (`/topics`) where they can swipe through modules, read descriptions, and start their practice.
+
+### 4. 🎓 Classroom Game Studio (`/admin/multiplayer`)
 - **Teacher Command Center**: Launch tailored multiplayer sessions for your classroom.
 - **1-Click Lesson Presets**:
   - `🎌 Morning Greetings Warmup` (Greetings, 5 Qs, 15s)
   - `🍣 Food & Dining Challenge` (Food, 5 Qs, 20s)
-  - `🏃 Action Verbs Speed Drill` (Verbs, 4 Qs, 10s Speedrun)
-  - `🐻 Animals & Pets Sprint` (Animals, 3 Qs, 15s)
+  - `🏃 Action Verbs Speed Drill` (Verbs, 5 Qs, 10s Speedrun)
+  - `🐻 Animals & Pets Sprint` (Animals, 5 Qs, 15s)
   - `🏆 Comprehensive JLPT N5 Exam` (All Topics, 20 Qs, 15s)
 - **Interactive Rules Customizer**: Select specific categories, deck sizes (5–20 questions), and timers (10s, 15s, 20s, 30s).
-- **Match Records & Analytics**: Live Supabase leaderboard tracking student scores and accuracy.
+- **Live Match Analytics**: Real-time Supabase leaderboard tracking student scores and accuracy.
 
-### 2. 📝 Question Studio with Picture Upload (`/admin/questions`)
+### 5. 📝 Question Studio with Picture Upload (`/admin/questions`)
 - **Direct Image Upload**: Select and upload JPG, PNG, WebP, SVG, and GIF illustrations directly into the app.
 - **Live Thumbnail Preview**: Real-time image preview with instant replace/remove options.
 - **One-Click & Auto GitHub Sync**: Commit and push newly uploaded images and question changes straight to GitHub (`origin/main` & `preview/main`) from the admin interface.
 - **Filter by Media**: Easily filter questions by *Pictures Uploaded* vs *Emoji Fallback*.
 
-### 3. 👑 Real-Time Multiplayer Arena (`/host` & `/play`)
+### 6. 👑 Real-Time Multiplayer Arena (`/host` & `/play`)
 - **Kahoot-Style Gameplay**: Host creates a game room with a 6-digit PIN; students join from smartphones or laptops.
 - **Synchronized Countdown**: Real-time synchronized timer (10s–30s) across all student devices.
 - **Native Japanese TTS Pronunciation**: Auto-pronounces vocabulary questions for listening practice.
 - **Player Moderation**: Host can kick/remove disruptive or test names from the lobby before game start.
 - **Podium Fanfare & Leaderboard**: Animated award podium for 1st, 2nd, and 3rd place with custom celebratory sound effects.
 
-### 4. 📜 Authentic Japanese Certificate Generator
+### 7. 📜 Authentic Japanese Certificate Generator
 - **Completion Diploma**: Awarded upon completing quiz modules.
 - **Traditional Cultural Details**:
   - Ornate Japanese Gold Border with cherry blossom sakura corners.
@@ -56,30 +78,29 @@
   - Editable Student Recipient Name.
 - **Export Formats**: High-DPI PNG download or print-ready PDF certificate.
 
-### 5. 🎋 Zen Atmosphere & Cultural UI
+### 8. 🎋 Zen Atmosphere & Cultural UI
 - **Zen Background Music (BGM)**: Traditional Shakuhachi & Koto ambient soundtrack with volume slider and persistent playback.
 - **Interactive Japanese Feedback Modals**:
   - Correct answer: `🎌 よくできました！` (Well done!) with celebratory point confetti.
   - Incorrect answer: `😅 もう一度！` (Try again!) with pronunciation tips, hints, and answer reveals.
-- **AFK Screensaver**: Auto-activates after 15s of inactivity with illustrated cultural scenery slides and frosted glass blur.
 - **Seigaiha Wave Scenery & Dark Mode**: Traditional wave patterns, floating sakura petals, and seamless light/dark theme toggle.
 
 ---
 
-## 📚 Vocabulary Curriculum (10 Learning Modules)
+## 📚 Vocabulary Curriculum (10 Modules • 100 Questions)
 
-| # | Category | Japanese | Kanji / Kana | Question Count | Description |
+| # | Category | Japanese | Kanji / Kana | Qs | Sample Vocabulary |
 |---|---|---|---|:---:|---|
-| 1 | **Greetings** | あいさつ | こんにちは, おはよう | 5 | Common Japanese hellos, goodbyes, and polite greetings |
-| 2 | **Numbers** | すうじ | 一, 二, 三, 百 | 7 | Master counting numbers from 1 to 100 |
-| 3 | **Food** | たべもの | 寿司, ラーメン, ご飯 | 5 | Delicious sushi, ramen, green tea, and meal expressions |
-| 4 | **Colors** | いろ | 赤, 青, 白, 黒 | 5 | Core colors in Japanese kanji and hiragana |
-| 5 | **Daily Phrases** | にちじょうのフレーズ | いただきます, すみません | 5 | Essential daily manners and polite dining expressions |
-| 6 | **Verbs** | どうし | たべます, いきます | 4 | Action verbs for everyday activities |
-| 7 | **Adjectives** | けいようし | おおきい, ちいさい | 3 | Descriptive words for sizes and qualities |
-| 8 | **Body Parts** | からだ | め, て, あたま | 2 | Anatomy and face vocabulary |
-| 9 | **Animals** | どうぶつ | いぬ, ねこ, くま | 3 | Animal names with custom illustrated images |
-| 10 | **Family** | かぞく | かぞく, ともだち | 2 | Talking about family members and friends |
+| 1 | **Greetings** | あいさつ | こんにちは, おはよう | **10** | *Konnichiwa*, *Ohayou*, *Hajimemashite*, *Yoroshiku*, *Mata ashita* |
+| 2 | **Numbers** | すうじ | 一, 二, 三, 百 | **10** | *Ichi* (1), *Ni* (2), *San* (3), *Yon* (4), *Go* (5), *Juu* (10), *Ni-juu* (20), *Go-juu* (50), *Nana-juu* (70), **Hyaku (100)** 💯 |
+| 3 | **Food** | たべもの | 寿司, ラーメン, ご飯 | **10** | *Gohan*, *Sushi*, *Ringo*, *Ramen*, *Mizu*, *Ocha*, *Pan*, *Niku*, *Tamago*, *Sakana* |
+| 4 | **Colors** | いろ | 赤, 青, 白, 黒 | **10** | *Aka*, *Ao*, *Kiiro*, *Midori*, *Shiro*, *Kuro*, *Pinku*, *Orenji*, *Murasaki*, *Chairo* |
+| 5 | **Daily Phrases** | にちじょうのフレーズ | いただきます, すみません | **10** | *Arigatou*, *Sumimasen*, *Onegaishimasu*, *Itadakimasu*, *Gochisousama*, *Douitashimashite*, *Gomennasai*, *Hai*, *Iie*, *Daijoubu* |
+| 6 | **Verbs** | どうし | たべる, のむ, いく | **10** | *Taberu*, *Nomu*, *Miru*, *Iku*, *Kuru*, *Hanasu*, *Kiku*, *Yomu*, *Kaku*, *Neru* |
+| 7 | **Adjectives** | けいようし | おおきい, ちいさい | **10** | *Ookii*, *Chiisai*, *Oishii*, *Kawaii*, *Tanoshii*, *Atsui*, *Samui*, *Takai*, *Yasui*, *Muzukashii* |
+| 8 | **Body Parts** | からだ | め, て, あたま | **10** | *Atama*, *Me*, *Mimi*, *Te*, *Hana*, *Kuchi*, *Ashi*, *Kata*, *Yubi*, *Kao* |
+| 9 | **Animals** | どうぶつ | いぬ, ねこ, くま | **10** | *Inu*, *Neko*, *Tori*, *Sakana*, *Usagi*, *Uma*, *Kuma*, *Saru*, *Buta*, *Zou* |
+| 10 | **Family** | かぞく | かぞく, ともだち | **10** | *Kazoku*, *Haha*, *Chichi*, *Tomodachi*, *Ani*, *Ane*, *Otouto*, *Imouto*, *Sobo*, *Sofu* |
 
 ---
 
@@ -129,8 +150,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```
 Nihongo-Language/
 ├── app/
-│   ├── page.tsx                  # Homepage with Quick Host, Solo Topics & Top Players
+│   ├── page.tsx                  # Homepage with Quick Host, Solo Practice & Available Topics
 │   ├── layout.tsx                # Root layout (BGM player, Dark mode, Favicon, AFK)
+│   ├── topics/page.tsx           # Cover Flow Topic Album for Solo Practice
 │   ├── admin/
 │   │   ├── page.tsx              # Admin studio dashboard
 │   │   ├── login/page.tsx        # Secure admin login (password: admin123)
@@ -145,7 +167,7 @@ Nihongo-Language/
 │   │   ├── Logo.tsx              # Reusable bilingual Nihongo Education vector logo
 │   │   ├── CertificateModal.tsx  # Gold diploma generator (PNG & PDF export)
 │   │   ├── BgmPlayer.tsx         # Traditional Shakuhachi Zen BGM player
-│   │   ├── AfkScreensaver.tsx    # Illustrated Japanese screensaver
+│   │   ├── AfkScreensaver.tsx    # Pure frosted blur screensaver with live Hall of Fame podium
 │   │   └── DarkModeToggle.tsx    # Light/Dark mode switcher
 │   ├── host/page.tsx             # Real-time multiplayer host screen (lobby & question view)
 │   ├── play/page.tsx             # Mobile student player interface (PIN join & answer buttons)
@@ -154,7 +176,7 @@ Nihongo-Language/
 │   └── hooks/
 │       └── useMultiplayer.ts     # Supabase Realtime multiplayer engine
 ├── data/
-│   ├── questions.json            # Persistent JSON question database
+│   ├── questions.json            # 100 questions (10 per category)
 │   └── questions.ts              # TypeScript interface & categories definition
 └── public/
     ├── images/
@@ -162,7 +184,8 @@ Nihongo-Language/
     │   ├── questions/            # Category-sorted question pictures
     │   ├── afk/                  # Illustrated scenery slides
     │   └── audio/                # Zen Shakuhachi BGM & fanfare SFX
-    └── favicon.ico               # Tab icon
+    ├── icon.svg                  # Browser tab favicon vector
+    └── favicon.ico               # High-res favicon
 ```
 
 ---
