@@ -197,9 +197,10 @@ export default function NihongoTalkScreen() {
 
               <Link
                 href="/host"
+                title="Quick Casual Multiplayer (Random Topics)"
                 className="px-3.5 py-1.5 rounded-full text-xs font-bold text-red-600 bg-rose-50 dark:bg-rose-950/50 hover:bg-red-600 hover:text-white border border-rose-200 dark:border-rose-800 transition-all shadow-xs"
               >
-                👑 Host Room
+                👑 Quick Host
               </Link>
             </div>
           </header>

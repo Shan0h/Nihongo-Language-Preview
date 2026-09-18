@@ -1,13 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { sfx } from '@/app/utils/sfx';
 
-export default function HostPage() {
+function HostContent() {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category') || 'All';
+  const countParam = parseInt(searchParams.get('count') || '10', 10);
+  const timerParam = parseInt(searchParams.get('timer') || '15', 10);
+
   const {
     connected,
     pin,
@@ -24,10 +30,15 @@ export default function HostPage() {
     startGame,
     revealAnswers,
     advanceQuestion,
+    kickPlayer,
     disconnect,
     error,
     setError,
-  } = useMultiplayer('host');
+  } = useMultiplayer('host', {
+    category: categoryParam,
+    questionCount: countParam,
+    timerSeconds: timerParam,
+  });
 
   const [roomCreated, setRoomCreated] = useState(false);
   const [joinUrl, setJoinUrl] = useState('/play');
@@ -121,6 +132,36 @@ export default function HostPage() {
             </div>
           )}
 
+          {/* Room Configuration Banner */}
+          <div className="p-3.5 mb-6 rounded-2xl bg-[#fff8f8] border-2 border-[#f4c2c2] flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+            <div className="flex items-center gap-2 font-bold text-[#d32f2f]">
+              <span className="text-base">🎯</span>
+              <span>ROOM TOPIC:</span>
+              <span className="bg-[#f4c2c2]/60 px-2.5 py-0.5 rounded-full text-xs font-bold text-[#b71c1c]">
+                {categoryParam === 'All' ? 'All Topics (Mixed)' : `${categoryParam}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-[#5a5a5a] font-medium flex-wrap">
+              <span className="flex items-center gap-1">
+                <span>🔢</span>
+                <strong>{countParam}</strong> Questions
+              </span>
+              <span className="text-gray-300">•</span>
+              <span className="flex items-center gap-1">
+                <span>⏱️</span>
+                <strong>{timerParam}s</strong> / Question
+              </span>
+              {categoryParam !== 'All' && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-[#2e7d32] font-semibold flex items-center gap-1">
+                    <span>🎓</span> Classroom Preset
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* PIN Display */}
           {pin && (
             <div className="card-zen p-10 mb-8 text-center">
@@ -163,15 +204,29 @@ export default function HostPage() {
                 {playerList.map((player, i) => (
                   <div
                     key={player.id}
-                    className="flex items-center gap-4 p-4 bg-white/40 rounded-2xl border border-gray-100 shadow-sm"
+                    className="flex items-center justify-between gap-4 p-4 bg-white/60 rounded-2xl border border-gray-200 shadow-sm hover:border-[#f4c2c2] transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-medium text-lg border border-gray-200">
-                      {i + 1}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-sm border border-gray-300 flex-shrink-0">
+                        {i + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-[#2d2d2d] truncate">{player.name}</div>
+                        <div className="text-xs text-[#2e7d32] font-medium flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+                          Ready
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-[#2d2d2d]">{player.name}</div>
-                      <div className="text-xs text-[#8a8a8a]">Ready</div>
-                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => kickPlayer(player.id)}
+                      title={`Remove ${player.name}`}
+                      className="w-7 h-7 rounded-full bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold transition-colors flex-shrink-0"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
@@ -579,5 +634,22 @@ export default function HostPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HostPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#fdfbf7] p-4">
+          <div className="text-center">
+            <div className="w-10 h-10 border-4 border-[#d32f2f] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-sm font-semibold text-[#5a5a5a]">Initializing Host Room...</p>
+          </div>
+        </div>
+      }
+    >
+      <HostContent />
+    </Suspense>
   );
 }

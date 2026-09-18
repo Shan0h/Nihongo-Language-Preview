@@ -58,14 +58,21 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link href="/host" className="card-cultural p-6 hover:shadow-lg transition-shadow cursor-pointer group border-2 border-[#f59e0b]/30">
+          <Link href="/admin/multiplayer" className="card-cultural p-6 hover:shadow-lg transition-all cursor-pointer group border-2 border-[#f59e0b] bg-gradient-to-br from-white to-[#fffcf5] relative overflow-hidden">
+            <span className="absolute top-3 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+              Teacher Mode
+            </span>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#f59e0b] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                🎮
+              <div className="w-12 h-12 rounded-xl bg-[#f59e0b] text-white flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-xs">
+                🎓
               </div>
               <div>
-                <h2 className="text-xl font-bold text-[#2d2d2d] group-hover:text-[#f59e0b] transition-colors">Host Multiplayer</h2>
-                <p className="text-sm text-[#5a5a5a] mt-1">Create a game room for students to join</p>
+                <h2 className="text-xl font-bold text-[#2d2d2d] group-hover:text-[#f59e0b] transition-colors">Classroom Game Studio</h2>
+                <p className="text-sm text-[#5a5a5a] mt-1">Configure topics, custom timers, question decks, and view student match records</p>
+                <div className="mt-3 flex items-center gap-2 text-xs font-bold text-[#f59e0b]">
+                  <span>Open Studio</span>
+                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </div>
               </div>
             </div>
           </Link>

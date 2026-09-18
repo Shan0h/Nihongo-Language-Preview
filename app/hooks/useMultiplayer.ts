@@ -27,13 +27,19 @@ export interface LeaderboardEntry {
 
 export type GameStatus = 'waiting' | 'playing' | 'finished' | null;
 
+export interface RoomConfig {
+  category?: string;
+  questionCount?: number;
+  timerSeconds?: number;
+}
+
 interface PresencePayload {
   role?: 'host' | 'player';
   name?: string;
   [key: string]: unknown;
 }
 
-export function useMultiplayer(role: 'host' | 'player') {
+export function useMultiplayer(role: 'host' | 'player', initialConfig?: RoomConfig) {
   const channelRef = useRef<RealtimeChannel | null>(null);
   const playerIdRef = useRef<string>('');
   const playerNameRef = useRef<string>('');
@@ -57,6 +63,17 @@ export function useMultiplayer(role: 'host' | 'player') {
 
   // Host keeps track of the correct answer internally to score players
   const hostCurrentCorrectAnswer = useRef<string | null>(null);
+
+  // Custom Room Configuration
+  const roomConfigRef = useRef<RoomConfig>(initialConfig || {});
+  const activeTimerRef = useRef<number>(initialConfig?.timerSeconds || 15);
+
+  if (initialConfig) {
+    roomConfigRef.current = { ...roomConfigRef.current, ...initialConfig };
+    if (initialConfig.timerSeconds) {
+      activeTimerRef.current = initialConfig.timerSeconds;
+    }
+  }
 
   const connect = useCallback(() => {
     setConnected(true);
@@ -134,11 +151,12 @@ export function useMultiplayer(role: 'host' | 'player') {
   }, [pin, hostQuestions]);
 
   // 2. Countdown Controller (declared early so advanceQuestion/startGame can reference it)
-  const startCountdown = useCallback(() => {
+  const startCountdown = useCallback((durationSec?: number) => {
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
 
-    setCountdown(15);
-    let timeLeft = 15;
+    const initialTime = durationSec ?? activeTimerRef.current ?? 15;
+    setCountdown(initialTime);
+    let timeLeft = initialTime;
 
     countdownIntervalRef.current = setInterval(() => {
       timeLeft -= 1;
@@ -188,16 +206,17 @@ export function useMultiplayer(role: 'host' | 'player') {
 
     setQuestionIndex(nextIdx);
 
+    const timerSec = activeTimerRef.current || 15;
     const qData: GameQuestion = {
       question: hostQuestions[nextIdx],
       questionIndex: nextIdx,
       totalQuestions: hostQuestions.length,
-      countdown: 15
+      countdown: timerSec
     };
 
     hostCurrentCorrectAnswer.current = qData.question.correct_answer;
     setCurrentQuestion(qData);
-    setCountdown(15);
+    setCountdown(timerSec);
     setAnswerRevealed(false);
 
     // Reset players' answered status
@@ -217,7 +236,7 @@ export function useMultiplayer(role: 'host' | 'player') {
       payload: qData
     });
 
-    startCountdown();
+    startCountdown(timerSec);
   }, [pin, questionIndex, hostQuestions, finishGame, startCountdown]);
 
   // 4. Create Room
@@ -307,16 +326,34 @@ export function useMultiplayer(role: 'host' | 'player') {
   }, [role]);
 
   // 5. Start Game
-  const startGame = useCallback(() => {
+  const startGame = useCallback((customConfig?: RoomConfig) => {
     if (!channelRef.current || !pin) return;
     setGameStatus('playing');
 
-    const shuffled = [...questions];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const config = { ...roomConfigRef.current, ...(customConfig || {}) };
+    const timerSec = config.timerSeconds && config.timerSeconds > 0 ? config.timerSeconds : 15;
+    activeTimerRef.current = timerSec;
+
+    // Filter by category if specified and not 'All'
+    let questionPool = [...questions];
+    if (config.category && config.category.toLowerCase() !== 'all') {
+      const filtered = questions.filter(
+        q => q.category.toLowerCase() === config.category!.toLowerCase()
+      );
+      if (filtered.length > 0) {
+        questionPool = filtered;
+      }
     }
-    const selectedQuestions = shuffled.slice(0, Math.min(10, shuffled.length));
+
+    // Shuffle pool
+    for (let i = questionPool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [questionPool[i], questionPool[j]] = [questionPool[j], questionPool[i]];
+    }
+
+    const count = Math.min(config.questionCount || 10, questionPool.length);
+    const selectedQuestions = questionPool.slice(0, count);
+
     setHostQuestions(selectedQuestions);
     setTotalQuestions(selectedQuestions.length);
     setQuestionIndex(0);
@@ -325,12 +362,12 @@ export function useMultiplayer(role: 'host' | 'player') {
       question: selectedQuestions[0],
       questionIndex: 0,
       totalQuestions: selectedQuestions.length,
-      countdown: 15
+      countdown: timerSec
     };
 
     hostCurrentCorrectAnswer.current = qData.question.correct_answer;
     setCurrentQuestion(qData);
-    setCountdown(15);
+    setCountdown(timerSec);
     setAnswerRevealed(false);
 
     channelRef.current.send({
@@ -339,7 +376,7 @@ export function useMultiplayer(role: 'host' | 'player') {
       payload: qData
     });
 
-    startCountdown();
+    startCountdown(timerSec);
   }, [pin, startCountdown]);
 
   // 6. Reveal Answers & Update Scores
@@ -384,6 +421,21 @@ export function useMultiplayer(role: 'host' | 'player') {
       }
     });
   }, [pin]);
+
+  // 7. Kick Player (Host moderation)
+  const kickPlayer = useCallback((playerId: string) => {
+    if (!channelRef.current) return;
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'player-kicked',
+      payload: { playerId }
+    });
+    setPlayers(prev => {
+      const updated = { ...prev };
+      delete updated[playerId];
+      return updated;
+    });
+  }, []);
 
   // ===== PLAYER LOGIC =====
   const joinRoom = useCallback((roomPin: string, playerName: string) => {
@@ -442,8 +494,15 @@ export function useMultiplayer(role: 'host' | 'player') {
         setCountdown(0);
       })
       .on('broadcast', { event: 'game-finished' }, ({ payload }) => {
-        setGameStatus('finished');
-        setLeaderboard(payload.leaderboard);
+        if (payload && payload.leaderboard) {
+          setLeaderboard(payload.leaderboard);
+        }
+      })
+      .on('broadcast', { event: 'player-kicked' }, ({ payload }) => {
+        if (payload?.playerId === myId) {
+          disconnect();
+          setError('You were removed from the game room by the host.');
+        }
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -490,6 +549,7 @@ export function useMultiplayer(role: 'host' | 'player') {
     advanceQuestion,
     submitAnswer,
     finishGame,
+    kickPlayer,
     disconnect,
     setError: setError as (e: string) => void,
   };
