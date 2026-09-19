@@ -372,6 +372,11 @@ export default function PlayPage() {
                   <span className="px-3 py-1 bg-white/60 backdrop-blur-sm zen-text-secondary rounded-full text-[11px] font-medium border border-gray-200/50 shadow-sm">
                     {question.english_translation}
                   </span>
+                  {question.romaji && (
+                    <span className="px-3 py-1 bg-rose-50/90 text-rose-600 rounded-full text-[11px] font-bold border border-rose-200 shadow-xs font-mono">
+                      ROMAJI: {question.romaji}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

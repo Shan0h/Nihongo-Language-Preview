@@ -808,9 +808,22 @@ export default function QuizPage() {
           </div>
 
           {/* Meaning Label */}
-          <div className="text-xs sm:text-sm text-stone-500 uppercase font-semibold tracking-wider my-2">
+          <div className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 uppercase font-semibold tracking-wider my-1.5">
             MEANING: <span className="text-base sm:text-lg text-stone-900 dark:text-white font-extrabold normal-case">{currentQuestion.english_translation}</span>
           </div>
+
+          {/* Romaji Pronunciation Guide */}
+          {currentQuestion.romaji && (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 my-1 bg-rose-50/90 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/60 rounded-full shadow-xs animate-fade-in">
+              <span className="text-[10px] sm:text-xs uppercase font-black tracking-widest text-red-500 dark:text-rose-400 flex items-center gap-1">
+                <span>🗣️</span>
+                <span>ROMAJI:</span>
+              </span>
+              <span className="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-100 font-mono tracking-wide">
+                {currentQuestion.romaji}
+              </span>
+            </div>
+          )}
 
           {/* Tap to listen Button */}
           <div className="mt-3 flex justify-center">
@@ -967,6 +980,11 @@ export default function QuizPage() {
                   </div>
                   <p className="text-xs text-stone-500 dark:text-stone-400">
                     Say: <span className="font-bold text-stone-800 dark:text-white">{currentQuestion.japanese_text}</span>
+                    {currentQuestion.romaji && (
+                      <span className="font-mono text-red-600 dark:text-rose-400 font-bold ml-1.5">
+                        ({currentQuestion.romaji})
+                      </span>
+                    )}
                   </p>
                 </div>
               ) : (
@@ -975,7 +993,13 @@ export default function QuizPage() {
                     Now your turn — say it out loud.
                   </p>
                   <p className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
-                    Say <span className="font-bold text-red-600">{currentQuestion.japanese_text}</span> into your mic, or tap Continue below.
+                    Say <span className="font-bold text-red-600">{currentQuestion.japanese_text}</span>
+                    {currentQuestion.romaji && (
+                      <span className="font-mono text-stone-600 dark:text-stone-300 font-semibold ml-1">
+                        ({currentQuestion.romaji})
+                      </span>
+                    )}
+                    {' '}into your mic, or tap Continue below.
                   </p>
                 </div>
               )}
