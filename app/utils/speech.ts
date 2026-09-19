@@ -274,14 +274,83 @@ export function normalizeJapaneseSpeech(text: string): string {
 }
 
 /**
+ * Normalizes Romaji representations to handle vowel length variations and macrons:
+ * - ō, ū, ā, ī, ē -> o, u, a, i, e
+ * - ou, oo -> o
+ * - uu -> u
+ * - aa -> a
+ * - ee -> e
+ * - Strips non-alphanumeric characters and converts to lowercase
+ * Example: "arigatou" -> "arigato", "ohayou" -> "ohayo", "sayounara" -> "sayonara"
+ */
+export function normalizeRomaji(text: string): string {
+  if (!text) return '';
+  let s = text.toLowerCase().trim();
+
+  // Replace macrons
+  s = s
+    .replace(/[āâ]/g, 'a')
+    .replace(/[ēê]/g, 'e')
+    .replace(/[īî]/g, 'i')
+    .replace(/[ōô]/g, 'o')
+    .replace(/[ūû]/g, 'u');
+
+  // Strip non-alphanumeric (keep only a-z0-9)
+  s = s.replace(/[^a-z0-9]/g, '');
+
+  // Normalize common long vowels
+  s = s
+    .replace(/ou/g, 'o')
+    .replace(/oo/g, 'o')
+    .replace(/uu/g, 'u')
+    .replace(/aa/g, 'a')
+    .replace(/ee/g, 'e');
+
+  return s;
+}
+
+/**
+ * Computes Levenshtein similarity between two strings (0.0 to 1.0)
+ */
+export function levenshteinSimilarity(s1: string, s2: string): number {
+  if (!s1 && !s2) return 1.0;
+  if (!s1 || !s2) return 0.0;
+  if (s1 === s2) return 1.0;
+
+  const m = s1.length;
+  const n = s2.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,       // deletion
+        dp[i][j - 1] + 1,       // insertion
+        dp[i - 1][j - 1] + cost // substitution
+      );
+    }
+  }
+
+  const distance = dp[m][n];
+  const maxLen = Math.max(m, n);
+  return Math.max(0, 1 - distance / maxLen);
+}
+
+/**
  * Match user spoken transcript against options and correct answer
+ * Accepts targetRomaji to match pronunciation even when transcribed as English/Romaji
  */
 export function matchOptionFromSpeech(
   spoken: string,
   options: string[],
   correctAnswer: string,
   optionHiragana?: Record<string, string>,
-  alternatives: string[] = []
+  alternatives: string[] = [],
+  targetRomaji?: string
 ): string | null {
   const allTranscripts = [spoken, ...alternatives].filter(Boolean);
 
@@ -324,10 +393,32 @@ export function matchOptionFromSpeech(
     }
   }
 
-  // 3. Romaji fallback matching from option_hiragana if available
+  // 3. Target Romaji matching (checks targetRomaji if provided)
+  if (targetRomaji) {
+    const normTarget = normalizeRomaji(targetRomaji);
+    for (const trans of allTranscripts) {
+      const normTransRomaji = normalizeRomaji(trans);
+      if (normTransRomaji) {
+        // Direct equality or inclusion with normalized long vowels
+        if (
+          normTransRomaji === normTarget ||
+          normTransRomaji.includes(normTarget) ||
+          normTarget.includes(normTransRomaji)
+        ) {
+          return correctAnswer;
+        }
+        // Levenshtein fuzzy similarity
+        if (levenshteinSimilarity(normTransRomaji, normTarget) >= 0.78) {
+          return correctAnswer;
+        }
+      }
+    }
+  }
+
+  // 4. Romaji fallback matching from option_hiragana if available
   if (optionHiragana) {
     for (const trans of allTranscripts) {
-      const lowerTrans = trans.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const lowerTrans = normalizeRomaji(trans);
       if (!lowerTrans) continue;
 
       for (const opt of options) {
@@ -336,12 +427,37 @@ export function matchOptionFromSpeech(
           // Extract romaji from "ともだち (tomodachi)"
           const romajiMatch = hiraganaInfo.match(/\(([^)]+)\)/);
           if (romajiMatch) {
-            const romaji = romajiMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (romaji && (lowerTrans.includes(romaji) || romaji.includes(lowerTrans))) {
+            const optRomaji = normalizeRomaji(romajiMatch[1]);
+            if (
+              optRomaji &&
+              (lowerTrans === optRomaji ||
+                lowerTrans.includes(optRomaji) ||
+                optRomaji.includes(lowerTrans) ||
+                levenshteinSimilarity(lowerTrans, optRomaji) >= 0.78)
+            ) {
               return opt;
             }
           }
         }
+      }
+    }
+  }
+
+  // 5. Fuzzy Levenshtein match on normalized Japanese / Hiragana
+  // Allows minor mis-transcriptions like "おはよう" vs "おはよ" or slight dialect/slur
+  for (const trans of allTranscripts) {
+    const normTrans = normalizeJapaneseSpeech(trans);
+    if (!normTrans || normTrans.length < 2) continue;
+
+    const normCorrect = normalizeJapaneseSpeech(correctAnswer);
+    if (normCorrect && levenshteinSimilarity(normTrans, normCorrect) >= 0.78) {
+      return correctAnswer;
+    }
+
+    for (const opt of options) {
+      const normOpt = normalizeJapaneseSpeech(opt);
+      if (normOpt && levenshteinSimilarity(normTrans, normOpt) >= 0.78) {
+        return opt;
       }
     }
   }
@@ -354,6 +470,8 @@ export type SpeechEnginePreference = 'google' | 'whisper';
 export class JapaneseSpeechRecognizer {
   private mediaRecorder: MediaRecorder | null = null;
   private mediaStream: MediaStream | null = null;
+  private audioContext: AudioContext | null = null;
+  private vadRafId: number | null = null;
   private autoStopTimer: NodeJS.Timeout | number | null = null;
   private browserRecognition: any = null;
   private isListening: boolean = false;
@@ -547,6 +665,7 @@ export class JapaneseSpeechRecognizer {
   /**
    * Whisper Cloud STT fallback using MediaRecorder + Groq Whisper (/api/stt)
    * Passing question vocabulary prompt anchors Whisper to prevent hallucinations.
+   * Features dynamic VAD (Voice Activity Detection) with a 4.5s ceiling.
    */
   private async startWhisper(
     onResult: (result: SpeechRecognitionResult) => void,
@@ -571,6 +690,8 @@ export class JapaneseSpeechRecognizer {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
+          channelCount: 1,
+          sampleRate: 16000,
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
@@ -689,12 +810,69 @@ export class JapaneseSpeechRecognizer {
 
       recorder.start(100);
 
-      // Auto-stop after 2.2s (optimal single-word / short phrase duration to prevent silence hallucinations)
+      // Safety ceiling: 4.5s max (gives ample time for multi-syllable Japanese phrases like "Ohayou gozaimasu")
       this.autoStopTimer = setTimeout(() => {
         if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
           this.mediaRecorder.stop();
         }
-      }, 2200);
+      }, 4500);
+
+      // Dynamic Voice Activity Detection (VAD) using Web Audio API
+      // Detects when the user speaks and auto-stops after 850ms of trailing silence
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const audioCtx = new AudioCtx();
+          this.audioContext = audioCtx;
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 512;
+          source.connect(analyser);
+
+          const dataArray = new Uint8Array(analyser.fftSize);
+          let speechDetected = false;
+          let silenceStartTime = 0;
+
+          const checkVolume = () => {
+            if (!this.isListening || !this.mediaRecorder || this.mediaRecorder.state !== 'recording') {
+              return;
+            }
+
+            analyser.getByteTimeDomainData(dataArray);
+            let sumSquares = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              const norm = (dataArray[i] - 128) / 128;
+              sumSquares += norm * norm;
+            }
+            const rms = Math.sqrt(sumSquares / dataArray.length);
+
+            const now = Date.now();
+            // RMS threshold for speech activity (~0.035)
+            if (rms > 0.035) {
+              speechDetected = true;
+              silenceStartTime = 0;
+            } else if (speechDetected) {
+              // User has spoken and is now silent
+              if (silenceStartTime === 0) {
+                silenceStartTime = now;
+              } else if (now - silenceStartTime >= 850) {
+                // 850ms of post-speech silence detected -> auto-stop recording
+                if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                  this.mediaRecorder.stop();
+                  return;
+                }
+              }
+            }
+
+            this.vadRafId = requestAnimationFrame(checkVolume);
+          };
+
+          this.vadRafId = requestAnimationFrame(checkVolume);
+        }
+      } catch (vadErr) {
+        // Fallback gracefully to the 4.5s ceiling timer if AudioContext fails
+        console.warn('VAD audio analyser skipped:', vadErr);
+      }
     } catch (err: any) {
       this.restoreBgm();
       this.isListening = false;
@@ -712,6 +890,16 @@ export class JapaneseSpeechRecognizer {
       clearTimeout(this.autoStopTimer);
       this.autoStopTimer = null;
     }
+    if (this.vadRafId) {
+      cancelAnimationFrame(this.vadRafId);
+      this.vadRafId = null;
+    }
+    if (this.audioContext) {
+      try {
+        this.audioContext.close();
+      } catch {}
+      this.audioContext = null;
+    }
     if (this.mediaStream) {
       try {
         this.mediaStream.getTracks().forEach((track) => track.stop());
@@ -728,6 +916,10 @@ export class JapaneseSpeechRecognizer {
     if (this.autoStopTimer) {
       clearTimeout(this.autoStopTimer);
       this.autoStopTimer = null;
+    }
+    if (this.vadRafId) {
+      cancelAnimationFrame(this.vadRafId);
+      this.vadRafId = null;
     }
 
     if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {

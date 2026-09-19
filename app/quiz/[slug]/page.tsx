@@ -45,6 +45,7 @@ export default function QuizPage() {
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
   const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
+  const [showOnePlusHelp, setShowOnePlusHelp] = useState(false);
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
@@ -372,7 +373,8 @@ export default function QuizPage() {
             currentQuestion.options,
             currentQuestion.correct_answer,
             currentQuestion.option_hiragana,
-            result.alternatives
+            result.alternatives,
+            currentQuestion.romaji
           );
 
           const normSpoken = normalizeJapaneseSpeech(spoken);
@@ -1060,6 +1062,15 @@ export default function QuizPage() {
                     ? 'Native Google recognition (Fast & accurate for Samsung, Pixel, PC)'
                     : 'Cloud Whisper AI (Works on OnePlus 12, iPhone & all devices)'}
                 </p>
+
+                {/* OnePlus 12 / ColorOS Settings Guide Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setShowOnePlusHelp(true)}
+                  className="mt-2 text-[11px] font-bold text-red-600 dark:text-rose-400 hover:underline inline-flex items-center gap-1 cursor-pointer bg-red-50/70 dark:bg-rose-950/40 px-3 py-1 rounded-full border border-red-200/60 dark:border-rose-900/40 hover:bg-red-100/70 transition-colors"
+                >
+                  <span>💡 Enable Google Speech on OnePlus / ColorOS →</span>
+                </button>
               </div>
             </div>
 
@@ -1088,6 +1099,78 @@ export default function QuizPage() {
           </div>
         )}
       </div>
+
+      {/* OnePlus 12 & ColorOS Google Speech Setup Guide Modal */}
+      {showOnePlusHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-rose-950/30 dark:bg-black/80 backdrop-blur-sm animate-modal-backdrop">
+          <div className="bg-white dark:bg-[#161616] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-rose-100 dark:border-rose-900/40 relative animate-modal-card">
+            {/* Header Badge */}
+            <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-rose-950/80 border-2 border-red-200 dark:border-rose-800 shadow-md flex items-center justify-center text-2xl mx-auto -mt-11 sm:-mt-12 mb-3">
+              📱
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-stone-900 dark:text-white tracking-tight text-center">
+              OnePlus 12 / ColorOS Guide
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 text-center mt-1">
+              Enable native Google Speech just like Samsung Galaxy Tab!
+            </p>
+
+            {/* Explanatory banner */}
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3.5 my-3.5 text-left text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
+              <span className="font-black">Why does Samsung work but OnePlus aborts?</span> ColorOS sets OPPO HeyTap Voice as default assistant instead of Google. Switching it enables real-time Japanese speech recognition in Chrome.
+            </div>
+
+            {/* Step-by-step instructions */}
+            <div className="space-y-2.5 text-left text-xs sm:text-sm">
+              <div className="flex items-start gap-2.5 p-2 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <div>
+                  <span className="font-bold text-stone-800 dark:text-stone-100">Open Settings</span>
+                  <p className="text-stone-500 dark:text-stone-400 text-[11px]">Go to phone <b>Settings → Apps</b>.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <div>
+                  <span className="font-bold text-stone-800 dark:text-stone-100">Select Default Apps</span>
+                  <p className="text-stone-500 dark:text-stone-400 text-[11px]">Tap <b>Default Apps → Digital Assistant App</b>.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2 rounded-xl bg-stone-50 dark:bg-white/5 border border-stone-200/60 dark:border-white/5">
+                <span className="w-5 h-5 rounded-full bg-red-600 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <div>
+                  <span className="font-bold text-stone-800 dark:text-stone-100">Set Default to Google</span>
+                  <p className="text-stone-500 dark:text-stone-400 text-[11px]">Select <b>Google</b> (or <i>Speech Services by Google</i>).</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50">
+                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <div>
+                  <span className="font-bold text-emerald-800 dark:text-emerald-300">Done! Return to Nihongo</span>
+                  <p className="text-emerald-700 dark:text-emerald-400 text-[11px]">Select <b>🎙️ Google Speech</b> mode and tap the mic.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Note about Cloud Whisper */}
+            <div className="mt-3.5 text-[11px] text-stone-500 dark:text-stone-400 text-center leading-normal">
+              💡 Or continue with <b>⚡ Cloud Whisper</b> — updated with smart voice detection & vowel flexibility!
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowOnePlusHelp(false)}
+              className="w-full py-3 rounded-2xl bg-stone-900 hover:bg-stone-800 dark:bg-white dark:hover:bg-stone-200 text-white dark:text-stone-900 font-black text-sm shadow-md active:scale-95 transition-all cursor-pointer mt-4"
+            >
+              Got it, close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

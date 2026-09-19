@@ -164,7 +164,8 @@ export default function PlayPage() {
             q.options,
             q.correct_answer,
             q.option_hiragana,
-            result.alternatives
+            result.alternatives,
+            q.romaji
           );
 
           if (matchedOption) {
