@@ -331,7 +331,7 @@ export function matchOptionFromSpeech(
         const hiraganaInfo = optionHiragana[opt];
         if (hiraganaInfo) {
           // Extract romaji from "ともだち (tomodachi)"
-          const romajiMatch = hiraganaInfo.match(/\(([a-z0-9\s]+)\)/i);
+          const romajiMatch = hiraganaInfo.match(/\(([^)]+)\)/);
           if (romajiMatch) {
             const romaji = romajiMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '');
             if (romaji && (lowerTrans.includes(romaji) || romaji.includes(lowerTrans))) {
@@ -351,7 +351,6 @@ export class JapaneseSpeechRecognizer {
   private isListening: boolean = false;
   private userStopped: boolean = false;
   private wasBgmPlaying: boolean = false;
-  private retryCount: number = 0;
 
   private restoreBgm() {
     if (this.wasBgmPlaying) {
@@ -363,49 +362,9 @@ export class JapaneseSpeechRecognizer {
   }
 
   /**
-   * Request / verify microphone permission explicitly.
-   * On mobile Android Chrome, webkitSpeechRecognition triggers 'aborted' immediately
-   * if the website origin does not have active microphone permission granted.
-   */
-  async requestMicrophonePermission(): Promise<boolean> {
-    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-
-    // Check if permission query is supported
-    if (navigator.permissions && navigator.permissions.query) {
-      try {
-        const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        if (permission.state === 'granted') {
-          return true;
-        }
-        if (permission.state === 'denied') {
-          return false;
-        }
-      } catch {
-        // Fall through to getUserMedia check
-      }
-    }
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Immediately release tracks so microphone hardware is available for speech recognition
-        stream.getTracks().forEach((t) => t.stop());
-        // Allow Android audio HAL a brief moment to release hardware lock
-        await new Promise((resolve) => setTimeout(resolve, 80));
-        return true;
-      } catch (err: any) {
-        console.warn('Microphone permission request failed:', err);
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
    * Start listening for Japanese speech
    */
-  async start(
+  start(
     onResult: (result: SpeechRecognitionResult) => void,
     onError: (error: string) => void,
     onEnd: () => void,
@@ -440,47 +399,26 @@ export class JapaneseSpeechRecognizer {
       return;
     }
 
-    // 4. Clean up any existing session
+    // 4. Clean up any existing session cleanly by detaching handlers first
     if (this.recognition) {
-      this.userStopped = true;
       try {
+        this.recognition.onstart = null;
+        this.recognition.onresult = null;
+        this.recognition.onerror = null;
+        this.recognition.onend = null;
         this.recognition.abort();
       } catch {}
       this.recognition = null;
-      await new Promise((resolve) => setTimeout(resolve, 60));
-    }
-
-    // 5. Verify / acquire microphone permission before launching SpeechRecognition
-    const hasPermission = await this.requestMicrophonePermission();
-    if (!hasPermission) {
-      this.restoreBgm();
-      onError('Microphone permission was denied. Tap the lock/tune icon in the browser address bar to allow microphone access.');
-      return;
     }
 
     this.userStopped = false;
-    this.retryCount = 0;
-    this.startActual(onResult, onError, onEnd, onStart);
-  }
-
-  private startActual(
-    onResult: (result: SpeechRecognitionResult) => void,
-    onError: (error: string) => void,
-    onEnd: () => void,
-    onStart?: () => void
-  ) {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) return;
 
     try {
-      // Always instantiate a fresh instance to avoid Android IPC binder invalidation
+      // 5. Always instantiate a fresh SpeechRecognition object
       const rec = new SpeechRecognition();
       rec.lang = 'ja-JP';
       rec.continuous = false; // Single-utterance mode is mandatory for mobile Android
       rec.interimResults = false;
-      rec.maxAlternatives = 4;
       this.recognition = rec;
 
       rec.onstart = () => {
@@ -505,36 +443,23 @@ export class JapaneseSpeechRecognizer {
 
       rec.onerror = (event: any) => {
         this.isListening = false;
-        const err = event.error || 'unknown';
+        this.restoreBgm();
 
         if (this.userStopped) {
-          this.restoreBgm();
           onEnd();
           return;
         }
 
-        // On mobile Android, transitioning from audio playback to microphone can cause an initial 'aborted'
-        // Retry once automatically with a 150ms delay
-        if (err === 'aborted' && this.retryCount === 0) {
-          this.retryCount++;
-          setTimeout(() => {
-            if (!this.userStopped) {
-              this.startActual(onResult, onError, onEnd, onStart);
-            }
-          }, 150);
-          return;
-        }
-
-        this.restoreBgm();
+        const err = event.error || 'unknown';
 
         if (err === 'not-allowed' || err === 'service-not-allowed') {
-          onError('Microphone permission was denied. Please allow microphone access in your browser settings.');
+          onError('Microphone permission was denied. Tap the lock icon near the URL in Chrome to allow microphone access.');
         } else if (err === 'no-speech') {
-          onError('No speech detected. Please speak closer to the microphone.');
+          onError('No speech detected. Please speak closer to your microphone and try again.');
         } else if (err === 'network') {
           onError('Speech service network error. Please check your internet connection.');
         } else if (err === 'aborted') {
-          onError('Speech recognition was interrupted. Tap the mic to try again, or tap Continue to choose an answer.');
+          onError('Speech recognition could not capture voice on this device. You can tap Continue to choose an answer or tap the mic to try again.');
         } else {
           onError(`Could not capture speech (${err}). Please tap to try again.`);
         }
@@ -563,16 +488,19 @@ export class JapaneseSpeechRecognizer {
   stop() {
     this.userStopped = true;
     this.restoreBgm();
-    if (this.recognition && this.isListening) {
+    if (this.recognition) {
       try {
+        this.recognition.onstart = null;
+        this.recognition.onresult = null;
+        this.recognition.onerror = null;
+        this.recognition.onend = null;
         this.recognition.stop();
       } catch {
         try {
           this.recognition.abort();
-        } catch {
-          // Ignore stop errors
-        }
+        } catch {}
       }
+      this.recognition = null;
       this.isListening = false;
     }
   }

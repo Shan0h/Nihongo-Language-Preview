@@ -856,8 +856,17 @@ export default function QuizPage() {
                   <span>{speechSuccess}</span>
                 </div>
               ) : speechError ? (
-                <div className="text-red-600 font-bold text-xs sm:text-sm">
-                  ⚠️ {speechError}
+                <div className="flex flex-col items-center gap-2 py-1">
+                  <div className="text-red-600 font-bold text-xs sm:text-sm">
+                    ⚠️ {speechError}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep('answer')}
+                    className="px-4 py-1.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-rose-300 border border-red-200 dark:border-red-800/60 font-bold text-xs hover:bg-red-100 transition-all cursor-pointer"
+                  >
+                    Choose answer directly →
+                  </button>
                 </div>
               ) : isListening ? (
                 <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-xs sm:text-sm">
@@ -870,7 +879,7 @@ export default function QuizPage() {
                     Now your turn — say it out loud.
                   </p>
                   <p className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
-                    Tap the mic and repeat what you heard.
+                    Tap the mic to speak, or tap Continue below.
                   </p>
                 </div>
               )}
