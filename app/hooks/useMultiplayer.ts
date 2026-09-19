@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/app/utils/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { questions, Question as QuizQuestion } from '@/data/questions';
+import { questions, Question as QuizQuestion, getQuestionsByCategory } from '@/data/questions';
 
 export interface Player {
   id: string;
@@ -337,9 +337,7 @@ export function useMultiplayer(role: 'host' | 'player', initialConfig?: RoomConf
     // Filter by category if specified and not 'All'
     let questionPool = [...questions];
     if (config.category && config.category.toLowerCase() !== 'all') {
-      const filtered = questions.filter(
-        q => q.category.toLowerCase() === config.category!.toLowerCase()
-      );
+      const filtered = getQuestionsByCategory(config.category);
       if (filtered.length > 0) {
         questionPool = filtered;
       }

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { getQuestionsByCategory, categories } from '@/data/questions';
+import { getQuestionsByCategory, categories, findCategoryBySlug } from '@/data/questions';
 import { speakJapanese } from '@/app/utils/tts';
 import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
@@ -18,7 +18,7 @@ export default function QuizPage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const category = categories.find(c => c.slug === slug);
+  const category = findCategoryBySlug(slug);
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [isReady, setIsReady] = useState(false);
 
@@ -72,7 +72,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     const srsData = getSRSData();
-    const sorted = [...getQuestionsByCategory(slug)].sort((a, b) => {
+    const sorted = [...getQuestionsByCategory(category?.name || slug)].sort((a, b) => {
       const weightA = calculateWeight(srsData[a.id]);
       const weightB = calculateWeight(srsData[b.id]);
       const randomJitter = Math.random() * 0.1 - 0.05;
@@ -260,8 +260,13 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#fff0f3] via-[#ffe4e6] to-[#fff0f3] dark:from-rose-950 dark:via-red-950 dark:to-pink-950 flex items-center justify-center p-4">
         <div className="card-cultural text-center max-w-sm w-full p-8 border border-white dark:border-white/10 shadow-lg bg-white/70 dark:bg-black/60 backdrop-blur-xl">
-          <p className="text-base sm:text-lg mb-6 font-bold text-[#4c0519] dark:text-white">Topic not found 🌸</p>
-          <Link href="/" className="btn-torii px-4 sm:px-6 py-3 text-sm sm:text-base font-black w-full inline-block">Back to Home</Link>
+          <div className="text-4xl mb-3">🌸</div>
+          <p className="text-base sm:text-lg mb-2 font-bold text-[#4c0519] dark:text-white">Topic not found</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-6">The topic &quot;{slug}&quot; could not be located. Choose from our available topics below.</p>
+          <div className="flex flex-col gap-2.5">
+            <Link href="/topics" className="btn-torii px-4 sm:px-6 py-3 text-sm sm:text-base font-black w-full inline-block">Explore All Topics</Link>
+            <Link href="/" className="px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-[#e11d48] transition-colors">Back to Home</Link>
+          </div>
         </div>
       </div>
     );
