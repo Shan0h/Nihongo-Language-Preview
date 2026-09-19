@@ -6,7 +6,7 @@ import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { getQuestionsByCategory, categories } from '@/data/questions';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import { getSRSData, updateSRSData, calculateWeight } from '@/app/utils/srs';
 import { Question } from '@/data/questions';
@@ -375,15 +375,37 @@ export default function QuizPage() {
             result.alternatives
           );
 
-          if (matchedOption) {
+          const normSpoken = normalizeJapaneseSpeech(spoken);
+          const normCorrect = normalizeJapaneseSpeech(currentQuestion.correct_answer);
+          const normTarget = normalizeJapaneseSpeech(currentQuestion.japanese_text);
+
+          const isCorrect =
+            matchedOption === currentQuestion.correct_answer ||
+            (normSpoken && (normSpoken === normCorrect || normSpoken === normTarget));
+
+          if (isCorrect) {
+            sfx.playCorrect();
             setSpeechSuccess(`Great pronunciation! You said "${spoken}"`);
-            handleAnswer(matchedOption);
+            setSpeechError('');
+            handleAnswer(currentQuestion.correct_answer);
+          } else if (matchedOption) {
+            sfx.playWrong();
+            setSpeechSuccess('');
+            setSpeechError(
+              `You said "${spoken}" (${matchedOption}), which is incorrect. The target word is "${currentQuestion.japanese_text}" (${currentQuestion.correct_answer}). Tap mic to try again!`
+            );
           } else {
-            setSpeechError(`You said "${spoken}". Tap an option or try speaking again.`);
+            sfx.playWrong();
+            setSpeechSuccess('');
+            setSpeechError(
+              `Pronunciation not recognized: "${spoken}". Target word is "${currentQuestion.japanese_text}" (${currentQuestion.correct_answer}). Speak clearly and try again!`
+            );
           }
         },
         (err) => {
+          sfx.playWrong();
           setSpeechError(err);
+          setSpeechSuccess('');
           setIsListening(false);
         },
         () => {
@@ -882,29 +904,70 @@ export default function QuizPage() {
           /* STEP 2: PRACTICE - Mt. Fuji Mic & Friendly Speech Flow */
           <div className="flex flex-col items-center">
             {/* Guidance Banner */}
-            <div className="bg-white dark:bg-[#141414] border border-rose-100 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 shadow-xs text-center w-full mb-3">
+            <div
+              className={`border rounded-2xl p-4 shadow-xs text-center w-full mb-3 transition-all ${
+                speechSuccess
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700'
+                  : speechError
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 ring-2 ring-rose-200 dark:ring-rose-900/50 animate-shake'
+                  : isListening
+                  ? 'bg-red-50/70 dark:bg-red-950/30 border-red-200 dark:border-red-900 ring-2 ring-red-100'
+                  : 'bg-white dark:bg-[#141414] border-rose-100 dark:border-white/10'
+              }`}
+            >
               {speechSuccess ? (
-                <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-xs sm:text-sm">
-                  <span>🎉</span>
-                  <span>{speechSuccess}</span>
+                <div className="flex flex-col items-center gap-1.5 py-1">
+                  <div className="flex items-center justify-center gap-2 text-emerald-700 dark:text-emerald-300 font-black text-sm sm:text-base">
+                    <span>🎉</span>
+                    <span>{speechSuccess}</span>
+                  </div>
+                  {spokenTranscript && (
+                    <div className="text-xs font-bold text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/50 px-3 py-1 rounded-full border border-emerald-300">
+                      🎙️ Spoken: &quot;{spokenTranscript}&quot;
+                    </div>
+                  )}
                 </div>
               ) : speechError ? (
                 <div className="flex flex-col items-center gap-2 py-1">
-                  <div className="text-red-600 font-bold text-xs sm:text-sm">
-                    ⚠️ {speechError}
+                  <div className="flex items-center justify-center gap-2 text-rose-700 dark:text-rose-300 font-black text-sm sm:text-base">
+                    <span>❌</span>
+                    <span>Pronunciation Not Accepted</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep('answer')}
-                    className="px-4 py-1.5 rounded-full bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-rose-300 border border-red-200 dark:border-red-800/60 font-bold text-xs hover:bg-red-100 transition-all cursor-pointer"
-                  >
-                    Choose answer directly →
-                  </button>
+                  <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-200 font-medium leading-relaxed max-w-md">
+                    {speechError}
+                  </p>
+                  {spokenTranscript && (
+                    <div className="text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-900/40 px-3 py-1 rounded-full border border-rose-200 dark:border-rose-800">
+                      🎙️ What we heard: &quot;{spokenTranscript}&quot;
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-1.5">
+                    <button
+                      type="button"
+                      onClick={handleMicListen}
+                      className="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span>🔄</span>
+                      <span>Try Speaking Again</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep('answer')}
+                      className="px-4 py-1.5 rounded-full bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300 dark:border-stone-700 font-bold text-xs hover:bg-stone-50 transition-all cursor-pointer"
+                    >
+                      Choose answer directly →
+                    </button>
+                  </div>
                 </div>
               ) : isListening ? (
-                <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-xs sm:text-sm">
-                  <AudioWave />
-                  <span>Listening... Speak Japanese now!</span>
+                <div className="flex flex-col items-center gap-1 py-1">
+                  <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-sm">
+                    <AudioWave />
+                    <span>Listening... Speak Japanese now!</span>
+                  </div>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">
+                    Say: <span className="font-bold text-stone-800 dark:text-white">{currentQuestion.japanese_text}</span>
+                  </p>
                 </div>
               ) : (
                 <div>
@@ -912,14 +975,8 @@ export default function QuizPage() {
                     Now your turn — say it out loud.
                   </p>
                   <p className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
-                    Tap the mic to speak, or tap Continue below.
+                    Say <span className="font-bold text-red-600">{currentQuestion.japanese_text}</span> into your mic, or tap Continue below.
                   </p>
-                </div>
-              )}
-
-              {spokenTranscript && (
-                <div className="mt-2 text-xs font-semibold text-emerald-700 bg-emerald-50 inline-block px-3 py-1 rounded-full border border-emerald-200">
-                  🎙️ Spoken: &quot;{spokenTranscript}&quot;
                 </div>
               )}
             </div>

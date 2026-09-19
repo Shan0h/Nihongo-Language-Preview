@@ -458,6 +458,9 @@ export class JapaneseSpeechRecognizer {
       rec.maxAlternatives = 5;
       this.browserRecognition = rec;
 
+      let hasReceivedResult = false;
+      let hasReceivedError = false;
+
       rec.onstart = () => {
         this.isListening = true;
         if (onStart) onStart();
@@ -475,11 +478,19 @@ export class JapaneseSpeechRecognizer {
           const transcript = alternatives[0] || '';
           const confidence = event.results[0][0]?.confidence || 0;
           this.restoreBgm();
-          onResult({ transcript, confidence, alternatives });
+
+          if (transcript) {
+            hasReceivedResult = true;
+            onResult({ transcript, confidence, alternatives });
+          } else {
+            hasReceivedError = true;
+            onError('Could not understand speech. Please speak louder and clearer.');
+          }
         }
       };
 
       rec.onerror = (event: any) => {
+        hasReceivedError = true;
         const errType = event.error || 'error';
 
         // Check if OnePlus 12 / ColorOS or device restricted Google Speech Services ('aborted')
@@ -501,9 +512,11 @@ export class JapaneseSpeechRecognizer {
         }
 
         if (errType === 'no-speech') {
-          onError('No speech detected. Please speak closer to your microphone and try again.');
+          onError('No speech was detected. Please speak closer to your microphone and try again.');
         } else if (errType === 'not-allowed') {
           onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
+        } else if (errType === 'network') {
+          onError('Google Speech network error. Please tap to try again or switch to Cloud Whisper.');
         } else {
           onError(`Could not capture speech (${errType}). Please tap to try again.`);
         }
@@ -513,6 +526,12 @@ export class JapaneseSpeechRecognizer {
       rec.onend = () => {
         this.isListening = false;
         this.restoreBgm();
+
+        // If Google Speech ended without delivering any result or error, notify the user!
+        if (!hasReceivedResult && !hasReceivedError && !this.discardNextStop) {
+          onError('No speech was detected. Please tap the mic, speak clearly, and try again.');
+        }
+
         onEnd();
       };
 

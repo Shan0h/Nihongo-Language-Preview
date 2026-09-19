@@ -170,10 +170,12 @@ export default function PlayPage() {
           if (matchedOption) {
             handleAnswer(matchedOption);
           } else {
-            setSpeechError(`You said "${spoken}". Tap one of the options or try speaking again.`);
+            sfx.playWrong();
+            setSpeechError(`❌ Unrecognized pronunciation: "${spoken}". Please try again or tap an option below.`);
           }
         },
         (err) => {
+          sfx.playWrong();
           setSpeechError(err);
           setIsListening(false);
         },
