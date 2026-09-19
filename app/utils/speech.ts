@@ -604,6 +604,21 @@ export class JapaneseSpeechRecognizer {
         onEnd();
       };
 
+      // 6. Request mic permission via getUserMedia — triggers Chrome permission popup on Android
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(t => t.stop());
+      } catch (micErr: any) {
+        this.isListening = false;
+        this.restoreBgm();
+        if (micErr?.name === "NotAllowedError") {
+          onError("Microphone permission was denied. Tap the lock icon near the URL in Chrome to allow microphone access.");
+        } else {
+          onError("Could not access microphone. Please check your device settings.");
+        }
+        return;
+      }
+
       rec.start();
     } catch (err: any) {
       this.isListening = false;
