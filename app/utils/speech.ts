@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { stopJapaneseSpeech } from './tts';
 /**
  * Cross-browser Web Speech API Speech Recognition utility for Japanese
  * Supports Chrome, Edge, and Android Chrome using webkitSpeechRecognition
@@ -300,20 +301,7 @@ export function matchOptionFromSpeech(
 export class JapaneseSpeechRecognizer {
   private recognition: any = null;
   private isListening: boolean = false;
-
-  constructor() {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-      if (SpeechRecognition) {
-        this.recognition = new SpeechRecognition();
-        this.recognition.lang = 'ja-JP'; // Listen for Japanese speech
-        this.recognition.interimResults = false;
-        this.recognition.maxAlternatives = 3;
-      }
-    }
-  }
+  private userStopped: boolean = false;
 
   /**
    * Start listening for Japanese speech
@@ -323,65 +311,114 @@ export class JapaneseSpeechRecognizer {
     onError: (error: string) => void,
     onEnd: () => void
   ) {
-    if (!this.recognition) {
+    if (typeof window === 'undefined') return;
+
+    // 1. Immediately release Android audio focus by stopping any active TTS speech/audio
+    stopJapaneseSpeech();
+
+    // 2. Mobile Secure Context check: Android Chrome requires HTTPS (or localhost) for microphone access
+    if (!window.isSecureContext && window.location.hostname !== 'localhost') {
+      onError('Microphone requires HTTPS on mobile devices. Please access via your secure Vercel deployment URL (https://...).');
+      return;
+    }
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
       onError('Microphone speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
       return;
     }
 
-    if (this.isListening) {
-      this.stop();
+    // 3. Stop any existing session before starting a fresh one
+    if (this.isListening && this.recognition) {
+      this.userStopped = true;
+      try {
+        this.recognition.abort();
+      } catch {
+        // ignore
+      }
+      this.isListening = false;
     }
 
-    this.isListening = true;
-
-    this.recognition.onresult = (event: any) => {
-      if (event.results && event.results[0]) {
-        const alternatives: string[] = [];
-        for (let i = 0; i < event.results[0].length; i++) {
-          const t = event.results[0][i]?.transcript?.trim();
-          if (t && !alternatives.includes(t)) {
-            alternatives.push(t);
-          }
-        }
-        const transcript = alternatives[0] || '';
-        const confidence = event.results[0][0]?.confidence || 0;
-        onResult({ transcript, confidence, alternatives });
-      }
-    };
-
-    this.recognition.onerror = (event: any) => {
-      this.isListening = false;
-      if (event.error === 'not-allowed') {
-        onError('Microphone permission was denied. Please allow microphone access in your browser settings.');
-      } else if (event.error === 'no-speech') {
-        onError('No speech detected. Please speak louder into the microphone.');
-      } else {
-        onError(`Speech recognition error: ${event.error}`);
-      }
-    };
-
-    this.recognition.onend = () => {
-      this.isListening = false;
-      onEnd();
-    };
+    this.userStopped = false;
 
     try {
-      this.recognition.start();
-    } catch {
+      // 4. Always instantiate a FRESH SpeechRecognition object on each start.
+      // Android Chrome's underlying Google Speech Service invalidates the IPC binder
+      // after each session; reusing an existing instance triggers "error: aborted"!
+      const rec = new SpeechRecognition();
+      rec.lang = 'ja-JP';
+      rec.continuous = false; // Single-utterance mode is essential for Android
+      rec.interimResults = false;
+      rec.maxAlternatives = 4;
+      this.recognition = rec;
+
+      rec.onresult = (event: any) => {
+        if (event.results && event.results[0]) {
+          const alternatives: string[] = [];
+          for (let i = 0; i < event.results[0].length; i++) {
+            const t = event.results[0][i]?.transcript?.trim();
+            if (t && !alternatives.includes(t)) {
+              alternatives.push(t);
+            }
+          }
+          const transcript = alternatives[0] || '';
+          const confidence = event.results[0][0]?.confidence || 0;
+          onResult({ transcript, confidence, alternatives });
+        }
+      };
+
+      rec.onerror = (event: any) => {
+        this.isListening = false;
+
+        // If the user manually stopped, or if aborted normally, treat as graceful completion
+        if (this.userStopped || event.error === 'aborted') {
+          onEnd();
+          return;
+        }
+
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          onError('Microphone permission was denied. Please allow microphone access in your browser settings.');
+        } else if (event.error === 'no-speech') {
+          onError('No speech detected. Please speak closer to the microphone.');
+        } else if (event.error === 'network') {
+          onError('Network issue occurred during speech recognition. Please check your internet.');
+        } else {
+          onError(`Could not capture speech (${event.error}). Please tap to try again.`);
+        }
+      };
+
+      rec.onend = () => {
+        this.isListening = false;
+        onEnd();
+      };
+
+      this.isListening = true;
+      rec.start();
+    } catch (err: any) {
       this.isListening = false;
-      onError('Could not start microphone. Please try again.');
+      if (!this.userStopped) {
+        console.warn('Speech recognition start failed:', err);
+        onError('Could not start microphone. Please tap again.');
+      }
     }
   }
 
   /**
-   * Stop listening
+   * Stop listening cleanly
    */
   stop() {
+    this.userStopped = true;
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
       } catch {
-        // Ignore stop errors
+        try {
+          this.recognition.abort();
+        } catch {
+          // Ignore stop errors
+        }
       }
       this.isListening = false;
     }
