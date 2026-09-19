@@ -124,6 +124,8 @@ export function stopJapaneseSpeech() {
     try {
       activeAudioFallback.pause();
       activeAudioFallback.currentTime = 0;
+      activeAudioFallback.removeAttribute('src');
+      activeAudioFallback.load();
     } catch {}
     activeAudioFallback = null;
   }

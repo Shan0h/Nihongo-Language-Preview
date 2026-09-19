@@ -360,6 +360,9 @@ export default function QuizPage() {
         },
         () => {
           setIsListening(false);
+        },
+        () => {
+          setIsListening(true);
         }
       );
     }

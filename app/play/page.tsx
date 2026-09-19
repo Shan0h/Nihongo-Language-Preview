@@ -145,6 +145,9 @@ export default function PlayPage() {
         },
         () => {
           setIsListening(false);
+        },
+        () => {
+          setIsListening(true);
         }
       );
     }
