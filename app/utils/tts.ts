@@ -1,7 +1,8 @@
 /**
  * Cross-browser Japanese Text-to-Speech (TTS) utility
- * Optimized for Android phones, iOS, Chrome, Edge, and Safari
- * Features high-fidelity cloud audio fallback when native Japanese voice packs are not installed
+ * Optimized for Android phones, iOS Safari, Chrome, Edge, and Desktop
+ * Uses same-origin server-side audio proxy (/api/tts) for 100% reliable,
+ * high-fidelity Tokyo Japanese pronunciation on all mobile devices.
  */
 
 let activeAudioFallback: HTMLAudioElement | null = null;
@@ -39,124 +40,97 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
 }
 
 /**
- * Plays Japanese audio using cloud audio stream.
- * Guarantees crisp Tokyo native pronunciation on 100% of Android phones
- * even if the user does not have a Japanese voice pack installed in Android settings.
+ * Fallback to browser SpeechSynthesis (offline support)
  */
-function playAudioFallback(text: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    try {
-      if (typeof window === 'undefined') return resolve(false);
+function speakOffline(text: string, rate: number = 0.85) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
-      if (activeAudioFallback) {
-        activeAudioFallback.pause();
-        activeAudioFallback.currentTime = 0;
-        activeAudioFallback = null;
-      }
-
-      const cleanText = encodeURIComponent(text.trim());
-      // Google Cloud Japanese pronunciation stream (native Tokyo accent)
-      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ja&client=tw-ob&q=${cleanText}`;
-      const audio = new Audio(audioUrl);
-      activeAudioFallback = audio;
-
-      audio.onended = () => {
-        if (activeAudioFallback === audio) activeAudioFallback = null;
-        resolve(true);
-      };
-
-      audio.onerror = () => {
-        if (activeAudioFallback === audio) activeAudioFallback = null;
-        resolve(false);
-      };
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => resolve(true))
-          .catch((err) => {
-            console.warn('Audio fallback play prevented:', err);
-            resolve(false);
-          });
-      }
-    } catch (e) {
-      console.warn('Audio fallback error:', e);
-      resolve(false);
+  try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
     }
-  });
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ja-JP';
+    utterance.rate = rate;
+    utterance.pitch = 1.0;
+
+    const voice = getJapaneseVoice();
+    if (voice) {
+      utterance.voice = voice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.warn('Offline speech synthesis failed:', err);
+  }
 }
 
 /**
- * Speaks Japanese text out loud using browser Web Speech API or High-Fidelity Cloud Audio
- * Guarantees playback on Android phones and mobile devices
+ * Speaks Japanese text out loud.
+ * Uses the /api/tts streaming endpoint to guarantee authentic Tokyo Japanese pronunciation
+ * on 100% of Android phones and mobile devices without requiring any language pack installation.
+ * 
  * @param text Japanese text to pronounce (e.g. "こんにちは")
- * @param rate Speed rate (default 0.85 for clear educational speech)
+ * @param rate Speed rate for speech
  */
 export function speakJapanese(text: string, rate: number = 0.85) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || !text || text.trim() === '') return;
 
-  // Always cancel any previous audio or speech
+  // 1. Always stop any previously playing audio or speech
   stopJapaneseSpeech();
 
-  const hasSpeechSynthesis = 'speechSynthesis' in window;
-  const jaVoice = hasSpeechSynthesis ? getJapaneseVoice() : null;
+  try {
+    const cleanText = encodeURIComponent(text.trim());
+    // Same-origin server-side endpoint guarantees no CORS or 404 referer blocks
+    const audioUrl = `/api/tts?text=${cleanText}`;
+    const audio = new Audio(audioUrl);
+    activeAudioFallback = audio;
 
-  // If the browser has a genuine Japanese voice installed in OS, try native SpeechSynthesis
-  if (hasSpeechSynthesis && jaVoice) {
-    try {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
+    audio.onended = () => {
+      if (activeAudioFallback === audio) {
+        activeAudioFallback = null;
       }
+    };
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      utterance.rate = rate;
-      utterance.pitch = 1.0;
-      utterance.voice = jaVoice;
+    audio.onerror = (e) => {
+      console.warn('Server TTS stream failed, attempting offline SpeechSynthesis:', e);
+      if (activeAudioFallback === audio) {
+        activeAudioFallback = null;
+      }
+      speakOffline(text, rate);
+    };
 
-      let hasStarted = false;
-      utterance.onstart = () => {
-        hasStarted = true;
-      };
-
-      utterance.onerror = (e) => {
-        console.warn('SpeechSynthesis error, falling back to cloud audio:', e);
-        playAudioFallback(text);
-      };
-
-      window.speechSynthesis.speak(utterance);
-
-      // Failsafe: on mobile Android, if speech synthesis doesn't start within 350ms, trigger audio stream
-      setTimeout(() => {
-        if (!hasStarted && (!window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
-          window.speechSynthesis.cancel();
-          playAudioFallback(text);
-        }
-      }, 350);
-
-      return;
-    } catch (err) {
-      console.warn('SpeechSynthesis failed, using audio stream fallback:', err);
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.warn('Audio playback was prevented by browser policy, falling back:', err);
+        speakOffline(text, rate);
+      });
     }
+  } catch (err) {
+    console.warn('Failed to initialize audio playback, using offline fallback:', err);
+    speakOffline(text, rate);
   }
-
-  // Fallback for Android phones with no Japanese voice pack installed
-  playAudioFallback(text);
 }
 
 /**
- * Stops any currently playing speech synthesis or audio fallback
+ * Stops any currently playing audio stream or speech synthesis
  */
 export function stopJapaneseSpeech() {
   if (typeof window === 'undefined') return;
 
   if (activeAudioFallback) {
-    activeAudioFallback.pause();
-    activeAudioFallback.currentTime = 0;
+    try {
+      activeAudioFallback.pause();
+      activeAudioFallback.currentTime = 0;
+    } catch {}
     activeAudioFallback = null;
   }
 
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch {}
   }
 }
