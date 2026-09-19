@@ -287,19 +287,21 @@ export function matchOptionFromSpeech(
 
   // 1. Direct and normalized exact match check
   for (const trans of allTranscripts) {
-    const cleanTrans = trans.trim();
+    const cleanTrans = trans.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').trim();
     const normTrans = normalizeJapaneseSpeech(cleanTrans);
 
     for (const opt of options) {
+      const cleanOpt = opt.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').trim();
       const normOpt = normalizeJapaneseSpeech(opt);
-      if (opt === cleanTrans || normOpt === normTrans) {
+      if (cleanOpt === cleanTrans || normOpt === normTrans || opt === trans.trim()) {
         return opt;
       }
     }
 
     // Check correct answer direct/normalized match
+    const cleanCorrect = correctAnswer.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').trim();
     const normCorrect = normalizeJapaneseSpeech(correctAnswer);
-    if (correctAnswer === cleanTrans || normCorrect === normTrans) {
+    if (cleanCorrect === cleanTrans || normCorrect === normTrans || correctAnswer === trans.trim()) {
       return correctAnswer;
     }
   }
@@ -347,14 +349,41 @@ export function matchOptionFromSpeech(
   return null;
 }
 
+export type SpeechEnginePreference = 'google' | 'whisper';
+
 export class JapaneseSpeechRecognizer {
   private mediaRecorder: MediaRecorder | null = null;
   private mediaStream: MediaStream | null = null;
   private autoStopTimer: NodeJS.Timeout | number | null = null;
-  private fallbackRecognition: any = null;
+  private browserRecognition: any = null;
   private isListening: boolean = false;
-  private userStopped: boolean = false;
   private wasBgmPlaying: boolean = false;
+  private chunks: Blob[] = [];
+  private currentMimeType: string = '';
+  private discardNextStop: boolean = false;
+  private engine: SpeechEnginePreference = 'google';
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
+      if (saved === 'whisper' || saved === 'google') {
+        this.engine = saved;
+      }
+    }
+  }
+
+  public getEngine(): SpeechEnginePreference {
+    return this.engine;
+  }
+
+  public setEngine(engine: SpeechEnginePreference) {
+    this.engine = engine;
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('nihongo_speech_engine', engine);
+      } catch {}
+    }
+  }
 
   private restoreBgm() {
     if (this.wasBgmPlaying) {
@@ -366,14 +395,19 @@ export class JapaneseSpeechRecognizer {
   }
 
   /**
-   * Start listening for Japanese speech using Universal Whisper STT
-   * Works on 100% of devices (OnePlus 12, Samsung, iOS Safari, desktop)
+   * Start listening for Japanese speech.
+   * - Uses Google Speech (webkitSpeechRecognition) by default for fast, accurate recognition on supported devices (Samsung, Pixel, Edge, Chrome PC).
+   * - Automatically falls back to Groq Whisper STT on devices where Google Speech fails or aborts (OnePlus 12 / ColorOS).
+   * - Passes question vocabulary context to Groq Whisper to prevent silence/noise hallucinations.
    */
   async start(
     onResult: (result: SpeechRecognitionResult) => void,
     onError: (error: string) => void,
     onEnd: () => void,
-    onStart?: () => void
+    onStart?: () => void,
+    vocabPrompt?: string,
+    onEngineSwitch?: (newEngine: SpeechEnginePreference) => void,
+    enginePreference?: SpeechEnginePreference
   ) {
     if (typeof window === 'undefined') return;
 
@@ -395,171 +429,24 @@ export class JapaneseSpeechRecognizer {
       return;
     }
 
-    // 4. Stop any existing session cleanly
-    this.stop();
-    this.userStopped = false;
+    // 4. Cancel any running session cleanly
+    this.cancel();
 
-    // 5. Prefer Universal MediaRecorder + Groq Whisper (/api/stt)
-    // Works on 100% of devices (OnePlus 12, Samsung, iOS Safari, Xiaomi, Chrome, Firefox)
-    if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && typeof MediaRecorder !== 'undefined') {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
-        this.mediaStream = stream;
+    const selectedEngine = enginePreference || this.engine;
 
-        // Choose best supported MIME type
-        let mimeType = '';
-        if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-          mimeType = 'audio/webm;codecs=opus';
-        } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-          mimeType = 'audio/webm';
-        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-          mimeType = 'audio/mp4';
-        } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-          mimeType = 'audio/ogg';
-        }
-
-        const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-        this.mediaRecorder = recorder;
-        const chunks: Blob[] = [];
-
-        recorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) {
-            chunks.push(e.data);
-          }
-        };
-
-        recorder.onstart = () => {
-          this.isListening = true;
-          if (onStart) onStart();
-        };
-
-        recorder.onstop = async () => {
-          this.isListening = false;
-          this.cleanupStream();
-
-          if (this.userStopped) {
-            this.restoreBgm();
-            onEnd();
-            return;
-          }
-
-          if (chunks.length === 0) {
-            this.restoreBgm();
-            onError('No audio was captured. Please speak closer to your phone microphone and try again.');
-            onEnd();
-            return;
-          }
-
-          try {
-            const audioBlob = new Blob(chunks, { type: mimeType || 'audio/webm' });
-            const formData = new FormData();
-            formData.append(
-              'file',
-              audioBlob,
-              `speech.${mimeType.includes('mp4') ? 'mp4' : 'webm'}`
-            );
-
-            const response = await fetch('/api/stt', {
-              method: 'POST',
-              body: formData,
-            });
-
-            this.restoreBgm();
-
-            if (!response.ok) {
-              onError('Could not process speech. Please tap to try again or tap Continue.');
-              onEnd();
-              return;
-            }
-
-            const data = await response.json();
-            const transcript = (data.text || '').trim();
-
-            if (!transcript) {
-              onError('No speech detected. Please speak closer to your microphone and try again.');
-              onEnd();
-              return;
-            }
-
-            onResult({
-              transcript,
-              confidence: 0.99,
-              alternatives: [transcript],
-            });
-            onEnd();
-          } catch (err) {
-            console.error('STT fetch failed:', err);
-            this.restoreBgm();
-            onError('Speech recognition connection error. Please tap to try again.');
-            onEnd();
-          }
-        };
-
-        recorder.onerror = () => {
-          this.isListening = false;
-          this.cleanupStream();
-          this.restoreBgm();
-          if (!this.userStopped) {
-            onError('Microphone recording error. Please tap to try again.');
-            onEnd();
-          }
-        };
-
-        recorder.start(100);
-
-        // Auto-stop after 3.2s (optimal single-word / short phrase duration)
-        this.autoStopTimer = setTimeout(() => {
-          if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-            this.mediaRecorder.stop();
-          }
-        }, 3200);
-
-        return;
-      } catch (err: any) {
-        console.warn('MediaRecorder STT failed, falling back to Web Speech API:', err);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          this.restoreBgm();
-          onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
-          return;
-        }
-      }
+    // If preferred engine is Whisper, directly start Whisper
+    if (selectedEngine === 'whisper') {
+      this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+      return;
     }
 
-    // Secondary fallback: Web Speech API
-    this.startBrowserFallback(onResult, onError, onEnd, onStart);
-  }
-
-  private cleanupStream() {
-    if (this.autoStopTimer) {
-      clearTimeout(this.autoStopTimer);
-      this.autoStopTimer = null;
-    }
-    if (this.mediaStream) {
-      try {
-        this.mediaStream.getTracks().forEach((track) => track.stop());
-      } catch {}
-      this.mediaStream = null;
-    }
-  }
-
-  private startBrowserFallback(
-    onResult: (result: SpeechRecognitionResult) => void,
-    onError: (error: string) => void,
-    onEnd: () => void,
-    onStart?: () => void
-  ) {
+    // Otherwise, attempt Google Web Speech API (primary for high accuracy)
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      this.restoreBgm();
-      onError('Microphone is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      // Browser doesn't have Web Speech API; fall back to Whisper
+      this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
       return;
     }
 
@@ -568,7 +455,8 @@ export class JapaneseSpeechRecognizer {
       rec.lang = 'ja-JP';
       rec.continuous = false;
       rec.interimResults = false;
-      this.fallbackRecognition = rec;
+      rec.maxAlternatives = 5;
+      this.browserRecognition = rec;
 
       rec.onstart = () => {
         this.isListening = true;
@@ -586,16 +474,40 @@ export class JapaneseSpeechRecognizer {
           }
           const transcript = alternatives[0] || '';
           const confidence = event.results[0][0]?.confidence || 0;
+          this.restoreBgm();
           onResult({ transcript, confidence, alternatives });
         }
       };
 
       rec.onerror = (event: any) => {
+        const errType = event.error || 'error';
+
+        // Check if OnePlus 12 / ColorOS or device restricted Google Speech Services ('aborted')
+        if (errType === 'aborted' || errType === 'service-not-allowed' || errType === 'audio-capture') {
+          console.warn(`Native Google Speech failed (${errType}). Switching to Cloud Whisper.`);
+          this.setEngine('whisper');
+          if (onEngineSwitch) onEngineSwitch('whisper');
+          // Seamlessly start Whisper STT for this speech attempt
+          this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+          return;
+        }
+
         this.isListening = false;
         this.restoreBgm();
-        if (!this.userStopped) {
-          onError(`Could not capture speech (${event.error || 'error'}). Please tap to try again.`);
+
+        if (this.discardNextStop) {
+          onEnd();
+          return;
         }
+
+        if (errType === 'no-speech') {
+          onError('No speech detected. Please speak closer to your microphone and try again.');
+        } else if (errType === 'not-allowed') {
+          onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
+        } else {
+          onError(`Could not capture speech (${errType}). Please tap to try again.`);
+        }
+        onEnd();
       };
 
       rec.onend = () => {
@@ -606,19 +518,217 @@ export class JapaneseSpeechRecognizer {
 
       rec.start();
     } catch (err: any) {
-      this.isListening = false;
-      this.restoreBgm();
-      if (!this.userStopped) {
-        onError('Could not start microphone. Please tap again.');
-      }
+      console.warn('Native speech recognition start failed. Falling back to Whisper:', err);
+      this.setEngine('whisper');
+      if (onEngineSwitch) onEngineSwitch('whisper');
+      this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
     }
   }
 
   /**
-   * Stop listening cleanly
+   * Whisper Cloud STT fallback using MediaRecorder + Groq Whisper (/api/stt)
+   * Passing question vocabulary prompt anchors Whisper to prevent hallucinations.
+   */
+  private async startWhisper(
+    onResult: (result: SpeechRecognitionResult) => void,
+    onError: (error: string) => void,
+    onEnd: () => void,
+    onStart?: () => void,
+    vocabPrompt?: string
+  ) {
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia ||
+      typeof MediaRecorder === 'undefined'
+    ) {
+      this.restoreBgm();
+      this.isListening = false;
+      onError('Audio recording is not supported on this browser.');
+      onEnd();
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      this.mediaStream = stream;
+
+      // Choose best supported MIME type
+      let mimeType = '';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+        mimeType = 'audio/ogg';
+      }
+      this.currentMimeType = mimeType;
+
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      this.mediaRecorder = recorder;
+      this.chunks = [];
+      this.discardNextStop = false;
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          this.chunks.push(e.data);
+        }
+      };
+
+      recorder.onstart = () => {
+        this.isListening = true;
+        if (onStart) onStart();
+      };
+
+      recorder.onstop = async () => {
+        this.isListening = false;
+        const capturedChunks = [...this.chunks];
+        this.chunks = [];
+        this.cleanupStream();
+
+        if (this.discardNextStop) {
+          this.restoreBgm();
+          onEnd();
+          return;
+        }
+
+        if (capturedChunks.length === 0) {
+          this.restoreBgm();
+          onError('No audio was captured. Please speak closer to your phone microphone and try again.');
+          onEnd();
+          return;
+        }
+
+        try {
+          const audioBlob = new Blob(capturedChunks, { type: this.currentMimeType || 'audio/webm' });
+          const formData = new FormData();
+          formData.append(
+            'file',
+            audioBlob,
+            `speech.${this.currentMimeType.includes('mp4') ? 'mp4' : 'webm'}`
+          );
+
+          if (vocabPrompt && vocabPrompt.trim()) {
+            formData.append('prompt', vocabPrompt.trim());
+          }
+
+          const response = await fetch('/api/stt', {
+            method: 'POST',
+            body: formData,
+          });
+
+          this.restoreBgm();
+
+          if (!response.ok) {
+            onError('Could not process speech. Please tap to try again or tap Continue.');
+            onEnd();
+            return;
+          }
+
+          const data = await response.json();
+          const rawText = (data.text || '').trim();
+          // Strip punctuation from Japanese Whisper transcript
+          const transcript = rawText.replace(/[\u3002\u3001.,!?！？]/g, '').trim();
+
+          if (!transcript) {
+            onError('No speech detected. Please speak closer to your microphone and try again.');
+            onEnd();
+            return;
+          }
+
+          onResult({
+            transcript,
+            confidence: 0.99,
+            alternatives: [transcript, rawText],
+          });
+          onEnd();
+        } catch (err) {
+          console.error('STT fetch failed:', err);
+          this.restoreBgm();
+          onError('Speech recognition connection error. Please tap to try again.');
+          onEnd();
+        }
+      };
+
+      recorder.onerror = () => {
+        this.isListening = false;
+        this.cleanupStream();
+        this.restoreBgm();
+        if (!this.discardNextStop) {
+          onError('Microphone recording error. Please tap to try again.');
+          onEnd();
+        }
+      };
+
+      recorder.start(100);
+
+      // Auto-stop after 2.2s (optimal single-word / short phrase duration to prevent silence hallucinations)
+      this.autoStopTimer = setTimeout(() => {
+        if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+          this.mediaRecorder.stop();
+        }
+      }, 2200);
+    } catch (err: any) {
+      this.restoreBgm();
+      this.isListening = false;
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
+      } else {
+        onError('Could not start microphone recording. Please tap to try again.');
+      }
+      onEnd();
+    }
+  }
+
+  private cleanupStream() {
+    if (this.autoStopTimer) {
+      clearTimeout(this.autoStopTimer);
+      this.autoStopTimer = null;
+    }
+    if (this.mediaStream) {
+      try {
+        this.mediaStream.getTracks().forEach((track) => track.stop());
+      } catch {}
+      this.mediaStream = null;
+    }
+  }
+
+  /**
+   * Stop listening and transcribe speech captured so far (when user taps mic to say they finished)
    */
   stop() {
-    this.userStopped = true;
+    this.discardNextStop = false;
+    if (this.autoStopTimer) {
+      clearTimeout(this.autoStopTimer);
+      this.autoStopTimer = null;
+    }
+
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+      try {
+        this.mediaRecorder.stop();
+      } catch {}
+    }
+
+    if (this.browserRecognition) {
+      try {
+        this.browserRecognition.stop();
+      } catch {}
+    }
+  }
+
+  /**
+   * Cancel listening and discard any recorded audio (when user navigates away or answers directly)
+   */
+  cancel() {
+    this.discardNextStop = true;
     this.cleanupStream();
     this.restoreBgm();
 
@@ -629,19 +739,19 @@ export class JapaneseSpeechRecognizer {
       this.mediaRecorder = null;
     }
 
-    if (this.fallbackRecognition) {
+    if (this.browserRecognition) {
       try {
-        this.fallbackRecognition.onstart = null;
-        this.fallbackRecognition.onresult = null;
-        this.fallbackRecognition.onerror = null;
-        this.fallbackRecognition.onend = null;
-        this.fallbackRecognition.stop();
+        this.browserRecognition.onstart = null;
+        this.browserRecognition.onresult = null;
+        this.browserRecognition.onerror = null;
+        this.browserRecognition.onend = null;
+        this.browserRecognition.stop();
       } catch {
         try {
-          this.fallbackRecognition.abort();
+          this.browserRecognition.abort();
         } catch {}
       }
-      this.fallbackRecognition = null;
+      this.browserRecognition = null;
     }
 
     this.isListening = false;

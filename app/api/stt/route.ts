@@ -25,13 +25,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No audio file provided' }, { status: 400 });
     }
 
+    const prompt = formData.get('prompt') as string | null;
+
     // Build multipart request for Groq Whisper
     const groqFormData = new FormData();
     groqFormData.append('file', file, 'audio.webm');
-    groqFormData.append('model', 'whisper-large-v3-turbo');
+    groqFormData.append('model', 'whisper-large-v3');
     groqFormData.append('language', 'ja');
     groqFormData.append('response_format', 'json');
     groqFormData.append('temperature', '0.0');
+    if (prompt && prompt.trim()) {
+      groqFormData.append('prompt', prompt.trim());
+    } else {
+      groqFormData.append('prompt', '日本語、単語、ひらがな、漢字');
+    }
 
     const groqResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',

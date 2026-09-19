@@ -40,16 +40,30 @@ export default function PlayPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
+  const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
-    speechRecognizerRef.current = new JapaneseSpeechRecognizer();
+    const recognizer = new JapaneseSpeechRecognizer();
+    speechRecognizerRef.current = recognizer;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('nihongo_speech_engine') as 'google' | 'whisper' | null;
+      if (saved) {
+        setSpeechEngine(saved);
+        recognizer.setEngine(saved);
+      }
+    }
     return () => {
       if (speechRecognizerRef.current) {
-        speechRecognizerRef.current.stop();
+        speechRecognizerRef.current.cancel();
       }
     };
   }, []);
+
+  const handleEngineChange = (engine: 'google' | 'whisper') => {
+    setSpeechEngine(engine);
+    speechRecognizerRef.current?.setEngine(engine);
+  };
 
   // Connect on mount
   useEffect(() => {
@@ -113,13 +127,33 @@ export default function PlayPage() {
   };
 
   const handleMicListen = () => {
-    if (hasAnswered || isListening || !currentQuestion) return;
+    if (hasAnswered || !currentQuestion) return;
+
+    if (isListening) {
+      speechRecognizerRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
 
     setSpeechError('');
     setSpokenTranscript('');
     setIsListening(true);
 
     if (speechRecognizerRef.current) {
+      const q = currentQuestion.question;
+      const vocabList = [
+        q.correct_answer,
+        ...q.options,
+        q.japanese_text,
+      ];
+      if (q.option_hiragana) {
+        Object.values(q.option_hiragana).forEach((h) => {
+          const clean = h.replace(/\s*\([^)]*\)/, '');
+          vocabList.push(clean);
+        });
+      }
+      const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).join('、');
+
       speechRecognizerRef.current.start(
         (result) => {
           const spoken = result.transcript;
@@ -127,9 +161,9 @@ export default function PlayPage() {
 
           const matchedOption = matchOptionFromSpeech(
             spoken,
-            currentQuestion.question.options,
-            currentQuestion.question.correct_answer,
-            currentQuestion.question.option_hiragana,
+            q.options,
+            q.correct_answer,
+            q.option_hiragana,
             result.alternatives
           );
 
@@ -148,7 +182,12 @@ export default function PlayPage() {
         },
         () => {
           setIsListening(true);
-        }
+        },
+        vocabPrompt,
+        (newEngine) => {
+          setSpeechEngine(newEngine);
+        },
+        speechEngine
       );
     }
   };
@@ -339,8 +378,8 @@ export default function PlayPage() {
             <div className="mt-6 p-4 bg-white/40 backdrop-blur-md rounded-2xl border border-gray-100 text-center">
               <button
                 onClick={handleMicListen}
-                disabled={hasAnswered || isListening}
-                className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs border ${isListening
+                disabled={hasAnswered}
+                className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs border cursor-pointer ${isListening
                     ? 'bg-rose-100 text-rose-600 border-rose-300 shadow-[0_0_15px_rgba(225,29,72,0.25)] ring-4 ring-rose-200'
                     : hasAnswered
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
@@ -352,7 +391,7 @@ export default function PlayPage() {
                 ) : (
                   <span className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-sm shadow-xs">🎤</span>
                 )}
-                <span>{isListening ? 'Listening...' : 'Tap to Speak'}</span>
+                <span>{isListening ? 'Listening... (Tap to finish)' : 'Tap to Speak'}</span>
               </button>
 
               {spokenTranscript && (
@@ -366,6 +405,39 @@ export default function PlayPage() {
                   ⚠️ {speechError}
                 </div>
               )}
+
+              {/* Speech Engine Selector */}
+              <div className="mt-3 flex flex-col items-center">
+                <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm p-0.5 rounded-full text-[10px] font-bold border border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => handleEngineChange('google')}
+                    className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                      speechEngine === 'google'
+                        ? 'bg-white text-stone-800 shadow-xs'
+                        : 'text-stone-400 hover:text-stone-600'
+                    }`}
+                  >
+                    🎙️ Google Speech
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleEngineChange('whisper')}
+                    className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                      speechEngine === 'whisper'
+                        ? 'bg-white text-red-600 shadow-xs'
+                        : 'text-stone-400 hover:text-stone-600'
+                    }`}
+                  >
+                    ⚡ Cloud Whisper
+                  </button>
+                </div>
+                <p className="text-[10px] text-stone-400 mt-1">
+                  {speechEngine === 'google'
+                    ? 'Native Google recognition (Fast & accurate for Samsung, PC)'
+                    : 'Cloud Whisper AI (Works on OnePlus 12 & all devices)'}
+                </p>
+              </div>
             </div>
           </div>
 

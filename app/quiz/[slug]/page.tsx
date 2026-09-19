@@ -44,16 +44,30 @@ export default function QuizPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
+  const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
-    speechRecognizerRef.current = new JapaneseSpeechRecognizer();
+    const recognizer = new JapaneseSpeechRecognizer();
+    speechRecognizerRef.current = recognizer;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('nihongo_speech_engine') as 'google' | 'whisper' | null;
+      if (saved) {
+        setSpeechEngine(saved);
+        recognizer.setEngine(saved);
+      }
+    }
     return () => {
       if (speechRecognizerRef.current) {
-        speechRecognizerRef.current.stop();
+        speechRecognizerRef.current.cancel();
       }
     };
   }, []);
+
+  const handleEngineChange = (engine: 'google' | 'whisper') => {
+    setSpeechEngine(engine);
+    speechRecognizerRef.current?.setEngine(engine);
+  };
 
   useEffect(() => {
     const srsData = getSRSData();
@@ -332,7 +346,21 @@ export default function QuizPage() {
     setSpokenTranscript('');
     setIsListening(true);
 
-    if (speechRecognizerRef.current) {
+    if (speechRecognizerRef.current && currentQuestion) {
+      // Build vocabulary prompt for Whisper context
+      const vocabList = [
+        currentQuestion.correct_answer,
+        ...currentQuestion.options,
+        currentQuestion.japanese_text,
+      ];
+      if (currentQuestion.option_hiragana) {
+        Object.values(currentQuestion.option_hiragana).forEach((h) => {
+          const clean = h.replace(/\s*\([^)]*\)/, '');
+          vocabList.push(clean);
+        });
+      }
+      const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).join('、');
+
       speechRecognizerRef.current.start(
         (result) => {
           const spoken = result.transcript;
@@ -363,7 +391,12 @@ export default function QuizPage() {
         },
         () => {
           setIsListening(true);
-        }
+        },
+        vocabPrompt,
+        (newEngine) => {
+          setSpeechEngine(newEngine);
+        },
+        speechEngine
       );
     }
   };
@@ -914,6 +947,39 @@ export default function QuizPage() {
               <span className="text-xs font-bold text-stone-600 dark:text-stone-300 mt-2 z-10">
                 {isListening ? 'Listening...' : 'Tap to Speak'}
               </span>
+
+              {/* Speech Recognition Engine Selector */}
+              <div className="flex flex-col items-center mt-3 z-10">
+                <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800/80 p-1 rounded-full text-[11px] font-bold border border-stone-200/60 dark:border-white/10 shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleEngineChange('google')}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                      speechEngine === 'google'
+                        ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-xs'
+                        : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
+                    }`}
+                  >
+                    🎙️ Google Speech
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleEngineChange('whisper')}
+                    className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
+                      speechEngine === 'whisper'
+                        ? 'bg-white dark:bg-stone-700 text-red-600 dark:text-rose-400 shadow-xs'
+                        : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
+                    }`}
+                  >
+                    ⚡ Cloud Whisper
+                  </button>
+                </div>
+                <p className="text-[10px] text-stone-400 mt-1 font-medium">
+                  {speechEngine === 'google'
+                    ? 'Native Google recognition (Fast & accurate for Samsung, Pixel, PC)'
+                    : 'Cloud Whisper AI (Works on OnePlus 12, iPhone & all devices)'}
+                </p>
+              </div>
             </div>
 
             {/* Bottom Actions: Skip Practice & Continue */}
