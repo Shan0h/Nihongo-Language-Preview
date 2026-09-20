@@ -13,6 +13,38 @@ import { Question } from '@/data/questions';
 import AudioWave from '@/app/components/AudioWave';
 import { supabase } from '@/app/utils/supabase';
 import CertificateModal from '@/app/components/CertificateModal';
+import Image from 'next/image';
+import { bgm } from '@/app/utils/bgm';
+
+// Gentle falling sakura petals
+const SakuraBackground = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="sakura-container pointer-events-none z-0">
+      {Array.from({ length: 14 }).map((_, i) => (
+        <div
+          key={i}
+          className="sakura-petal"
+          style={{
+            left: `${4 + (i % 10) * 9.8}%`,
+            animationDuration: `${11 + (i % 5) * 1.5}s`,
+            animationDelay: `-${i * 1.2}s`,
+            width: `${8 + (i % 3) * 3}px`,
+            height: `${8 + (i % 3) * 3}px`,
+            opacity: 0.65 + (i % 4) * 0.1,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default function QuizPage() {
   const params = useParams();
@@ -47,6 +79,46 @@ export default function QuizPage() {
   const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
   const [showOnePlusHelp, setShowOnePlusHelp] = useState(false);
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isBgmPlaying, setIsBgmPlaying] = useState(true);
+
+  // Sync theme & BGM state
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('nihongo-theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) || document.documentElement.classList.contains('dark')) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    }
+
+    const userBgm = localStorage.getItem('nihongo-bgm-enabled');
+    if (userBgm !== null) {
+      setIsBgmPlaying(userBgm !== 'false');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('nihongo-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('nihongo-theme', 'light');
+    }
+  };
+
+  const handleToggleBgm = () => {
+    const newState = bgm.toggle();
+    setIsBgmPlaying(newState);
+  };
+
+  const handleTriggerAfk = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('nihongo-trigger-afk'));
+    }
+  };
 
   useEffect(() => {
     const recognizer = new JapaneseSpeechRecognizer();
@@ -277,28 +349,137 @@ export default function QuizPage() {
     return (
       <div 
         onClick={() => setCountdown('finished')}
-        className="min-h-screen bg-seigaiha flex flex-col justify-between items-center py-16 sm:py-24 px-4 select-none cursor-pointer transition-colors duration-300 relative overflow-hidden"
+        className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-500 bg-[#fff0f3] dark:bg-[#0c080e] cursor-pointer"
       >
-        <div />
+        {/* Full-bleed Scenic Sakura Background matching first user-provided picture */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* Day Mode: User-provided Japanese Sakura Seigaiha wave background */}
+          <Image
+            src="/images/sakura-seigaiha-bg.png"
+            alt="Sakura Seigaiha Background"
+            fill
+            priority
+            className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
+          />
+          {/* Night Mode: Scenic Mount Fuji Night background */}
+          <Image
+            src="/images/fuji-night-bg.jpg"
+            alt="Mount Fuji Night Background"
+            fill
+            priority
+            className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+          />
+          {/* Day Soft Vignette */}
+          <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/25 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+          {/* Night Soft Scrim */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        </div>
 
-        {/* Center Hero: GET READY! + Large Bold Red GO/Count */}
-        <div className="flex flex-col items-center justify-center text-center">
-          <h2 className="text-lg sm:text-xl font-extrabold text-stone-600 dark:text-stone-300 tracking-[0.25em] uppercase mb-4 animate-pulse">
-            GET READY!
-          </h2>
+        <SakuraBackground />
 
-          <div 
-            key={countdown} 
-            className="text-8xl sm:text-9xl font-black text-[#c5221f] dark:text-rose-500 font-sans tracking-tight animate-scale-in my-2 drop-shadow-xs"
+        {/* TOP HEADER: Day / Night Theme Pill Switcher */}
+        <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-end flex-shrink-0 animate-fade-in-up">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTheme();
+            }}
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-800 dark:text-stone-200 border-white/90 dark:border-white/10 flex items-center gap-2 cursor-pointer shadow-xs hover:shadow transition-all"
+            title={isDarkMode ? "Switch to Day Mode (昼)" : "Switch to Night Mode (夜)"}
           >
-            {countdown}
-          </div>
-        </div>
+            <span>{isDarkMode ? '⛩️' : '🌸'}</span>
+            <span className="tracking-wider">{isDarkMode ? 'NIGHT' : 'DAY'}</span>
+            <span className="text-amber-500 text-xs">{isDarkMode ? '🌙' : '☀️'}</span>
+          </button>
+        </header>
 
-        {/* Category Label at bottom */}
-        <div className="text-sm sm:text-base font-semibold text-stone-500 dark:text-stone-400">
-          {category?.name || slug}
-        </div>
+        {/* CENTER HERO: Minimalist Circular Glassmorphic Disc */}
+        <main className="relative z-10 my-auto flex flex-col items-center justify-center animate-fade-in-up">
+          {/* The Circular Glass Disc */}
+          <div className="relative w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-92 lg:h-92 rounded-full bg-white/55 dark:bg-[#181424]/70 backdrop-blur-2xl border border-white/90 dark:border-white/15 shadow-[0_20px_50px_rgba(244,114,182,0.18),inset_0_2px_4px_rgba(255,255,255,0.85)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)] flex flex-col items-center justify-center p-6 text-center select-none group">
+            {/* Top Cherry Blossom Icon */}
+            <span className="text-xl sm:text-2xl text-rose-400 dark:text-rose-300 animate-pulse">
+              🌸
+            </span>
+
+            {/* GET READY! Subtitle */}
+            <h2 className="text-xs sm:text-sm font-black tracking-[0.25em] text-stone-600 dark:text-stone-300 uppercase mt-1.5 mb-0.5">
+              GET READY!
+            </h2>
+
+            {/* Bold Japanese Crimson Countdown Number */}
+            <div 
+              key={countdown}
+              className="text-7xl sm:text-8xl md:text-9xl font-black text-[#dc2626] dark:text-rose-500 font-sans tracking-tight leading-none my-1 drop-shadow-sm animate-scale-in"
+            >
+              {countdown}
+            </div>
+
+            {/* Progress Bar Track */}
+            <div className="w-24 sm:w-32 h-1.5 rounded-full bg-rose-200/60 dark:bg-white/15 overflow-hidden my-2">
+              <div 
+                className={`h-full bg-[#dc2626] dark:bg-rose-500 rounded-full transition-all duration-500 ease-out ${
+                  countdown === '3' ? 'w-1/3' : countdown === '2' ? 'w-2/3' : 'w-full'
+                }`} 
+              />
+            </div>
+
+            {/* 3 Progress Dots Indicator */}
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${countdown === '3' || countdown === '2' || countdown === '1' || countdown === 'GO' ? 'bg-[#dc2626] dark:bg-rose-500' : 'bg-rose-200 dark:bg-white/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${countdown === '2' || countdown === '1' || countdown === 'GO' ? 'bg-[#dc2626] dark:bg-rose-500' : 'bg-rose-200 dark:bg-white/20'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${countdown === '1' || countdown === 'GO' ? 'bg-[#dc2626] dark:bg-rose-500' : 'bg-rose-200 dark:bg-white/20'}`} />
+            </div>
+          </div>
+
+          {/* Category Label Pill with Winged Dividers below disc */}
+          <div className="flex items-center gap-3 mt-6 sm:mt-8">
+            <span className="w-8 sm:w-12 h-[1px] bg-rose-300/70 dark:bg-rose-700/60" />
+            <div className="glass-pill rounded-full px-5 py-1 text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-200 border-white/90 dark:border-white/10 shadow-xs tracking-wide">
+              {category?.name || slug}
+            </div>
+            <span className="w-8 sm:w-12 h-[1px] bg-rose-300/70 dark:bg-rose-700/60" />
+          </div>
+        </main>
+
+        {/* BOTTOM FOOTER CONTROLS: Zen BGM & AFK */}
+        <footer className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-end flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            {/* Zen BGM Toggle */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleBgm();
+              }}
+              className="glass-pill rounded-full px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-all"
+              title={isBgmPlaying ? "Pause Ambient BGM" : "Play Ambient BGM"}
+            >
+              <span className="w-4 h-4 rounded-full bg-[#e11d48] text-white flex items-center justify-center text-[9px]">
+                🎵
+              </span>
+              <span className="font-bold text-stone-700 dark:text-stone-200 text-xs">
+                Zen BGM
+              </span>
+              <div className={`w-7 h-4 rounded-full transition-colors relative flex items-center px-0.5 ${isBgmPlaying ? 'bg-[#e11d48]' : 'bg-stone-300 dark:bg-stone-700'}`}>
+                <div className={`w-3 h-3 rounded-full bg-white shadow-xs transition-transform transform ${isBgmPlaying ? 'translate-x-3' : 'translate-x-0'}`} />
+              </div>
+            </button>
+
+            {/* AFK Screensaver Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTriggerAfk();
+              }}
+              className="glass-pill rounded-full px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-200 cursor-pointer"
+              title="Launch AFK Japanese Screensaver"
+            >
+              <span>🌸</span>
+              <span>AFK</span>
+            </button>
+          </div>
+        </footer>
+
       </div>
     );
   }

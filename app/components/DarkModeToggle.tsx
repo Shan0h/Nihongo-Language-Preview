@@ -32,7 +32,7 @@ export default function DarkModeToggle() {
     }
   };
 
-  if (!mounted || pathname === '/' || pathname === '/topics') return null;
+  if (!mounted || pathname === '/' || pathname === '/topics' || pathname?.startsWith('/quiz')) return null;
 
   return (
     <button
