@@ -46,6 +46,68 @@ const SakuraBackground = () => {
   );
 };
 
+// Bowing Japanese Character Avatar matching reference screenshot
+const BowingAvatar = ({ className = "w-20 h-20" }: { className?: string }) => (
+  <svg viewBox="0 0 120 120" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Left and right bowing motion accent dashes */}
+    <path d="M 26 50 L 20 52 M 28 58 L 22 61" stroke="#0ea5e9" strokeWidth="3" strokeLinecap="round" />
+    <path d="M 94 50 L 100 52 M 92 58 L 98 61" stroke="#0ea5e9" strokeWidth="3" strokeLinecap="round" />
+    
+    {/* Hair bun and cyan ribbon tie */}
+    <path d="M 46 25 C 46 16 74 16 74 25 Z" fill="#0284c7" />
+    <ellipse cx="60" cy="23" rx="14" ry="7" fill="#38bdf8" />
+    <circle cx="60" cy="23" r="3" fill="#ffffff" />
+    
+    {/* Hair silhouette */}
+    <path d="M 40 32 C 40 20 80 20 80 32 C 80 44 40 44 40 32 Z" fill="#1e293b" />
+    
+    {/* Head tilted down bowing */}
+    <ellipse cx="60" cy="48" rx="22" ry="19" fill="#fde68a" stroke="#1e293b" strokeWidth="3.5" />
+    
+    {/* Hair bangs */}
+    <path d="M 40 43 C 48 35 72 35 80 43 C 71 39 49 39 40 43 Z" fill="#1e293b" />
+    
+    {/* Closed happy bowing eyes */}
+    <path d="M 48 48 Q 53 51 58 48" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+    <path d="M 62 48 Q 67 51 72 48" stroke="#1e293b" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+    
+    {/* Blush cheeks */}
+    <circle cx="47" cy="54" r="3.5" fill="#f43f5e" opacity="0.6" />
+    <circle cx="73" cy="54" r="3.5" fill="#f43f5e" opacity="0.6" />
+    
+    {/* Kimono Robe (Royal Navy Blue) */}
+    <path d="M 30 96 L 46 64 L 74 64 L 90 96 Z" fill="#0369a1" stroke="#1e293b" strokeWidth="3.5" strokeLinejoin="round" />
+    
+    {/* Kimono Collar V-neck */}
+    <path d="M 48 64 L 60 78 L 72 64" fill="#fbbf24" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+    <path d="M 52 64 L 60 74 L 68 64" fill="#ffffff" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+    
+    {/* Folded hands in front bowing */}
+    <ellipse cx="60" cy="82" rx="11" ry="8" fill="#fde68a" stroke="#1e293b" strokeWidth="3" />
+    
+    {/* Obi belt */}
+    <path d="M 38 90 Q 60 94 82 90" stroke="#f59e0b" strokeWidth="5" strokeLinecap="round" />
+  </svg>
+);
+
+// Flanking sound wave bars matching reference screenshot
+const SoundWaveBars = ({ isListening }: { isListening: boolean }) => (
+  <div className="flex items-center gap-1.5 px-2 sm:px-3">
+    {[12, 22, 34, 18, 28, 14].map((h, i) => (
+      <span
+        key={i}
+        className={`w-1 rounded-full bg-rose-200 dark:bg-rose-900/60 transition-all ${
+          isListening ? 'animate-pulse' : ''
+        }`}
+        style={{
+          height: isListening ? `${Math.max(12, (h * 1.5) % 38)}px` : `${h}px`,
+          animationDelay: `${i * 0.15}s`,
+        }}
+      />
+    ))}
+  </div>
+);
+
 export default function QuizPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -353,10 +415,10 @@ export default function QuizPage() {
       >
         {/* Full-bleed Scenic Sakura Background matching first user-provided picture */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          {/* Day Mode: User-provided Japanese Sakura Seigaiha wave background */}
+          {/* Day Mode: User-provided clean Fuji Sakura background */}
           <Image
-            src="/images/sakura-seigaiha-bg.png"
-            alt="Sakura Seigaiha Background"
+            src="/images/fuji-sakura-clean-bg.png"
+            alt="Sakura Fuji Background"
             fill
             priority
             className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
@@ -739,7 +801,58 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="h-screen max-h-[100dvh] bg-[#fcfbf9] dark:bg-[#0a0a0a] text-stone-900 dark:text-white flex flex-col justify-between p-2 sm:p-3 md:p-4 select-none relative overflow-hidden">
+    <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-[#fff5f6] dark:bg-[#0c080e] text-stone-900 dark:text-white flex flex-col justify-between p-3 sm:p-5 md:p-6 lg:p-7 select-none transition-colors duration-500">
+
+      {/* Full-bleed Scenic Background (clean Fuji Sakura in Day mode, Fuji Night in Night mode) */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+        {/* Day Mode: First Picture (clean Fuji Sakura background) */}
+        <Image
+          src="/images/fuji-sakura-clean-bg.png"
+          alt="Sakura Fuji Background"
+          fill
+          priority
+          className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
+        />
+        {/* Night Mode: Mount Fuji Night background */}
+        <Image
+          src="/images/fuji-night-bg.jpg"
+          alt="Mount Fuji Night Background"
+          fill
+          priority
+          className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+        />
+        {/* Day Soft Pink Vignette */}
+        <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/20 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+        {/* Night Soft Scrim */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      </div>
+
+      <SakuraBackground />
+
+      {/* Flanking Typography Accents (matching user reference mockup) */}
+      <div className="hidden xl:flex fixed left-6 2xl:left-12 top-1/2 -translate-y-1/2 flex-col items-center gap-3 pointer-events-none select-none z-10 opacity-70">
+        <div className="flex flex-col text-[10px] font-extrabold tracking-[0.25em] text-stone-400 dark:text-stone-500 uppercase leading-loose text-left">
+          <span>SMALL</span>
+          <span>WORDS</span>
+          <span>BIGGER</span>
+          <span>WORLDS</span>
+        </div>
+        <div className="w-6 h-[1.5px] bg-rose-200 dark:bg-stone-700" />
+      </div>
+
+      <div className="hidden xl:flex fixed right-6 2xl:right-12 top-1/2 -translate-y-1/2 flex-col items-center gap-3 pointer-events-none select-none z-10 opacity-70 text-right">
+        <div className="text-xs font-serif tracking-[0.35em] text-stone-400 dark:text-stone-500 [writing-mode:vertical-rl] leading-loose">
+          ことばで、つながる。
+        </div>
+        <div className="w-4 h-[1.5px] bg-rose-200 dark:bg-stone-700 my-1" />
+        <div className="flex flex-col text-[10px] font-medium text-stone-400 dark:text-stone-500 tracking-wider text-right leading-tight">
+          <span>A</span>
+          <span>brighter</span>
+          <span>you</span>
+          <span>with</span>
+          <span>Japanese.</span>
+        </div>
+      </div>
 
       {/* Correct Answer Feedback Modal Overlay */}
       {feedbackModal === 'correct' && (
@@ -830,142 +943,151 @@ export default function QuizPage() {
         </div>
       )}
 
-      {/* Top Bar: Back & Category Title */}
-      <div className="max-w-5xl mx-auto w-full flex items-center justify-between pt-0.5 pb-1 px-1 shrink-0">
+      {/* Top Header: Back Button, Category & Subtitle, Day/Night Toggle */}
+      <header className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between flex-shrink-0 pt-1 pb-2 px-1">
         <Link
           href="/topics"
-          className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-stone-600 hover:text-red-600 transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border border-stone-200/80 dark:border-white/10 text-xs font-bold text-stone-700 dark:text-stone-200 shadow-sm hover:bg-white dark:hover:bg-stone-800 hover:scale-102 transition-all cursor-pointer group"
         >
-          ‹ Back
+          <span className="text-stone-400 group-hover:-translate-x-0.5 transition-transform">‹</span>
+          <span>Back</span>
         </Link>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-black text-red-600 dark:text-red-500 tracking-tight text-center">
-          {category.name}
-        </h1>
-        <div className="w-12"></div>
-      </div>
 
-      {/* HUD Stats Row */}
-      <div className="max-w-5xl mx-auto w-full px-2 shrink-0">
-        <div className="flex items-center justify-between text-center mb-0.5">
-          {/* Score */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="text-xl sm:text-2xl">⭐</span>
-            <div className="text-left">
-              <div className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider leading-tight">Score</div>
-              <div className="text-sm sm:text-base md:text-lg font-black text-amber-600 dark:text-amber-400 font-mono leading-none">
-                {score * 20} <span className="text-[10px] sm:text-xs text-stone-400 font-sans">pt</span>
-              </div>
-            </div>
+        {/* Centered Title with Japanese Subtitle & Question Counter */}
+        <div className="text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-stone-900 dark:text-white tracking-tight leading-tight">
+            {category?.name || slug}
+          </h1>
+          <div className="flex items-center justify-center gap-2 mt-0.5">
+            <span className="w-3 h-[1.5px] bg-rose-400/60" />
+            <span className="text-xs sm:text-sm font-bold text-rose-500 dark:text-rose-400 tracking-widest font-sans">
+              {category?.japanese || 'あいさつ'}
+            </span>
+            <span className="w-3 h-[1.5px] bg-rose-400/60" />
           </div>
-
-          {/* Question Counter */}
-          <div>
-            <div className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider leading-tight">Question</div>
-            <div className="text-sm sm:text-base md:text-lg font-black text-stone-800 dark:text-white font-mono leading-none">
-              {currentIndex + 1} <span className="text-[10px] sm:text-xs text-stone-400 font-sans">/ {quizQuestions.length}</span>
-            </div>
-          </div>
-
-          {/* Accuracy with Castle Badge */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="text-right">
-              <div className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider leading-tight">Accuracy</div>
-              <div className="text-sm sm:text-base md:text-lg font-black text-red-600 dark:text-red-400 font-mono leading-none">
-                {accuracyPercentage}%
-              </div>
-            </div>
-            <span className="text-xl sm:text-2xl">🏯</span>
+          <div className="mt-1">
+            <span className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-widest block leading-none">
+              QUESTION
+            </span>
+            <span className="text-xs sm:text-sm font-black text-stone-800 dark:text-stone-200 font-mono">
+              {currentIndex + 1} <span className="text-stone-400 font-normal">/ {quizQuestions.length}</span>
+            </span>
           </div>
         </div>
 
-        {/* Primary Progress Bar (Pink Gradient) */}
-        <div className="h-1.5 sm:h-2 w-full bg-rose-100 dark:bg-rose-950/40 rounded-full overflow-hidden mt-1.5 shadow-inner">
+        {/* Day / Night Theme Pill Switcher */}
+        <button
+          onClick={toggleTheme}
+          className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-800 dark:text-stone-200 border-white/90 dark:border-white/10 flex items-center gap-1.5 cursor-pointer shadow-xs hover:shadow transition-all"
+          title={isDarkMode ? "Switch to Day Mode (昼)" : "Switch to Night Mode (夜)"}
+        >
+          <span>{isDarkMode ? '⛩️' : '🌸'}</span>
+          <span className="tracking-wider hidden sm:inline">{isDarkMode ? 'NIGHT' : 'DAY'}</span>
+          <span className="text-amber-500 text-xs">{isDarkMode ? '🌙' : '☀️'}</span>
+        </button>
+      </header>
+
+      {/* HUD Stats & Stepper Row */}
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-2 flex-shrink-0">
+        {/* Flanking Badges Row */}
+        <div className="flex items-center justify-between mb-1.5">
+          {/* Score Badge */}
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border border-stone-200/80 dark:border-white/10 shadow-xs">
+            <span className="text-lg">⭐</span>
+            <div className="text-left">
+              <div className="text-[9px] font-extrabold text-stone-400 uppercase tracking-wider leading-none">SCORE</div>
+              <div className="text-xs sm:text-sm font-black text-stone-800 dark:text-stone-100 font-mono leading-tight">
+                {score * 20} <span className="text-[10px] font-bold text-stone-400 font-sans">pt</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Accuracy Badge */}
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border border-stone-200/80 dark:border-white/10 shadow-xs">
+            <span className="text-base text-rose-500">📶</span>
+            <div className="text-right sm:text-left">
+              <div className="text-[9px] font-extrabold text-stone-400 uppercase tracking-wider leading-none">ACCURACY</div>
+              <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 font-mono leading-tight">
+                {accuracyPercentage}%
+              </div>
+            </div>
+            <span className="text-base ml-0.5">🏯</span>
+          </div>
+        </div>
+
+        {/* Primary Progress Bar */}
+        <div className="h-1.5 sm:h-2 w-full bg-rose-100/90 dark:bg-stone-800/80 rounded-full overflow-hidden shadow-inner">
           <div
-            className="h-full bg-gradient-to-r from-red-600 via-rose-500 to-rose-300 transition-all duration-300 rounded-full"
+            className="h-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-300 rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Master Level Indicator */}
-        <div className="flex items-center gap-2 mt-1 px-1">
-          <div className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-stone-700 dark:text-stone-300 shrink-0">
+        <div className="flex items-center justify-between mt-1 px-1 text-xs font-bold">
+          <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
             <span>🏯</span>
-            <span className="text-red-600">Master</span>
+            <span>Master</span>
           </div>
-          <div className="h-1 sm:h-1.5 flex-1 bg-rose-100 dark:bg-rose-950/40 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-red-600 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(100, Math.max(20, (streak + 1) * 20))}%` }}
-            />
-          </div>
-          <span className="text-[10px] sm:text-[11px] font-bold text-stone-400 shrink-0">
+          <div className="text-stone-400 dark:text-stone-500 font-mono text-[11px]">
             {Math.min(streak, 1)}/1
-          </span>
+          </div>
         </div>
 
-        {/* 3-Stage Learning Stepper: LISTEN -> PRACTICE -> ANSWER */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 mt-1.5 sm:mt-2">
-          {/* Back Step */}
-          <button
-            onClick={() => setCurrentStep(currentStep === 'answer' ? 'practice' : 'listen')}
-            className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-rose-50 hover:bg-rose-100 text-red-600 flex items-center justify-center text-[10px] sm:text-xs font-black transition-colors cursor-pointer"
-            title="Previous step"
-          >
-            ◀
-          </button>
-
+        {/* 3-Stage Stepper: LISTEN -> PRACTICE -> ANSWER */}
+        <div className="flex items-center justify-center gap-2 sm:gap-4 my-2 sm:my-3">
           {/* Step 1: LISTEN */}
           <button
             onClick={() => { handleListen(); setCurrentStep('listen'); }}
-            className="flex flex-col items-center gap-0.5 group cursor-pointer"
+            className="flex flex-col items-center gap-1 group cursor-pointer transition-transform active:scale-95"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-800 text-white flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-xs">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
               ✓
             </div>
-            <span className="text-[9px] sm:text-[10px] font-extrabold tracking-wider text-emerald-800 dark:text-emerald-400 uppercase">
+            <span className="text-[10px] font-extrabold tracking-wider text-emerald-700 dark:text-emerald-400 uppercase">
               LISTEN
             </span>
           </button>
 
-          {/* Connector Line 1 */}
-          <div className="h-0.5 w-6 sm:w-10 md:w-14 bg-rose-200 dark:bg-rose-900/50 mb-2.5" />
+          {/* Connector 1 */}
+          <div className="h-[1.5px] w-8 sm:w-14 md:w-20 bg-rose-200 dark:bg-stone-700 -mt-3.5" />
 
           {/* Step 2: PRACTICE */}
           <button
             onClick={() => setCurrentStep('practice')}
-            className="flex flex-col items-center gap-0.5 group cursor-pointer"
+            className="flex flex-col items-center gap-1 group cursor-pointer transition-transform active:scale-95"
           >
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-xs transition-all ${
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-xs transition-all ${
               currentStep === 'practice'
-                ? 'bg-red-600 text-white ring-2 sm:ring-4 ring-red-100 scale-105'
-                : 'bg-red-100 text-red-600'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30 ring-4 ring-rose-100 dark:ring-rose-950/60 scale-105'
+                : 'bg-rose-100 dark:bg-stone-800 text-rose-500 dark:text-rose-400'
             }`}>
-              🎤
+              ✏️
             </div>
-            <span className={`text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase ${
-              currentStep === 'practice' ? 'text-red-600 dark:text-red-400' : 'text-stone-400'
+            <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
+              currentStep === 'practice' ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-stone-400 dark:text-stone-500'
             }`}>
               PRACTICE
             </span>
           </button>
 
-          {/* Connector Line 2 */}
-          <div className="h-0.5 w-6 sm:w-10 md:w-14 bg-rose-200 dark:bg-rose-900/50 mb-2.5" />
+          {/* Connector 2 */}
+          <div className="h-[1.5px] w-8 sm:w-14 md:w-20 bg-rose-200 dark:bg-stone-700 -mt-3.5" />
 
           {/* Step 3: ANSWER */}
           <button
             onClick={() => setCurrentStep('answer')}
-            className="flex flex-col items-center gap-0.5 group cursor-pointer"
+            className="flex flex-col items-center gap-1 group cursor-pointer transition-transform active:scale-95"
           >
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-xs transition-all ${
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-xs transition-all ${
               currentStep === 'answer' || isAnswered
-                ? 'bg-red-600 text-white ring-2 sm:ring-4 ring-red-100 scale-105'
-                : 'bg-rose-100 text-rose-500'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30 ring-4 ring-rose-100 dark:ring-rose-950/60 scale-105'
+                : 'bg-white dark:bg-stone-800 text-stone-400 border border-stone-300 dark:border-stone-700'
             }`}>
               ✏️
             </div>
-            <span className={`text-[9px] sm:text-[10px] font-extrabold tracking-wider uppercase ${
-              currentStep === 'answer' || isAnswered ? 'text-red-600 dark:text-red-400' : 'text-stone-400'
+            <span className={`text-[10px] font-extrabold tracking-wider uppercase ${
+              currentStep === 'answer' || isAnswered ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-stone-400 dark:text-stone-500'
             }`}>
               ANSWER
             </span>
@@ -973,22 +1095,26 @@ export default function QuizPage() {
         </div>
       </div>
 
-      {/* Main Learning & Interactive Area: 1 column on small phones, 2 columns side-by-side on tablet/desktop */}
-      <div className="max-w-5xl mx-auto w-full flex-1 min-h-0 flex flex-col justify-center px-1 sm:px-2 py-1 overflow-y-auto md:overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-6 items-center w-full my-auto">
+      {/* Main Interactive Area: 2-Column Side-by-Side Glass Cards matching reference mockup */}
+      <main className="relative z-10 w-full max-w-5xl mx-auto my-auto py-1 flex-1 flex flex-col justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 items-stretch w-full">
           
-          {/* COLUMN 1: Learning Card with Seigaiha Waves */}
-          <div className="w-full flex flex-col justify-center items-center">
-            <div
-              className="w-full max-w-md bg-white/95 dark:bg-[#141414] border border-rose-200/80 dark:border-white/10 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 md:p-6 shadow-sm relative overflow-hidden text-center"
-              style={{
-                backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cpath d='M0 30 A30 30 0 0 1 60 30 M10 30 A20 20 0 0 1 50 30 M20 30 A10 10 0 0 1 40 30' fill='none' stroke='%23fecdd3' stroke-width='1.2' stroke-opacity='0.45'/%3E%3C/svg%3E\")",
-                backgroundRepeat: "repeat",
-                backgroundSize: "60px 30px"
-              }}
-            >
-              {/* Question Illustration Frame */}
-              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 lg:w-48 lg:h-48 bg-white dark:bg-black/40 rounded-2xl sm:rounded-3xl border border-rose-100 dark:border-white/10 shadow-xs flex items-center justify-center mx-auto overflow-hidden relative mb-2.5 sm:mb-3 shrink-0">
+          {/* LEFT CARD: Meaning & Audio */}
+          <div
+            className="w-full bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl border border-white/90 dark:border-white/10 rounded-[32px] p-6 sm:p-7 shadow-[0_12px_40px_rgba(244,114,182,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between items-center text-center relative overflow-hidden transition-all min-h-[380px] sm:min-h-[420px]"
+            style={{
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cpath d='M0 30 A30 30 0 0 1 60 30 M10 30 A20 20 0 0 1 50 30 M20 30 A10 10 0 0 1 40 30' fill='none' stroke='%23fecdd3' stroke-width='1.2' stroke-opacity='0.45'/%3E%3C/svg%3E\")",
+              backgroundRepeat: "repeat",
+              backgroundSize: "60px 30px"
+            }}
+          >
+            {/* Corner Sakura Petals */}
+            <div className="absolute top-4 right-4 text-xl opacity-30 pointer-events-none select-none">🌸</div>
+            <div className="absolute bottom-4 left-4 text-xl opacity-30 pointer-events-none select-none">🌸</div>
+
+            <div className="flex flex-col items-center w-full my-auto">
+              {/* Question Illustration / Bowing Avatar */}
+              <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-3xl bg-white dark:bg-stone-800/90 shadow-md border border-rose-100 dark:border-white/10 flex items-center justify-center mx-auto mb-4 overflow-hidden relative group">
                 {currentQuestion.imageUrl ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -996,75 +1122,77 @@ export default function QuizPage() {
                     alt={currentQuestion.japanese_text}
                     className="w-full h-full object-cover"
                   />
+                ) : currentQuestion.image === "🙇" || currentQuestion.japanese_text.includes("よろしく") ? (
+                  <BowingAvatar className="w-20 h-20 sm:w-24 sm:h-24 transition-transform group-hover:scale-105" />
                 ) : (
-                  <span className="text-5xl sm:text-6xl md:text-7xl animate-bounce">
+                  <span className="text-5xl sm:text-6xl animate-bounce">
                     {currentQuestion.image || "🌸"}
                   </span>
                 )}
               </div>
 
               {/* Meaning Label */}
-              <div className="text-[11px] sm:text-xs md:text-sm text-stone-500 dark:text-stone-400 uppercase font-semibold tracking-wider my-1">
-                MEANING: <span className="text-base sm:text-lg md:text-xl text-stone-900 dark:text-white font-extrabold normal-case">{currentQuestion.english_translation}</span>
+              <div className="text-[11px] sm:text-xs font-extrabold tracking-[0.2em] text-stone-400 uppercase mb-1">
+                MEANING
               </div>
+
+              {/* English Translation */}
+              <h2 className="text-lg sm:text-xl md:text-2xl font-black text-stone-800 dark:text-white leading-snug px-2 max-w-sm">
+                {currentQuestion.english_translation}
+              </h2>
 
               {/* Romaji Pronunciation Guide */}
               {currentQuestion.romaji && (
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-0.5 sm:py-1 my-0.5 sm:my-1 bg-rose-50/90 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/60 rounded-full shadow-xs animate-fade-in">
-                  <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-black tracking-widest text-red-500 dark:text-rose-400 flex items-center gap-1">
-                    <span>🗣️</span>
-                    <span>ROMAJI:</span>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 mt-3 bg-rose-50/90 dark:bg-stone-800/80 border border-rose-100 dark:border-white/10 rounded-full shadow-xs">
+                  <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-widest text-rose-600 dark:text-rose-400 bg-white dark:bg-stone-700 px-2 py-0.5 rounded-full shadow-xs">
+                    ROMAJI
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-100 font-mono tracking-wide">
+                  <span className="text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-200">
                     {currentQuestion.romaji}
                   </span>
                 </div>
               )}
+            </div>
 
-              {/* Tap to listen Button */}
-              <div className="mt-2 sm:mt-3 flex justify-center">
-                <button
-                  onClick={handleListen}
-                  className="inline-flex items-center gap-2.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-rose-50 dark:hover:bg-white/10 transition-all group active:scale-95 cursor-pointer"
-                >
-                  <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-rose-50 dark:bg-rose-950/60 border-2 border-rose-200 dark:border-rose-800 text-red-600 dark:text-rose-400 flex items-center justify-center text-base sm:text-lg shadow-xs group-hover:scale-110 transition-transform">
-                    🔊
-                  </div>
-                  <span className="text-xs sm:text-sm font-semibold text-stone-600 dark:text-stone-300 group-hover:text-red-600 transition-colors">
-                    Tap to listen
-                  </span>
-                </button>
-              </div>
+            {/* Tap to listen Button */}
+            <div className="w-full flex justify-center mt-4">
+              <button
+                onClick={handleListen}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md border border-rose-100 dark:border-white/10 shadow-sm hover:shadow-md hover:scale-102 active:scale-95 transition-all text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-200 cursor-pointer group"
+              >
+                <span className="text-rose-500 group-hover:scale-110 transition-transform">🔊</span>
+                <span>Tap to listen</span>
+              </button>
             </div>
           </div>
 
-          {/* COLUMN 2: Guided Section: PRACTICE vs ANSWER */}
-          <div className="w-full max-w-md mx-auto flex flex-col justify-center">
+          {/* RIGHT CARD: PRACTICE vs ANSWER vs LISTEN */}
+          <div className="w-full bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl border border-white/90 dark:border-white/10 rounded-[32px] p-6 sm:p-7 shadow-[0_12px_40px_rgba(244,114,182,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col justify-between items-center text-center relative overflow-hidden transition-all min-h-[380px] sm:min-h-[420px]">
             {currentStep === 'answer' ? (
-              /* STEP 3: ANSWER - Interactive Tactile Options Grid */
-              <div className="space-y-2.5 sm:space-y-3 w-full">
+              /* STEP 3: ANSWER - Tactile Option Cards Grid */
+              <div className="space-y-3 w-full my-auto">
                 <div className="text-center md:text-left">
-                  <span className="text-[11px] sm:text-xs font-bold text-stone-500 uppercase tracking-wider">
+                  <span className="text-xs sm:text-sm font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     Choose the correct Japanese phrase:
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {currentQuestion.options.map((option, index) => {
                     const isCorrect = option === currentQuestion.correct_answer;
                     const isSelected = option === selectedAnswer;
 
-                    let className = `w-full text-left p-3 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border-2 transition-all font-bold shadow-xs cursor-pointer active:scale-95 `;
+                    let optionClasses = "w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 font-bold shadow-xs cursor-pointer active:scale-95 flex flex-col justify-between ";
 
                     if (isAnswered) {
                       if (isCorrect) {
-                        className += 'bg-emerald-50 border-emerald-400 text-emerald-800 shadow-[0_0_15px_rgba(52,211,153,0.3)] scale-[1.01]';
+                        optionClasses += "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-400 dark:border-emerald-600 text-emerald-800 dark:text-emerald-200 shadow-[0_0_20px_rgba(52,211,153,0.3)] scale-[1.01]";
                       } else if (isSelected) {
-                        className += 'bg-rose-50 border-rose-300 text-rose-700 opacity-90';
+                        optionClasses += "bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 opacity-90";
                       } else {
-                        className += 'bg-white/60 border-stone-200 opacity-40 text-stone-400';
+                        optionClasses += "bg-white/40 dark:bg-stone-900/40 border-stone-200/50 dark:border-white/5 opacity-40 text-stone-400";
                       }
                     } else {
-                      className += 'bg-white hover:bg-rose-50/50 border-stone-200 hover:border-red-300 text-stone-800 hover:scale-[1.01]';
+                      optionClasses += "bg-white/80 dark:bg-stone-800/80 hover:bg-white dark:hover:bg-stone-700 border-stone-200/80 dark:border-white/10 hover:border-rose-300 dark:hover:border-rose-700 text-stone-800 dark:text-white hover:scale-[1.01]";
                     }
 
                     return (
@@ -1072,19 +1200,19 @@ export default function QuizPage() {
                         key={index}
                         onClick={() => handleAnswer(option)}
                         disabled={isAnswered}
-                        className={className}
+                        className={optionClasses}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between w-full">
                           <div>
-                            <div className="text-sm sm:text-base md:text-lg">{option}</div>
+                            <div className="text-base sm:text-lg font-bold">{option}</div>
                             {currentQuestion.option_hiragana?.[option] && (
-                              <div className="text-[10px] sm:text-[11px] text-stone-400 font-normal mt-0.5">
+                              <div className="text-[11px] text-stone-400 dark:text-stone-400 font-normal mt-0.5">
                                 {currentQuestion.option_hiragana[option]}
                               </div>
                             )}
                           </div>
-                          {isAnswered && isCorrect && <span className="text-lg sm:text-xl">✨</span>}
-                          {isAnswered && isSelected && !isCorrect && <span className="text-base sm:text-lg opacity-60">✕</span>}
+                          {isAnswered && isCorrect && <span className="text-lg">✨</span>}
+                          {isAnswered && isSelected && !isCorrect && <span className="text-base opacity-60">✕</span>}
                         </div>
                       </button>
                     );
@@ -1092,57 +1220,72 @@ export default function QuizPage() {
                 </div>
 
                 {/* Bottom Actions in Answer Step */}
-                <div className="flex items-center justify-between pt-1 sm:pt-2">
+                <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setCurrentStep('practice')}
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs sm:text-sm transition-all cursor-pointer"
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-stone-100/90 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold text-xs sm:text-sm transition-all cursor-pointer"
                   >
                     ← Back to practice
                   </button>
                   {isAnswered && (
                     <button
                       onClick={nextQuestion}
-                      className="px-6 py-2.5 sm:px-7 sm:py-3 rounded-full bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs sm:text-sm md:text-base shadow-lg hover:shadow-xl hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="px-6 py-2.5 sm:px-7 sm:py-3 rounded-full bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold text-xs sm:text-sm md:text-base shadow-lg hover:shadow-xl hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       {currentIndex === quizQuestions.length - 1 ? 'Complete Quiz 🏆' : 'Continue →'}
                     </button>
                   )}
                 </div>
               </div>
-            ) : (
-              /* STEP 2: PRACTICE - Mt. Fuji Mic & Friendly Speech Flow */
-              <div className="flex flex-col items-center w-full">
-                {/* Guidance Banner */}
-                <div
-                  className={`border rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 shadow-xs text-center w-full mb-2 sm:mb-2.5 transition-all ${
-                    speechSuccess
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700'
-                      : speechError
-                      ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 ring-2 ring-rose-200 dark:ring-rose-900/50 animate-shake'
-                      : isListening
-                      ? 'bg-red-50/70 dark:bg-red-950/30 border-red-200 dark:border-red-900 ring-2 ring-red-100'
-                      : 'bg-white dark:bg-[#141414] border-rose-100 dark:border-white/10'
-                  }`}
+            ) : currentStep === 'listen' ? (
+              /* STEP 1: LISTEN MODE */
+              <div className="flex flex-col items-center justify-center w-full my-auto text-center p-4">
+                <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-stone-800 border-2 border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center text-2xl shadow-sm mb-3 animate-pulse">
+                  🔊
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-white mb-1">
+                  Listen to Native Pronunciation
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 max-w-sm mb-4">
+                  Tap the speaker to hear authentic pitch and rhythm, then speak along.
+                </p>
+                <button
+                  onClick={handleListen}
+                  className="px-5 py-2.5 rounded-full bg-white dark:bg-stone-800 border border-rose-200 dark:border-white/10 text-rose-600 dark:text-rose-400 font-bold text-xs shadow-xs hover:bg-rose-50 transition-all cursor-pointer mb-5"
                 >
+                  🔊 Replay Audio
+                </button>
+                <button
+                  onClick={() => setCurrentStep('practice')}
+                  className="px-7 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 text-white font-black text-xs sm:text-sm shadow-md shadow-rose-500/30 hover:scale-102 active:scale-95 transition-all cursor-pointer"
+                >
+                  Ready to Practice →
+                </button>
+              </div>
+            ) : (
+              /* STEP 2: PRACTICE MODE matching reference image */
+              <div className="flex flex-col items-center justify-between w-full h-full">
+                {/* Guidance Header / Error / Success Message */}
+                <div className="w-full text-center mb-2">
                   {speechSuccess ? (
-                    <div className="flex flex-col items-center gap-1 py-0.5">
-                      <div className="flex items-center justify-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-black text-xs sm:text-sm md:text-base">
+                    <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 animate-scale-in">
+                      <div className="flex items-center justify-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-black text-xs sm:text-sm">
                         <span>🎉</span>
                         <span>{speechSuccess}</span>
                       </div>
                       {spokenTranscript && (
-                        <div className="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/50 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                        <div className="text-[11px] font-bold text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/50 px-3 py-0.5 rounded-full border border-emerald-300">
                           🎙️ Spoken: &quot;{spokenTranscript}&quot;
                         </div>
                       )}
                     </div>
                   ) : speechError ? (
-                    <div className="flex flex-col items-center gap-1.5 py-0.5">
-                      <div className="flex items-center justify-center gap-1.5 text-rose-700 dark:text-rose-300 font-black text-xs sm:text-sm md:text-base">
+                    <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 ring-2 ring-rose-200 dark:ring-rose-900/50 animate-shake">
+                      <div className="flex items-center justify-center gap-1.5 text-rose-700 dark:text-rose-300 font-black text-xs sm:text-sm">
                         <span>❌</span>
                         <span>Pronunciation Not Accepted</span>
                       </div>
-                      <p className="text-[11px] sm:text-xs md:text-sm text-stone-700 dark:text-stone-200 font-medium leading-normal max-w-md">
+                      <p className="text-[11px] sm:text-xs text-stone-700 dark:text-stone-200 font-medium leading-normal max-w-md">
                         {speechError}
                       </p>
                       {spokenTranscript && (
@@ -1154,7 +1297,7 @@ export default function QuizPage() {
                         <button
                           type="button"
                           onClick={handleMicListen}
-                          className="px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] sm:text-xs shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1"
+                          className="px-3 py-1 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] sm:text-xs shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1"
                         >
                           <span>🔄</span>
                           <span>Try Speaking Again</span>
@@ -1169,15 +1312,15 @@ export default function QuizPage() {
                       </div>
                     </div>
                   ) : isListening ? (
-                    <div className="flex flex-col items-center gap-0.5 py-0.5">
-                      <div className="flex items-center justify-center gap-1.5 text-red-600 font-bold text-xs sm:text-sm">
+                    <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-red-50/70 dark:bg-red-950/30 border border-red-200 dark:border-red-900">
+                      <div className="flex items-center justify-center gap-2 text-rose-600 font-bold text-xs sm:text-sm">
                         <AudioWave />
                         <span>Listening... Speak Japanese now!</span>
                       </div>
-                      <p className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400">
+                      <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400">
                         Say: <span className="font-bold text-stone-800 dark:text-white">{currentQuestion.japanese_text}</span>
                         {currentQuestion.romaji && (
-                          <span className="font-mono text-red-600 dark:text-rose-400 font-bold ml-1">
+                          <span className="font-mono text-rose-600 dark:text-rose-400 font-bold ml-1">
                             ({currentQuestion.romaji})
                           </span>
                         )}
@@ -1185,13 +1328,13 @@ export default function QuizPage() {
                     </div>
                   ) : (
                     <div>
-                      <p className="font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-100">
-                        Now your turn — say it out loud.
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-stone-400 mt-0.5">
-                        Say <span className="font-bold text-red-600">{currentQuestion.japanese_text}</span>
+                      <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-white tracking-tight">
+                        Now your turn ― say it out loud.
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto">
+                        Say <span className="font-bold text-rose-600 dark:text-rose-400">{currentQuestion.japanese_text}</span>
                         {currentQuestion.romaji && (
-                          <span className="font-mono text-stone-600 dark:text-stone-300 font-semibold ml-1">
+                          <span className="text-stone-500 dark:text-stone-300 font-medium ml-1">
                             ({currentQuestion.romaji})
                           </span>
                         )}
@@ -1201,79 +1344,92 @@ export default function QuizPage() {
                   )}
                 </div>
 
-                {/* Mt. Fuji Stylized Peak Backdrop & Floating Mic Button */}
-                <div className="relative w-full flex flex-col items-center justify-center py-1 sm:py-1.5">
-                  {/* Conical Mt. Fuji silhouette */}
-                  <div className="w-40 sm:w-48 h-18 sm:h-22 absolute bottom-0 pointer-events-none opacity-40">
-                    <svg viewBox="0 0 200 100" className="w-full h-full" preserveAspectRatio="none">
-                      <polygon points="100,0 25,100 175,100" fill="#fecdd3" />
-                      <polygon points="100,0 72,38 128,38" fill="#ffffff" />
-                    </svg>
+                {/* Center Mic Button Flanked by Waveforms */}
+                <div className="flex flex-col items-center justify-center my-auto py-2">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <SoundWaveBars isListening={isListening} />
+                    
+                    {/* Glowing Red Microphone Button */}
+                    <button
+                      onClick={handleMicListen}
+                      className={`w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-rose-600 to-red-500 text-white flex items-center justify-center shadow-[0_10px_30px_rgba(239,68,68,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer relative z-10 ${
+                        isListening ? 'ring-4 sm:ring-6 ring-red-200 dark:ring-red-900 animate-pulse' : ''
+                      }`}
+                      aria-label="Tap to speak"
+                    >
+                      {isListening ? (
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-6 bg-white rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                          <span className="w-1.5 h-8 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                          <span className="w-1.5 h-6 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
+                        </div>
+                      ) : (
+                        <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    <SoundWaveBars isListening={isListening} />
                   </div>
 
-                  {/* Floating Microphone Button */}
-                  <button
-                    onClick={handleMicListen}
-                    className={`w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full bg-white dark:bg-stone-900 border-2 border-red-500 shadow-md flex items-center justify-center text-red-600 text-2xl sm:text-3xl hover:scale-105 active:scale-95 transition-all relative z-10 cursor-pointer ${
-                      isListening ? 'ring-4 sm:ring-6 ring-red-100 animate-pulse' : ''
-                    }`}
-                    aria-label="Tap to speak"
-                  >
-                    {isListening ? <AudioWave /> : <span className="text-2xl sm:text-3xl">🎤</span>}
-                  </button>
-
-                  <span className="text-[10px] sm:text-xs font-bold text-stone-600 dark:text-stone-300 mt-1 z-10">
+                  <span className="text-xs font-bold text-stone-600 dark:text-stone-300 mt-2">
                     {isListening ? 'Listening...' : 'Tap to Speak'}
                   </span>
 
-                  {/* Speech Recognition Engine Selector */}
-                  <div className="flex flex-col items-center mt-1.5 sm:mt-2 z-10">
-                    <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800/80 p-0.5 sm:p-1 rounded-full text-[10px] sm:text-[11px] font-bold border border-stone-200/60 dark:border-white/10 shadow-xs">
+                  {/* Engine Switcher Pill */}
+                  <div className="flex flex-col items-center mt-3">
+                    <div className="flex items-center gap-1 bg-stone-100/90 dark:bg-stone-800/90 p-1 rounded-full border border-stone-200/60 dark:border-white/10 shadow-xs">
                       <button
                         type="button"
                         onClick={() => handleEngineChange('google')}
-                        className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full transition-all cursor-pointer ${
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'google'
                             ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
                         }`}
                       >
-                        🎙️ Google Speech
+                        <span className="text-[#4285F4] font-black">G</span>
+                        <span>Google Speech</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleEngineChange('whisper')}
-                        className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full transition-all cursor-pointer ${
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'whisper'
-                            ? 'bg-white dark:bg-stone-700 text-red-600 dark:text-rose-400 shadow-xs'
+                            ? 'bg-white dark:bg-stone-700 text-rose-600 dark:text-rose-400 shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
                         }`}
                       >
-                        ⚡ Cloud Whisper
+                        <span className="text-amber-500">⚡</span>
+                        <span>Cloud Whisper</span>
                       </button>
                     </div>
 
-                    {/* OnePlus 12 / ColorOS Settings Guide Trigger */}
+                    {/* OnePlus 12 / ColorOS Settings Guide Link */}
                     <button
                       type="button"
                       onClick={() => setShowOnePlusHelp(true)}
-                      className="mt-1 text-[10px] sm:text-[11px] font-bold text-red-600 dark:text-rose-400 hover:underline inline-flex items-center gap-1 cursor-pointer bg-red-50/70 dark:bg-rose-950/40 px-2.5 py-0.5 rounded-full border border-red-200/60 dark:border-rose-900/40 hover:bg-red-100/70 transition-colors"
+                      className="mt-2 text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline inline-flex items-center gap-1 cursor-pointer transition-colors"
                     >
-                      <span>💡 Enable Google Speech on OnePlus / ColorOS →</span>
+                      <span>💡</span>
+                      <span>Enable Google Speech on OnePlus / ColorOS →</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Bottom Actions: Skip Practice & Continue */}
-                <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 w-full">
+                {/* Bottom Actions: Skip practice & Continue */}
+                <div className="flex items-center justify-center gap-3 sm:gap-4 mt-3 w-full">
                   <button
+                    type="button"
                     onClick={() => setCurrentStep('answer')}
-                    className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl bg-stone-100 hover:bg-stone-200 dark:bg-white/10 dark:hover:bg-white/20 text-stone-700 dark:text-stone-200 font-bold text-xs sm:text-sm border border-stone-200/80 dark:border-white/10 transition-all cursor-pointer active:scale-95"
+                    className="flex-1 max-w-[160px] py-3 px-4 rounded-2xl bg-white/90 hover:bg-stone-50 dark:bg-stone-800/80 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 font-bold text-xs sm:text-sm border border-stone-200/80 dark:border-white/10 shadow-xs hover:shadow transition-all cursor-pointer active:scale-95"
                   >
                     Skip practice
                   </button>
-
                   <button
+                    type="button"
                     onClick={() => {
                       if (isAnswered) {
                         nextQuestion();
@@ -1281,9 +1437,9 @@ export default function QuizPage() {
                         setCurrentStep('answer');
                       }
                     }}
-                    className="px-6 py-2 sm:px-7 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#c5221f] hover:bg-[#a51d1a] text-white font-bold text-xs sm:text-sm md:text-base shadow-md hover:shadow-lg hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="flex-1 max-w-[180px] py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-xs sm:text-sm shadow-md shadow-rose-500/25 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    {isAnswered ? 'Next Question →' : 'Continue →'}
+                    <span>{isAnswered ? 'Next Question →' : 'Continue →'}</span>
                   </button>
                 </div>
               </div>
@@ -1291,7 +1447,48 @@ export default function QuizPage() {
           </div>
 
         </div>
-      </div>
+      </main>
+
+      {/* BOTTOM FOOTER CONTROLS: Zen BGM & AFK (Zero duplicates!) */}
+      <footer className="relative z-10 w-full max-w-5xl mx-auto flex items-center justify-between flex-shrink-0 pt-2 pb-1 px-1">
+        <div className="text-[11px] font-medium text-stone-400 dark:text-stone-500">
+          ことばで、つながる。
+        </div>
+        <div className="flex items-center gap-2.5">
+          {/* Zen BGM Toggle */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleBgm();
+            }}
+            className="glass-pill rounded-full px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-all"
+            title={isBgmPlaying ? "Pause Ambient BGM" : "Play Ambient BGM"}
+          >
+            <span className="w-4 h-4 rounded-full bg-[#e11d48] text-white flex items-center justify-center text-[9px]">
+              🎵
+            </span>
+            <span className="font-bold text-stone-700 dark:text-stone-200 text-xs">
+              Zen BGM
+            </span>
+            <div className={`w-7 h-4 rounded-full transition-colors relative flex items-center px-0.5 ${isBgmPlaying ? 'bg-[#e11d48]' : 'bg-stone-300 dark:bg-stone-700'}`}>
+              <div className={`w-3 h-3 rounded-full bg-white shadow-xs transition-transform transform ${isBgmPlaying ? 'translate-x-3' : 'translate-x-0'}`} />
+            </div>
+          </button>
+
+          {/* AFK Screensaver Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleTriggerAfk();
+            }}
+            className="glass-pill rounded-full px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-200 cursor-pointer"
+            title="Launch AFK Japanese Screensaver"
+          >
+            <span>🌸</span>
+            <span>AFK</span>
+          </button>
+        </div>
+      </footer>
 
       {/* OnePlus 12 & ColorOS Google Speech Setup Guide Modal */}
       {showOnePlusHelp && (

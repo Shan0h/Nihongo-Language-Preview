@@ -115,6 +115,116 @@
     }
   },
   {
+    "id": "greet-6",
+    "category": "Greetings",
+    "japanese_text": "よろしくお願いします",
+    "hiragana": "よろしくおねがいします",
+    "romaji": "Yoroshiku onegaishimasu",
+    "english_translation": "Pleased to meet you / Let's work well together",
+    "image": "🙇",
+    "options": [
+      "よろしくお願いします",
+      "はじめまして",
+      "ありがとうございます",
+      "どういたしまして"
+    ],
+    "correct_answer": "よろしくお願いします",
+    "option_hiragana": {
+      "よろしくお願いします": "よろしくおねがいします (yoroshiku onegaishimasu)",
+      "はじめまして": "はじめまして (hajimemashite)",
+      "ありがとうございます": "ありがとうございます (arigatou gozaimasu)",
+      "どういたしまして": "どういたしまして (douitashimashite)"
+    }
+  },
+  {
+    "id": "greet-7",
+    "category": "Greetings",
+    "japanese_text": "はじめまして",
+    "hiragana": "はじめまして",
+    "romaji": "Hajimemashite",
+    "english_translation": "Nice to meet you (first time)",
+    "image": "🤝",
+    "options": [
+      "はじめまして",
+      "さようなら",
+      "おはようございます",
+      "いただきます"
+    ],
+    "correct_answer": "はじめまして",
+    "option_hiragana": {
+      "はじめまして": "はじめまして (hajimemashite)",
+      "さようなら": "さようなら (sayounara)",
+      "おはようございます": "おはようございます (ohayou gozaimasu)",
+      "いただきます": "いただきます (itadakimasu)"
+    }
+  },
+  {
+    "id": "greet-8",
+    "category": "Greetings",
+    "japanese_text": "ありがとうございます",
+    "hiragana": "ありがとうございます",
+    "romaji": "Arigatou gozaimasu",
+    "english_translation": "Thank you very much (polite)",
+    "image": "🙏",
+    "options": [
+      "ありがとうございます",
+      "どういたしまして",
+      "すみません",
+      "ごちそうさまでした"
+    ],
+    "correct_answer": "ありがとうございます",
+    "option_hiragana": {
+      "ありがとうございます": "ありがとうございます (arigatou gozaimasu)",
+      "どういたしまして": "どういたしまして (douitashimashite)",
+      "すみません": "すみません (sumimasen)",
+      "ごちそうさまでした": "ごちそうさまでした (gochisousama deshita)"
+    }
+  },
+  {
+    "id": "greet-9",
+    "category": "Greetings",
+    "japanese_text": "どういたしまして",
+    "hiragana": "どういたしまして",
+    "romaji": "Douitashimashite",
+    "english_translation": "You are welcome / Don't mention it",
+    "image": "😊",
+    "options": [
+      "どういたしまして",
+      "ありがとうございます",
+      "さようなら",
+      "おやすみなさい"
+    ],
+    "correct_answer": "どういたしまして",
+    "option_hiragana": {
+      "どういたしまして": "どういたしまして (douitashimashite)",
+      "ありがとうございます": "ありがとうございます (arigatou gozaimasu)",
+      "さようなら": "さようなら (sayounara)",
+      "おやすみなさい": "おやすみなさい (oyasuminasai)"
+    }
+  },
+  {
+    "id": "greet-10",
+    "category": "Greetings",
+    "japanese_text": "すみません",
+    "hiragana": "すみません",
+    "romaji": "Sumimasen",
+    "english_translation": "Excuse me / I am sorry",
+    "image": "🙇",
+    "options": [
+      "すみません",
+      "こんにちは",
+      "こんばんは",
+      "ありがとう"
+    ],
+    "correct_answer": "すみません",
+    "option_hiragana": {
+      "すみません": "すみません (sumimasen)",
+      "こんにちは": "こんにちは (konnichiwa)",
+      "こんばんは": "こんばんは (konbanwa)",
+      "ありがとう": "ありがとう (arigatou)"
+    }
+  },
+  {
     "id": "num-1",
     "category": "Numbers",
     "japanese_text": "いち",
