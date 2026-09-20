@@ -58,7 +58,7 @@ export default function BgmPlayer() {
     bgm.setVolume(val);
   };
 
-  if (pathname === '/') return null;
+  if (pathname === '/' || pathname === '/topics') return null;
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex items-center gap-2 group select-none">
