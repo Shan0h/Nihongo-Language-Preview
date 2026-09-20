@@ -269,17 +269,28 @@ export default function NihongoTalkScreen() {
       {/* Main Screen Container - Strictly single-viewport height on desktop */}
       <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden bg-[#fff0f3] dark:bg-[#0c080e] flex flex-col justify-between p-4 sm:p-5 lg:px-10 lg:py-4 select-none transition-colors duration-500">
         
-        {/* Full-bleed Scenic Fuji Sakura Background with luminous glass scrim */}
+        {/* Full-bleed Scenic Fuji Sakura Background with luminous glass scrim (Day & Night) */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          {/* Day Mode Scenic Background */}
           <Image
             src="/images/fuji-sakura-bg.png"
-            alt="Mount Fuji Sakura Background"
+            alt="Mount Fuji Sakura Day Background"
             fill
             priority
-            className="object-cover object-center scale-100 dark:opacity-30 transition-all duration-700 select-none pointer-events-none"
+            className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
           />
-          {/* Subtle soft scrim to match reference brightness and contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-[#fff0f3]/25 to-[#ffe8ee]/45 dark:from-black/60 dark:via-black/70 dark:to-black/80 pointer-events-none" />
+          {/* Night Mode Scenic Background */}
+          <Image
+            src="/images/fuji-night-bg.jpg"
+            alt="Mount Fuji Sakura Night Background"
+            fill
+            priority
+            className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+          />
+          {/* Day Soft Scrim */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-[#fff0f3]/25 to-[#ffe8ee]/45 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+          {/* Night Soft Scrim */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/65 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
         </div>
 
         <SakuraBackground />
