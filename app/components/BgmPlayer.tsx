@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { bgm } from '@/app/utils/bgm';
 
 export default function BgmPlayer() {
+  const pathname = usePathname();
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.35);
   const [showVolumeMenu, setShowVolumeMenu] = useState(false);
@@ -55,6 +57,8 @@ export default function BgmPlayer() {
     setVolume(val);
     bgm.setVolume(val);
   };
+
+  if (pathname === '/') return null;
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex items-center gap-2 group select-none">

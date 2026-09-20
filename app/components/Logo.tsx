@@ -48,7 +48,7 @@ export default function Logo({
     <div className={`inline-flex items-center gap-3 sm:gap-3.5 group select-none ${className}`}>
       {/* Emblem Icon */}
       <div
-        className={`${emblemSize} relative rounded-2xl overflow-hidden shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300 flex-shrink-0 border-2 border-rose-200/90 dark:border-rose-800/80 bg-white dark:bg-rose-950/60 p-0.5`}
+        className={`${emblemSize} relative rounded-full overflow-hidden shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-300 flex-shrink-0 border-2 border-white/90 dark:border-rose-800/80 bg-white dark:bg-rose-950/60 p-0.5`}
       >
         <img
           src="/images/logo.svg"
@@ -63,12 +63,12 @@ export default function Logo({
           {/* Main Title Row */}
           <div className="flex items-center gap-2 flex-wrap leading-tight">
             <span
-              className={`${titleSize} font-black tracking-tight text-[#4c0519] dark:text-rose-100 font-japanese transition-colors group-hover:text-red-600 dark:group-hover:text-rose-400`}
+              className={`${titleSize} font-black tracking-tight text-[#1e1b2e] dark:text-rose-100 font-japanese transition-colors group-hover:text-[#e11d48] dark:group-hover:text-rose-400`}
             >
               日本語教育
             </span>
             {variant === 'full' && (
-              <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-rose-100/90 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 border border-rose-300/80 dark:border-rose-700 shadow-2xs">
+              <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#ffe4e6] dark:bg-rose-950/70 text-[#e11d48] dark:text-rose-300 border border-rose-200/80 dark:border-rose-800 shadow-2xs">
                 UHB10802
               </span>
             )}
@@ -76,10 +76,10 @@ export default function Logo({
 
           {/* Subtitle Row */}
           <div
-            className={`${subSize} uppercase text-[#9f1239] dark:text-rose-300 font-bold mt-1 flex items-center gap-1.5`}
+            className={`${subSize} uppercase text-[#e11d48] dark:text-rose-300 font-extrabold mt-0.5 tracking-[0.22em] flex items-center gap-1.5`}
           >
             <span>NIHONGO EDUCATION</span>
-            <span className="text-red-500 dark:text-rose-400 text-sm inline-block animate-pulse">
+            <span className="text-sm inline-block">
               🌸
             </span>
           </div>

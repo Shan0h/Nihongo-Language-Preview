@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function DarkModeToggle() {
+  const pathname = usePathname();
   const [isDark, setIsDark] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -30,7 +32,7 @@ export default function DarkModeToggle() {
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || pathname === '/') return null;
 
   return (
     <button
