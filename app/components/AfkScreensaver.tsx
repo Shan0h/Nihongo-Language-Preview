@@ -109,7 +109,7 @@ const IDLE_TIMEOUT_MS = 15000; // 15 seconds of inactivity triggers AFK
 export default function AfkScreensaver() {
   const [isAfk, setIsAfk] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [topScores, setTopScores] = useState<LeaderboardRecord[]>(FALLBACK_CHAMPIONS);
+  const [topScores, setTopScores] = useState<LeaderboardRecord[]>([]);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch live scores from Supabase
@@ -122,7 +122,7 @@ export default function AfkScreensaver() {
           .order('points', { ascending: false })
           .limit(5);
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           setTopScores(data);
         }
       } catch (err) {
@@ -220,10 +220,12 @@ export default function AfkScreensaver() {
   const currentSlide = AFK_SLIDES[currentSlideIndex];
   const isScoreboard = currentSlide.type === 'scoreboard';
 
-  const champion1 = topScores[0] || FALLBACK_CHAMPIONS[0];
-  const champion2 = topScores[1] || FALLBACK_CHAMPIONS[1];
-  const champion3 = topScores[2] || FALLBACK_CHAMPIONS[2];
-  const runnerUps = topScores.slice(3, 5);
+  // Only use FALLBACK_CHAMPIONS if database has 0 records at all
+  const hasRealScores = topScores.length > 0;
+  const champion1 = hasRealScores ? topScores[0] : FALLBACK_CHAMPIONS[0];
+  const champion2 = hasRealScores ? (topScores[1] || null) : FALLBACK_CHAMPIONS[1];
+  const champion3 = hasRealScores ? (topScores[2] || null) : FALLBACK_CHAMPIONS[2];
+  const runnerUps = hasRealScores ? topScores.slice(3, 5) : [];
 
   return (
     <div
@@ -295,17 +297,17 @@ export default function AfkScreensaver() {
               <div className="text-2xl mb-1">🥈</div>
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white dark:bg-zinc-800 border-3 border-gray-300 dark:border-zinc-500 shadow-md flex items-center justify-center font-bold text-lg text-gray-700 dark:text-gray-200 relative mb-1.5">
                 <span className="truncate px-1 text-xs font-extrabold max-w-full">
-                  {champion2.name}
+                  {champion2 ? champion2.name : '—'}
                 </span>
                 <span className="absolute -bottom-2 px-1.5 py-0.2 rounded-full bg-gray-200 dark:bg-zinc-700 text-[9px] font-bold text-gray-700 dark:text-gray-200 border border-gray-400">
                   #2
                 </span>
               </div>
               <div className="text-xs font-black text-[#2d2d2d] dark:text-white truncate max-w-full text-center">
-                {champion2.name}
+                {champion2 ? champion2.name : 'Open Spot'}
               </div>
-              <div className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400">
-                {champion2.points.toLocaleString()} pts
+              <div className="text-[11px] font-extrabold text-stone-500 dark:text-stone-400">
+                {champion2 ? `${champion2.points.toLocaleString()} pts` : 'Be #2!'}
               </div>
               {/* Pedestal block */}
               <div className="w-full h-16 sm:h-20 bg-gradient-to-t from-gray-300 to-gray-200 dark:from-zinc-800 dark:to-zinc-700 rounded-t-xl border-t-2 border-gray-400 flex items-center justify-center font-black text-gray-500 dark:text-zinc-400 text-sm shadow-inner mt-1">
@@ -318,21 +320,23 @@ export default function AfkScreensaver() {
               <div className="text-3xl mb-1 animate-bounce">👑</div>
               <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-yellow-900 border-4 border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center justify-center font-black text-amber-800 dark:text-amber-200 relative mb-1.5 animate-pulse">
                 <span className="truncate px-1 text-sm font-black max-w-full text-center">
-                  {champion1.name}
+                  {champion1 ? champion1.name : '—'}
                 </span>
                 <span className="absolute -bottom-2.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-[10px] font-black text-white shadow-xs">
                   🥇 1ST
                 </span>
               </div>
               <div className="text-sm font-black text-[#2d2d2d] dark:text-white truncate max-w-full text-center mt-1">
-                {champion1.name}
+                {champion1 ? champion1.name : 'No Players'}
               </div>
               <div className="text-xs font-extrabold text-[#d32f2f] dark:text-rose-400">
-                {champion1.points.toLocaleString()} pts
+                {champion1 ? `${champion1.points.toLocaleString()} pts` : '—'}
               </div>
-              <div className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-full mt-0.5">
-                {champion1.accuracy}% Acc
-              </div>
+              {champion1?.accuracy !== undefined && (
+                <div className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-full mt-0.5">
+                  {champion1.accuracy}% Acc
+                </div>
+              )}
               {/* Pedestal block */}
               <div className="w-full h-24 sm:h-28 bg-gradient-to-t from-amber-400 via-amber-300 to-yellow-200 dark:from-amber-900 dark:via-amber-800 dark:to-amber-700 rounded-t-xl border-t-3 border-amber-200 flex flex-col items-center justify-center font-black text-amber-900 dark:text-amber-200 shadow-md mt-1">
                 <span className="text-lg">🏆</span>
@@ -345,17 +349,17 @@ export default function AfkScreensaver() {
               <div className="text-2xl mb-1">🥉</div>
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white dark:bg-zinc-800 border-3 border-amber-700/60 dark:border-amber-700/50 shadow-md flex items-center justify-center font-bold text-lg text-amber-900 dark:text-amber-200 relative mb-1.5">
                 <span className="truncate px-1 text-xs font-extrabold max-w-full">
-                  {champion3.name}
+                  {champion3 ? champion3.name : '—'}
                 </span>
                 <span className="absolute -bottom-2 px-1.5 py-0.2 rounded-full bg-amber-200/80 dark:bg-amber-950 text-[9px] font-bold text-amber-900 dark:text-amber-200 border border-amber-500">
                   #3
                 </span>
               </div>
               <div className="text-xs font-black text-[#2d2d2d] dark:text-white truncate max-w-full text-center">
-                {champion3.name}
+                {champion3 ? champion3.name : 'Open Spot'}
               </div>
-              <div className="text-[11px] font-extrabold text-amber-600 dark:text-amber-400">
-                {champion3.points.toLocaleString()} pts
+              <div className="text-[11px] font-extrabold text-stone-500 dark:text-stone-400">
+                {champion3 ? `${champion3.points.toLocaleString()} pts` : 'Be #3!'}
               </div>
               {/* Pedestal block */}
               <div className="w-full h-12 sm:h-14 bg-gradient-to-t from-amber-700 to-amber-600 dark:from-amber-950 dark:to-amber-900 rounded-t-xl border-t-2 border-amber-500 flex items-center justify-center font-black text-amber-100 text-xs shadow-inner mt-1">
