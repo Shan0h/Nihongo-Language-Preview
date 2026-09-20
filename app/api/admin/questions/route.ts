@@ -15,8 +15,14 @@ async function readQuestions(): Promise<Question[]> {
   }
 }
 
-async function writeQuestions(questions: Question[]): Promise<void> {
-  await fs.writeFile(QUESTIONS_FILE_PATH, JSON.stringify(questions, null, 2), 'utf-8');
+async function writeQuestions(questions: Question[]): Promise<{ written: boolean; error?: string }> {
+  try {
+    await fs.writeFile(QUESTIONS_FILE_PATH, JSON.stringify(questions, null, 2), 'utf-8');
+    return { written: true };
+  } catch (error: any) {
+    console.warn('Filesystem write not supported in current runtime (e.g. Vercel serverless):', error.message);
+    return { written: false, error: error.message };
+  }
 }
 
 export async function GET() {
@@ -82,14 +88,17 @@ export async function POST(request: NextRequest) {
       questions.push(questionToSave);
     }
 
-    await writeQuestions(questions);
+    const writeResult = await writeQuestions(questions);
 
     return NextResponse.json({
       success: true,
       question: questionToSave,
       questionsCount: questions.length,
       isNew: existingIndex === -1,
-      message: existingIndex >= 0 ? 'Question updated successfully' : 'Question added successfully',
+      persistedLocally: writeResult.written,
+      message: writeResult.written
+        ? (existingIndex >= 0 ? 'Question updated successfully' : 'Question added successfully')
+        : 'Question updated in memory. Click "Push to GitHub" to save permanently to GitHub.',
     });
   } catch (error: any) {
     console.error('Error saving question:', error);
@@ -123,13 +132,16 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await writeQuestions(filtered);
+    const writeResult = await writeQuestions(filtered);
 
     return NextResponse.json({
       success: true,
       deletedId: id,
       questionsCount: filtered.length,
-      message: 'Question deleted successfully',
+      persistedLocally: writeResult.written,
+      message: writeResult.written
+        ? 'Question deleted successfully'
+        : 'Question removed from session. Click "Push to GitHub" to persist.',
     });
   } catch (error: any) {
     console.error('Error deleting question:', error);

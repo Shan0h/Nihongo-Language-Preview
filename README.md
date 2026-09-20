@@ -201,6 +201,25 @@ Nihongo-Language/
 
 ---
 
+## ☁️ Vercel Cloud Sync Setup (1-Click "Push to GitHub")
+
+On Vercel serverless deployments, command-line `git` is not installed. To allow the Admin Studio to commit updated questions and images directly to GitHub from Vercel:
+
+1. **Create a GitHub Personal Access Token**:
+   - Go to [GitHub Settings → Developer Settings → Personal Access Tokens → Tokens (classic)](https://github.com/settings/tokens/new?scopes=repo&description=Nihongo+Vercel+Sync).
+   - Generate a token with the `repo` scope checked.
+2. **Add to Vercel Environment Variables**:
+   - In your Vercel Project Dashboard: **Settings → Environment Variables**.
+   - Add:
+     - `GITHUB_TOKEN`: `ghp_your_token_here`
+     - *(Optional)* `GITHUB_OWNER`: `Shan0h`
+     - *(Optional)* `GITHUB_REPO`: `Nihongo-Language`
+     - *(Optional)* `GITHUB_PREVIEW_REPO`: `Nihongo-Language-Preview`
+3. Click Save & Redeploy. From then on, clicking **"Push to GitHub"** in the Admin portal will directly commit changes and trigger automatic Vercel redeployment!
+4. **Offline / Backup**: You can also use the **"📥 Export JSON"** button in Admin Studio to download `questions.json` anytime.
+
+---
+
 ## 👥 Course & Attribution
 
 - **Course**: UHB10802 — Japanese Communication 1

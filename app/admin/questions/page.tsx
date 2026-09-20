@@ -11,6 +11,8 @@ interface GitStatus {
   branch: string;
   lastCommit: string;
   changedFiles: string[];
+  environment?: 'local' | 'vercel-serverless';
+  hasToken?: boolean;
 }
 
 export default function AdminQuestions() {
@@ -29,6 +31,8 @@ export default function AdminQuestions() {
   const [isSyncingGit, setIsSyncingGit] = useState(false);
   const [autoPushToGit, setAutoPushToGit] = useState(true);
   const [gitStatus, setGitStatus] = useState<GitStatus | null>(null);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
   const [formCategory, setFormCategory] = useState('Greetings');
@@ -91,6 +95,8 @@ export default function AdminQuestions() {
           branch: data.branch,
           lastCommit: data.lastCommit,
           changedFiles: data.changedFiles || [],
+          environment: data.environment,
+          hasToken: data.hasToken,
         });
       }
     } catch (err) {
@@ -106,12 +112,16 @@ export default function AdminQuestions() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: customMsg || 'Sync questions & uploaded images from Admin portal',
+          questions: questionsList,
         }),
       });
       const data = await res.json();
       if (data.success) {
         showToast(`🚀 GitHub Sync Successful! (${data.commitHash || 'Updated'})`, 'success');
         fetchGitStatus();
+      } else if (data.needsToken) {
+        setShowTokenModal(true);
+        showToast(data.error || 'GITHUB_TOKEN required in Vercel settings', 'info');
       } else {
         showToast(data.error || 'Failed to sync to GitHub', 'error');
       }
@@ -120,6 +130,44 @@ export default function AdminQuestions() {
     } finally {
       setIsSyncingGit(false);
     }
+  };
+
+  const handleExportJson = () => {
+    try {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(questionsList, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `questions-${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast(`📥 Exported ${questionsList.length} questions to questions.json!`, 'success');
+    } catch (err: any) {
+      showToast('Failed to export questions: ' + err.message, 'error');
+    }
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length > 0 && (parsed[0].japanese_text || parsed[0].id)) {
+          setQuestionsList(parsed);
+          showToast(`📥 Successfully imported ${parsed.length} questions from JSON! Click "Push to GitHub" to sync.`, 'success');
+        } else {
+          showToast('Invalid format. An array of question objects is required.', 'error');
+        }
+      } catch (err: any) {
+        showToast('Failed to parse JSON file: ' + err.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+    if (e.target) e.target.value = '';
   };
 
   const handleLogout = () => {
@@ -382,19 +430,46 @@ export default function AdminQuestions() {
             </div>
           </div>
 
-          {/* GitHub Sync Button & Logout */}
-          <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Action Buttons: Export/Import, GitHub Sync & Logout */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Export JSON button */}
+            <button
+              onClick={handleExportJson}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-[#e5e5e5] bg-white hover:bg-stone-50 text-stone-700 transition-all shadow-xs"
+              title="Download questions.json backup to your computer"
+            >
+              <span>📥</span>
+              <span>Export JSON</span>
+            </button>
+
+            {/* Import JSON button */}
+            <label
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-[#e5e5e5] bg-white hover:bg-stone-50 text-stone-700 transition-all shadow-xs cursor-pointer"
+              title="Upload and load a questions.json file"
+            >
+              <span>📤</span>
+              <span>Import JSON</span>
+              <input
+                ref={jsonFileInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleImportJson}
+              />
+            </label>
+
+            {/* GitHub Sync Button */}
             <button
               onClick={() => handleSyncGit()}
               disabled={isSyncingGit}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all ${
                 isSyncingGit
                   ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                   : gitStatus?.hasChanges
                   ? 'bg-amber-600 hover:bg-amber-700 text-white animate-pulse'
                   : 'bg-[#24292e] hover:bg-[#1a1e22] text-white'
               }`}
-              title="Sync all uploaded pictures & question updates directly to GitHub"
+              title="Sync all question updates and uploaded assets directly to GitHub"
             >
               {isSyncingGit ? (
                 <>
@@ -412,9 +487,21 @@ export default function AdminQuestions() {
               )}
             </button>
 
+            {/* Setup Cloud Sync helper button if in serverless without token */}
+            {gitStatus?.environment === 'vercel-serverless' && !gitStatus?.hasToken && (
+              <button
+                onClick={() => setShowTokenModal(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition-colors shadow-xs"
+                title="Setup GitHub Token in Vercel for 1-click cloud sync"
+              >
+                <span>⚙️</span>
+                <span>Setup Cloud Sync</span>
+              </button>
+            )}
+
             <button
               onClick={handleLogout}
-              className="text-sm text-[#8a8a8a] hover:text-[#d32f2f] px-3 py-2 rounded-lg hover:bg-[#f4c2c2]/20 transition-colors"
+              className="text-xs sm:text-sm text-[#8a8a8a] hover:text-[#d32f2f] px-3 py-2 rounded-lg hover:bg-[#f4c2c2]/20 transition-colors"
             >
               Logout
             </button>
@@ -427,21 +514,39 @@ export default function AdminQuestions() {
             <div className="flex items-center gap-3 flex-wrap">
               <span className="flex items-center gap-1.5 font-mono">
                 <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+                <strong>Env:</strong> {gitStatus.environment === 'vercel-serverless' ? '☁️ Vercel Serverless' : '💻 Local Dev'}
+              </span>
+              <span className="text-[#8a8a8a]">|</span>
+              <span className="flex items-center gap-1.5 font-mono">
                 <strong>Branch:</strong> {gitStatus.branch}
               </span>
               <span className="text-[#8a8a8a]">|</span>
               <span className="truncate max-w-md font-mono" title={gitStatus.lastCommit}>
-                <strong>Last Commit:</strong> {gitStatus.lastCommit}
+                <strong>Commit:</strong> {gitStatus.lastCommit}
               </span>
             </div>
-            <div>
-              {gitStatus.hasChanges ? (
+            <div className="flex items-center gap-2">
+              {gitStatus.environment === 'vercel-serverless' ? (
+                gitStatus.hasToken ? (
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-semibold">
+                    ✅ GitHub API Token Ready
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setShowTokenModal(true)}
+                    className="px-2 py-0.5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>⚠️</span>
+                    <span>GITHUB_TOKEN Required (Click to Setup)</span>
+                  </button>
+                )
+              ) : gitStatus.hasChanges ? (
                 <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-semibold">
                   ⚠️ Uncommitted Changes Ready to Push
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-semibold">
-                  ✨ GitHub Repos Up to Date
+                  ✨ Repos Up to Date
                 </span>
               )}
             </div>
@@ -916,6 +1021,95 @@ export default function AdminQuestions() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* GitHub Cloud Sync Setup Modal */}
+        {showTokenModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-rose-200 animate-in zoom-in-95 duration-200 text-[#2d2d2d]">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">⚙️</span>
+                  <div>
+                    <h3 className="text-lg font-bold text-[#2d2d2d]">Setup GitHub Cloud Sync</h3>
+                    <p className="text-xs text-[#8a8a8a]">Enable 1-click updates on Vercel</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTokenModal(false)}
+                  className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center font-bold text-sm transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/70 text-xs text-amber-900 mb-4">
+                <strong>Why is this needed?</strong> Vercel runs in cloud serverless containers where the terminal <code className="bg-amber-100 px-1 py-0.5 rounded font-mono">git</code> command does not exist. Adding a GitHub Token allows this app to commit questions directly to your repository via GitHub&apos;s REST API!
+              </div>
+
+              <div className="space-y-3 text-xs mb-5">
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                  <span className="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
+                  <div>
+                    <p className="font-bold text-stone-800">Generate a GitHub Personal Access Token</p>
+                    <p className="text-stone-600 mt-0.5">
+                      Go to GitHub Settings → Developer Settings → Personal Access Tokens → Tokens (classic). Create a token with <strong className="font-mono text-rose-700">repo</strong> scope checked.
+                    </p>
+                    <a
+                      href="https://github.com/settings/tokens/new?scopes=repo&description=Nihongo+Vercel+Sync"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-rose-600 hover:underline font-semibold mt-1"
+                    >
+                      <span>Create Token on GitHub</span>
+                      <span>↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                  <span className="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
+                  <div>
+                    <p className="font-bold text-stone-800">Add to Vercel Environment Variables</p>
+                    <p className="text-stone-600 mt-0.5">
+                      In your Vercel Project Dashboard → <strong>Settings</strong> → <strong>Environment Variables</strong>:
+                    </p>
+                    <div className="mt-1 font-mono bg-stone-200/70 px-2 py-1 rounded text-[11px] text-stone-800 select-all">
+                      GITHUB_TOKEN = ghp_your_token_here
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                  <span className="w-5 h-5 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
+                  <div>
+                    <p className="font-bold text-stone-800">Click Push to GitHub</p>
+                    <p className="text-stone-600 mt-0.5">
+                      Once added, clicking <strong>&quot;Push to GitHub&quot;</strong> will commit directly to GitHub, and Vercel will automatically redeploy!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-stone-100">
+                <button
+                  type="button"
+                  onClick={handleExportJson}
+                  className="text-xs font-bold text-stone-700 hover:text-[#d32f2f] flex items-center gap-1"
+                >
+                  <span>📥</span>
+                  <span>Export JSON Backup</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowTokenModal(false)}
+                  className="px-5 py-2 bg-stone-800 hover:bg-stone-900 text-white text-xs font-bold rounded-xl transition-colors"
+                >
+                  Got It
+                </button>
+              </div>
             </div>
           </div>
         )}
