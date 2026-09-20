@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Question } from '@/data/questions';
 
+export const dynamic = 'force-dynamic';
+
 const QUESTIONS_FILE_PATH = path.join(process.cwd(), 'data', 'questions.json');
 
 async function readQuestions(): Promise<Question[]> {

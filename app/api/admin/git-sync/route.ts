@@ -4,9 +4,20 @@ import { promisify } from 'util';
 import { promises as fs } from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+
 const execPromise = promisify(exec);
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_PAT || '';
+function getGitHubToken(): string {
+  return (
+    process.env.GITHUB_TOKEN ||
+    process.env.GH_TOKEN ||
+    process.env.GITHUB_PAT ||
+    process.env.NEXT_PUBLIC_GITHUB_TOKEN ||
+    ''
+  ).trim();
+}
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'Shan0h';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'Nihongo-Language';
 const GITHUB_PREVIEW_REPO = process.env.GITHUB_PREVIEW_REPO || 'Nihongo-Language-Preview';
@@ -93,6 +104,7 @@ async function commitFileToGitHub(
 }
 
 export async function GET() {
+  const token = getGitHubToken();
   const gitAvailable = await isGitCliAvailable();
 
   // If local git CLI is available (e.g. running on localhost)
@@ -119,7 +131,7 @@ export async function GET() {
         changedFiles: lines,
         branch: branchOutput.trim() || 'main',
         lastCommit: lastCommitOutput.trim(),
-        hasToken: !!GITHUB_TOKEN,
+        hasToken: !!token,
       });
     } catch (error: any) {
       console.warn('Local git status error:', error);
@@ -131,11 +143,11 @@ export async function GET() {
     let lastCommit = 'Vercel Serverless Production';
     let branch = 'main';
 
-    if (GITHUB_TOKEN) {
+    if (token) {
       try {
         const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/main`, {
           headers: {
-            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Authorization: `Bearer ${token}`,
             Accept: 'application/vnd.github+json',
             'User-Agent': 'Nihongo-Language-App',
           },
@@ -160,8 +172,8 @@ export async function GET() {
       changedFiles: [],
       branch,
       lastCommit,
-      hasToken: !!GITHUB_TOKEN,
-      message: GITHUB_TOKEN
+      hasToken: !!token,
+      message: token
         ? 'GitHub Cloud Sync is active and ready.'
         : 'GITHUB_TOKEN not yet configured in Vercel environment variables.',
     });
@@ -172,7 +184,7 @@ export async function GET() {
       hasChanges: false,
       branch: 'main',
       lastCommit: 'Serverless Deployment',
-      hasToken: !!GITHUB_TOKEN,
+      hasToken: !!token,
     });
   }
 }
@@ -192,12 +204,13 @@ export async function POST(request: NextRequest) {
       // Body may be empty
     }
 
+    const token = getGitHubToken();
     const gitAvailable = await isGitCliAvailable();
 
     // ==========================================
     // PATH A: GitHub REST API (Preferred on Vercel or when GITHUB_TOKEN is set)
     // ==========================================
-    if (GITHUB_TOKEN) {
+    if (token) {
       let questionsJsonContent = '';
 
       if (questionsPayload && Array.isArray(questionsPayload)) {
@@ -242,7 +255,7 @@ export async function POST(request: NextRequest) {
           'data/questions.json',
           base64Content,
           commitMsg,
-          GITHUB_TOKEN
+          token
         );
 
         if (res.success) {
@@ -258,7 +271,7 @@ export async function POST(request: NextRequest) {
                 file.path,
                 file.contentBase64,
                 `admin: upload asset ${file.path} [${timestamp}]`,
-                GITHUB_TOKEN
+                token
               );
             }
           }

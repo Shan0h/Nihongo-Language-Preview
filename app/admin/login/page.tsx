@@ -7,16 +7,54 @@ import Link from 'next/link';
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'nihongo2026';
-    if (password === validPassword) {
-      localStorage.setItem('isAdmin', 'true');
-      router.push('/admin');
-    } else {
-      setError('Invalid password');
+    if (!password.trim()) {
+      setError('Please enter your admin password.');
+      return;
+    }
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // 1. Check securely via server-side Route Handler
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('isAdmin', 'true');
+        router.push('/admin');
+        return;
+      }
+
+      // 2. Client-side fallback check (for direct nihongo2026 match)
+      const clientFallback = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'nihongo2026';
+      if (password === clientFallback) {
+        localStorage.setItem('isAdmin', 'true');
+        router.push('/admin');
+        return;
+      }
+
+      setError(data.error || 'Invalid password');
+    } catch {
+      // Offline fallback
+      const clientFallback = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'nihongo2026';
+      if (password === clientFallback) {
+        localStorage.setItem('isAdmin', 'true');
+        router.push('/admin');
+      } else {
+        setError('Invalid password');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,13 +84,25 @@ export default function AdminLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter admin password"
-              className="w-full border-2 border-[#f4c2c2] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#d32f2f] transition-colors"
+              disabled={isLoading}
+              className="w-full border-2 border-[#f4c2c2] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#d32f2f] transition-colors disabled:opacity-50"
             />
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           </div>
 
-          <button type="submit" className="btn-torii w-full py-3 text-sm">
-            Login
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn-torii w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Verifying...</span>
+              </>
+            ) : (
+              <span>Login</span>
+            )}
           </button>
         </form>
       </div>

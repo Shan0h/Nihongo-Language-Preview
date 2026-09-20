@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_PAT || '';
+export const dynamic = 'force-dynamic';
+
+function getGitHubToken(): string {
+  return (
+    process.env.GITHUB_TOKEN ||
+    process.env.GH_TOKEN ||
+    process.env.GITHUB_PAT ||
+    process.env.NEXT_PUBLIC_GITHUB_TOKEN ||
+    ''
+  ).trim();
+}
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER || 'Shan0h';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'Nihongo-Language';
 const GITHUB_PREVIEW_REPO = process.env.GITHUB_PREVIEW_REPO || 'Nihongo-Language-Preview';
@@ -111,17 +122,18 @@ export async function POST(request: NextRequest) {
       console.warn('Filesystem write not possible (e.g. Vercel read-only):', fsErr.message);
     }
 
-    // If on Vercel and GITHUB_TOKEN is available, commit image directly to GitHub
-    if (!savedLocally && GITHUB_TOKEN) {
-      await commitImageToGitHub(GITHUB_OWNER, GITHUB_REPO, repoRelativePath, contentBase64, GITHUB_TOKEN);
+    // If on Vercel and token is available, commit image directly to GitHub
+    const token = getGitHubToken();
+    if (!savedLocally && token) {
+      await commitImageToGitHub(GITHUB_OWNER, GITHUB_REPO, repoRelativePath, contentBase64, token);
       if (GITHUB_PREVIEW_REPO && GITHUB_PREVIEW_REPO !== GITHUB_REPO) {
-        await commitImageToGitHub(GITHUB_OWNER, GITHUB_PREVIEW_REPO, repoRelativePath, contentBase64, GITHUB_TOKEN);
+        await commitImageToGitHub(GITHUB_OWNER, GITHUB_PREVIEW_REPO, repoRelativePath, contentBase64, token);
       }
     }
 
     return NextResponse.json({
       success: true,
-      imageUrl: savedLocally || GITHUB_TOKEN ? publicUrl : dataUrl,
+      imageUrl: savedLocally || token ? publicUrl : dataUrl,
       dataUrl,
       targetPath: repoRelativePath,
       contentBase64,
@@ -129,7 +141,7 @@ export async function POST(request: NextRequest) {
       savedLocally,
       message: savedLocally
         ? 'Image uploaded successfully to server.'
-        : GITHUB_TOKEN
+        : token
         ? 'Image committed directly to GitHub repository!'
         : 'Image prepared as data preview. Push to GitHub to persist.',
     });
