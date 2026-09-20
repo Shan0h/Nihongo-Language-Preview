@@ -155,7 +155,7 @@ Nihongo-Language/
 │   ├── topics/page.tsx           # Cover Flow Topic Album for Solo Practice
 │   ├── admin/
 │   │   ├── page.tsx              # Admin studio dashboard
-│   │   ├── login/page.tsx        # Secure admin login (password: admin123)
+│   │   ├── login/page.tsx        # Secure admin login (password protected)
 │   │   ├── multiplayer/page.tsx  # Classroom Game Studio (Presets, Timers, Analytics)
 │   │   ├── questions/page.tsx    # Question manager with image upload & GitHub sync
 │   │   └── categories/page.tsx   # Category overview
@@ -193,7 +193,7 @@ Nihongo-Language/
 ## 🔐 Admin Studio Credentials
 
 - **URL**: [http://localhost:3000/admin](http://localhost:3000/admin)
-- **Password**: `admin123`
+- **Access**: Password protected (configured privately by instructor / administrator)
 - **Capabilities**:
   - Launch tailored classroom multiplayer rooms with custom categories and timers.
   - Upload question pictures directly and edit vocabulary definitions.

@@ -11,8 +11,8 @@ export default function AdminLogin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple password check - replace with your own
-    if (password === 'admin123') {
+    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'nihongo2026';
+    if (password === validPassword) {
       localStorage.setItem('isAdmin', 'true');
       router.push('/admin');
     } else {
@@ -55,13 +55,6 @@ export default function AdminLogin() {
             Login
           </button>
         </form>
-
-        {/* Info */}
-        <div className="mt-6 p-4 bg-[#f4f4f4] rounded-xl">
-          <p className="text-xs text-[#8a8a8a]">
-            <strong className="text-[#5a5a5a]">Default Password:</strong> admin123
-          </p>
-        </div>
       </div>
     </div>
   );
