@@ -411,7 +411,7 @@ export default function QuizPage() {
     return (
       <div 
         onClick={() => setCountdown('finished')}
-        className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-500 bg-[#fff0f3] dark:bg-[#0c080e] cursor-pointer"
+        className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-300 bg-[#fff0f3] dark:bg-[#0c080e] cursor-pointer"
       >
         {/* Full-bleed Scenic Sakura Background matching first user-provided picture */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
@@ -421,7 +421,9 @@ export default function QuizPage() {
             alt="Sakura Fuji Background"
             fill
             priority
-            className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
+            sizes="100vw"
+            quality={80}
+            className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
           />
           {/* Night Mode: Scenic Mount Fuji Night background */}
           <Image
@@ -429,12 +431,14 @@ export default function QuizPage() {
             alt="Mount Fuji Night Background"
             fill
             priority
-            className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+            sizes="100vw"
+            quality={80}
+            className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
           />
           {/* Day Soft Vignette */}
-          <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/25 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+          <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/25 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out pointer-events-none" />
           {/* Night Soft Scrim */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out pointer-events-none" />
         </div>
 
         <SakuraBackground />
@@ -801,7 +805,7 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-[#fff5f6] dark:bg-[#0c080e] text-stone-900 dark:text-white flex flex-col justify-between p-3 sm:p-5 md:p-6 lg:p-7 select-none transition-colors duration-500">
+    <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-[#fff5f6] dark:bg-[#0c080e] text-stone-900 dark:text-white flex flex-col justify-between p-3 sm:p-5 md:p-6 lg:p-7 select-none transition-colors duration-300">
 
       {/* Full-bleed Scenic Background (clean Fuji Sakura in Day mode, Fuji Night in Night mode) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
@@ -811,7 +815,9 @@ export default function QuizPage() {
           alt="Sakura Fuji Background"
           fill
           priority
-          className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
+          sizes="100vw"
+          quality={80}
+          className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
         />
         {/* Night Mode: Mount Fuji Night background */}
         <Image
@@ -819,12 +825,14 @@ export default function QuizPage() {
           alt="Mount Fuji Night Background"
           fill
           priority
-          className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+          sizes="100vw"
+          quality={80}
+          className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
         />
         {/* Day Soft Pink Vignette */}
-        <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/20 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+        <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/20 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out pointer-events-none" />
         {/* Night Soft Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out pointer-events-none" />
       </div>
 
       <SakuraBackground />

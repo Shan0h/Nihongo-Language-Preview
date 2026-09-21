@@ -128,7 +128,7 @@ export default function TopicsPage() {
   };
 
   return (
-    <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden bg-[#fff0f3] dark:bg-[#0c080e] flex flex-col justify-between p-4 sm:p-5 lg:px-10 lg:py-4 select-none transition-colors duration-500">
+    <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden bg-[#fff0f3] dark:bg-[#0c080e] flex flex-col justify-between p-4 sm:p-5 lg:px-10 lg:py-4 select-none transition-colors duration-300">
       
       {/* Full-bleed Scenic Fuji Sakura Background (Day & Night) */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
@@ -138,7 +138,9 @@ export default function TopicsPage() {
           alt="Mount Fuji Sakura Day Background"
           fill
           priority
-          className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-700 select-none pointer-events-none"
+          sizes="100vw"
+          quality={80}
+          className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
         />
         {/* Night Mode Scenic Background */}
         <Image
@@ -146,12 +148,14 @@ export default function TopicsPage() {
           alt="Mount Fuji Sakura Night Background"
           fill
           priority
-          className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-700 select-none pointer-events-none"
+          sizes="100vw"
+          quality={80}
+          className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
         />
         {/* Day Soft Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-[#fff0f3]/25 to-[#ffe8ee]/45 opacity-100 dark:opacity-0 transition-opacity duration-700 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-[#fff0f3]/25 to-[#ffe8ee]/45 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out pointer-events-none" />
         {/* Night Soft Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70 opacity-0 dark:opacity-100 transition-opacity duration-700 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out pointer-events-none" />
       </div>
 
       <SakuraBackground />
@@ -273,7 +277,7 @@ export default function TopicsPage() {
                 <div
                   id="topic-card"
                   key={category.slug}
-                  className={`snap-center flex-shrink-0 w-[300px] sm:w-[330px] transition-all duration-500 ease-out cursor-pointer
+                  className={`snap-center flex-shrink-0 w-[300px] sm:w-[330px] transition-all duration-300 ease-out cursor-pointer [transform:translateZ(0)]
                     ${isActive 
                       ? 'scale-100 opacity-100 z-10' 
                       : 'scale-90 opacity-45 hover:opacity-75 z-0'}
@@ -285,10 +289,10 @@ export default function TopicsPage() {
                   }}
                 >
                   <div 
-                    className={`rounded-[2.25rem] p-5 sm:p-6 flex flex-col justify-between h-[320px] sm:h-[340px] transition-all duration-500 backdrop-blur-2xl relative overflow-hidden group ${
+                    className={`rounded-[2.25rem] p-5 sm:p-6 flex flex-col justify-between h-[320px] sm:h-[340px] transition-colors duration-300 relative overflow-hidden group ${
                       isActive 
-                        ? 'bg-white/90 dark:bg-[#161224]/85 border-2 border-rose-400 dark:border-rose-500/90 shadow-[0_0_35px_rgba(244,63,94,0.38),inset_0_1px_2px_rgba(255,255,255,0.4)]' 
-                        : 'glass-card-interactive border border-white/80 dark:border-white/10 shadow-xs'
+                        ? 'backdrop-blur-md bg-white/92 dark:bg-[#161224]/90 border-2 border-rose-400 dark:border-rose-500/90 shadow-[0_0_30px_rgba(244,63,94,0.3),inset_0_1px_2px_rgba(255,255,255,0.4)]' 
+                        : 'bg-white/70 dark:bg-white/5 border border-white/60 dark:border-white/10 shadow-xs'
                     }`}
                   >
                     <div>

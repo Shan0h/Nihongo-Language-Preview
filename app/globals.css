@@ -47,9 +47,8 @@ body {
     radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 60%),
     radial-gradient(circle at 100% 100%, rgba(254, 205, 211, 0.9) 0%, rgba(254, 205, 211, 0) 60%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cg fill='%23f472b6' fill-opacity='0.08'%3E%3Cpath d='M20 15 C 10 5, 30 0, 35 15 C 45 5, 55 15, 45 25 C 55 35, 35 45, 30 30 C 20 40, 10 30, 20 15 Z'/%3E%3Cpath d='M80 40a35 35 0 0 1 35-35 35 35 0 0 1 35 35H113A33 33 0 0 0 80 7a33 33 0 0 0-33 33H80z'/%3E%3C/g%3E%3C/svg%3E");
-  background-attachment: fixed;
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Japanese Seigaiha Wave & Torii Glow Background in Dark Mode */
@@ -58,7 +57,6 @@ html.dark body {
   background-image: 
     radial-gradient(circle at 50% 0%, rgba(225, 29, 72, 0.15) 0%, rgba(5, 5, 5, 0) 60%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath d='M0 40a40 40 0 0 1 40-40 40 40 0 0 1 40 40H78A38 38 0 0 0 40 2 38 38 0 0 0 2 40H0zm40 0a40 40 0 0 1 40-40 40 40 0 0 1 40 40h-2a38 38 0 0 0-38-38 38 38 0 0 0-38 38h-2z' fill='%23ffffff' fill-opacity='0.02'/%3E%3C/svg%3E");
-  background-attachment: fixed;
 }
 
 /* Cultural Components */
@@ -149,7 +147,7 @@ html.dark .card-cultural {
 }
 
 html.dark .sakura-petal {
-  box-shadow: 0 0 12px rgba(244, 114, 182, 0.6);
+  filter: drop-shadow(0 0 4px rgba(244, 114, 182, 0.7));
 }
 
 @keyframes sakura-fall {
@@ -535,36 +533,38 @@ html.dark .bg-seigaiha-blur {
 
 /* Main Master Frosted Glass Panel */
 .glass-panel-master {
-  background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 1),
     0 20px 48px -12px rgba(244, 114, 182, 0.14),
     0 8px 20px -6px rgba(0, 0, 0, 0.02);
+  transform: translateZ(0);
 }
 
 html.dark .glass-panel-master {
-  background: rgba(18, 16, 26, 0.82);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: rgba(18, 16, 26, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
     0 25px 60px -15px rgba(0, 0, 0, 0.85);
 }
 
-/* Interactive Frosted Glass Cards (Solo, Multiplayer, Topics) */
+/* Interactive Frosted Glass Cards (Solo, Multiplayer) */
 .glass-card-interactive {
   background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 1),
     0 6px 20px -4px rgba(244, 114, 182, 0.12);
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transform: translateZ(0);
 }
 
 .glass-card-interactive:hover {
@@ -573,13 +573,13 @@ html.dark .glass-panel-master {
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 1),
     0 12px 32px -6px rgba(225, 29, 72, 0.18);
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
 
 html.dark .glass-card-interactive {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.08),
@@ -592,19 +592,20 @@ html.dark .glass-card-interactive:hover {
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
     0 12px 34px -6px rgba(0, 0, 0, 0.8);
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* Compact Glass Pills (Navigation, Buttons, Ribbons) */
 .glass-pill {
   background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.95);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 1),
     0 2px 8px -2px rgba(244, 114, 182, 0.08);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  transform: translateZ(0);
 }
 
 .glass-pill:hover {
@@ -613,13 +614,13 @@ html.dark .glass-card-interactive:hover {
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 1),
     0 4px 14px -2px rgba(225, 29, 72, 0.14);
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
 }
 
 html.dark .glass-pill {
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.08),
@@ -632,19 +633,18 @@ html.dark .glass-pill:hover {
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.14),
     0 4px 16px -2px rgba(0, 0, 0, 0.65);
-  transform: translateY(-1px);
+  transform: translateY(-1px) translateZ(0);
 }
 
-/* Topic Module Glass Card */
+/* Topic Module Glass Card (Optimized: removes nested blur inside master panel) */
 .topic-glass-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(255, 240, 243, 0.9);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
     0 2px 8px -1px rgba(244, 114, 182, 0.06);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, border-color 0.18s ease;
+  transform: translateZ(0);
 }
 
 .topic-glass-card:hover {
@@ -653,13 +653,11 @@ html.dark .glass-pill:hover {
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 1),
     0 6px 18px -2px rgba(225, 29, 72, 0.12);
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
 
 html.dark .topic-glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
@@ -667,10 +665,10 @@ html.dark .topic-glass-card {
 }
 
 html.dark .topic-glass-card:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(244, 63, 94, 0.35);
   box-shadow: 
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
     0 6px 20px -2px rgba(0, 0, 0, 0.55);
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
 }
