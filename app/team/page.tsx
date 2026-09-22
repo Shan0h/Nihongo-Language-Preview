@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Logo from '@/app/components/Logo';
+import QrAccessModal from '@/app/components/QrAccessModal';
 
 // Gentle falling sakura petals with natural variance matching the homepage
 const SakuraBackground = () => {
@@ -45,6 +47,8 @@ interface TeamMember {
 }
 
 export default function TeamPage() {
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -160,91 +164,77 @@ export default function TeamPage() {
       {/* ─────────────────────────────────────────────────────────────
           1. TOP NAVIGATION NAVBAR (Seamless Header)
       ───────────────────────────────────────────────────────────── */}
+      {/* ─────────────────────────────────────────────────────────────
+          1. TOP NAVIGATION NAVBAR (Exact match to Front Page)
+      ───────────────────────────────────────────────────────────── */}
       <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between shrink-0 py-1 sm:py-1.5 animate-fade-in-up">
         
-        {/* Left: Brand Crest */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#d32f2f] to-[#b71c1c] text-white flex items-center justify-center text-lg sm:text-xl shadow-md shadow-rose-900/20 group-hover:scale-105 transition-transform shrink-0 border border-white/40">
-            ⛩️
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-extrabold text-stone-900 dark:text-white text-sm sm:text-base tracking-tight font-serif">
-                日本語教育
-              </span>
-              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100/90 dark:bg-rose-950 text-[#be123c] dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 shadow-2xs">
-                UHB10802
-              </span>
-            </div>
-            <span className="text-[9px] font-bold text-[#e11d48] dark:text-rose-400 tracking-[0.16em] uppercase flex items-center gap-1">
-              NIHONGO EDUCATION <span className="text-[10px]">🌸</span>
-            </span>
-          </div>
-        </Link>
+        {/* Left: Brand Crest Logo */}
+        <div className="flex items-center">
+          <Logo variant="full" size="md" />
+        </div>
 
-        {/* Center: Navigation Pills matching reference */}
-        <nav className="flex items-center bg-white/85 dark:bg-stone-900/85 backdrop-blur-md rounded-full p-1 border border-rose-200/80 dark:border-white/10 shadow-xs">
-          
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-rose-50/80 dark:hover:bg-white/5 transition-all"
-          >
-            <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span className="hidden md:inline">Home</span>
-          </Link>
-
-          <Link
-            href="/#topics"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-rose-50/80 dark:hover:bg-white/5 transition-all"
-          >
-            <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="hidden md:inline">About</span>
-          </Link>
-
-          <Link
-            href="/#topics"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-rose-50/80 dark:hover:bg-white/5 transition-all"
-          >
-            <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-            <span className="hidden md:inline">Activities</span>
-          </Link>
-
-          {/* Active Team Pill */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#ffe4e6] dark:bg-rose-950/90 text-[#be123c] dark:text-rose-300 border border-rose-200 dark:border-rose-900 shadow-2xs">
-            <svg className="w-3.5 h-3.5 text-[#be123c] dark:text-rose-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span>Team</span>
-          </div>
-
+        {/* Right: Navbar Buttons exactly matching front page */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Mobile QR Code Scanner */}
           <button
-            onClick={() => setContactOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-rose-50/80 dark:hover:bg-white/5 transition-all cursor-pointer"
+            onClick={() => setShowQrModal(true)}
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-[#e11d48] dark:text-rose-400 flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 transition-transform"
+            title="Scan QR to play on mobile (nihongo.shan0h.my.id)"
           >
-            <svg className="w-3.5 h-3.5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span className="hidden md:inline">Contact</span>
+            <span>📱</span>
+            <span>Scan QR</span>
           </button>
 
-        </nav>
+          {/* How to Play */}
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5 cursor-pointer hover:scale-105 transition-transform"
+          >
+            <span>🎯</span>
+            <span className="hidden sm:inline">How to Play</span>
+          </button>
 
-        {/* Right: Theme Toggle matching Homepage */}
-        <div className="flex items-center gap-2">
+          {/* Our Team (Active on this page) */}
+          <div
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-[#e11d48] dark:text-rose-400 bg-rose-100/90 dark:bg-rose-950/80 border border-rose-300 dark:border-rose-900/60 flex items-center gap-1.5 shadow-2xs"
+          >
+            <span>👥</span>
+            <span>Our Team</span>
+          </div>
+
+          {/* Quick Host */}
+          <Link
+            href="/host"
+            title="Quick Casual Multiplayer"
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-[#e11d48] dark:text-rose-400 flex items-center gap-1.5 hover:scale-105 transition-transform"
+          >
+            <span>👑</span>
+            <span className="hidden sm:inline">Quick Host</span>
+          </Link>
+
+          {/* Admin */}
+          <Link
+            href="/admin/login"
+            title="Admin Studio"
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5 hover:scale-105 transition-transform"
+          >
+            <span>⚙️</span>
+            <span className="hidden sm:inline">Admin</span>
+          </Link>
+
+          {/* Day / Night Theme Selector */}
           <button
             onClick={toggleTheme}
-            className="glass-pill px-3 py-1.5 rounded-full text-xs font-bold text-stone-800 dark:text-stone-200 border border-rose-200/80 dark:border-white/10 flex items-center gap-1.5 cursor-pointer hover:scale-105 transition-transform"
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-800 dark:text-stone-200 border-rose-200/80 dark:border-white/10 flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
             title={isDarkMode ? "Switch to Day Mode (昼)" : "Switch to Night Mode (夜)"}
           >
             <span>{isDarkMode ? '⛩️' : '🌸'}</span>
             <span className="tracking-wider">{isDarkMode ? '夜 NIGHT' : '昼 DAY'}</span>
             <span className="text-amber-500 text-xs">{isDarkMode ? '🌙' : '☀️'}</span>
+            <svg className="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
         </div>
 
@@ -447,25 +437,31 @@ export default function TeamPage() {
         </div>
 
         {/* Links */}
-        <div className="flex items-center gap-3.5 font-medium text-[11px]">
+        <div className="flex items-center gap-3 sm:gap-4 font-medium text-[11px]">
           <Link href="/" className="hover:text-stone-900 dark:hover:text-white transition-colors">
             Home
           </Link>
-          <Link href="/#topics" className="hover:text-stone-900 dark:hover:text-white transition-colors">
-            About
-          </Link>
-          <Link href="/#topics" className="hover:text-stone-900 dark:hover:text-white transition-colors">
-            Activities
-          </Link>
-          <span className="font-bold text-[#be123c] dark:text-rose-400">
-            Team
-          </span>
           <button
-            onClick={() => setContactOpen(true)}
+            onClick={() => setShowHowToPlay(true)}
             className="hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
           >
-            Contact
+            How to Play
           </button>
+          <button
+            onClick={() => setShowQrModal(true)}
+            className="hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
+          >
+            Scan QR
+          </button>
+          <Link href="/host" className="hover:text-stone-900 dark:hover:text-white transition-colors">
+            Quick Host
+          </Link>
+          <Link href="/admin/login" className="hover:text-stone-900 dark:hover:text-white transition-colors">
+            Admin
+          </Link>
+          <span className="font-bold text-[#be123c] dark:text-rose-400">
+            Our Team
+          </span>
         </div>
 
         {/* Right Tagline */}
@@ -543,6 +539,76 @@ export default function TeamPage() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Quick Access Modal */}
+      <QrAccessModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        url="https://nihongo.shan0h.my.id"
+      />
+
+      {/* How to Play Modal */}
+      {showHowToPlay && (
+        <div 
+          onClick={() => setShowHowToPlay(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-[#18181b] border-2 border-rose-100 dark:border-white/10 rounded-[2rem] p-6 sm:p-8 max-w-xl w-full shadow-2xl animate-scale-in text-center relative"
+          >
+            <button 
+              onClick={() => setShowHowToPlay(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-stone-100 dark:bg-white/10 hover:bg-rose-50 text-stone-500 hover:text-red-600 flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <h3 className="text-lg sm:text-xl font-black text-stone-800 dark:text-white flex items-center justify-center gap-2 mb-6">
+              <span>🎯</span>
+              <span>How to Play</span>
+            </h3>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-xl mb-2">
+                  1️⃣
+                </div>
+                <div className="text-xs font-bold text-stone-800 dark:text-white">Choose Topic</div>
+                <div className="text-[11px] text-stone-500">Pick any of 10 modules</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-xl mb-2">
+                  2️⃣
+                </div>
+                <div className="text-xs font-bold text-stone-800 dark:text-white">Answer Quiz</div>
+                <div className="text-[11px] text-stone-500">Listen, speak, or select</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-xl mb-2">
+                  3️⃣
+                </div>
+                <div className="text-xs font-bold text-stone-800 dark:text-white">Score Points</div>
+                <div className="text-[11px] text-stone-500">Speed and accuracy matter</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-xl mb-2">
+                  4️⃣
+                </div>
+                <div className="text-xs font-bold text-stone-800 dark:text-white">Get Certificate</div>
+                <div className="text-[11px] text-stone-500">Download official PDF</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowHowToPlay(false)}
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-sm font-black shadow-lg hover:shadow-xl active:scale-95 transition-all cursor-pointer"
+            >
+              Got it! Let&apos;s Play 🌸
+            </button>
           </div>
         </div>
       )}
