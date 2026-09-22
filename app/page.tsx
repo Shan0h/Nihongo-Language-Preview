@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import WelcomeModal from '@/app/components/WelcomeModal';
+import QrAccessModal from '@/app/components/QrAccessModal';
 import { supabase } from '@/app/utils/supabase';
 import Logo from '@/app/components/Logo';
 import { bgm } from '@/app/utils/bgm';
+import QRCode from 'qrcode';
 
 // Gentle falling sakura petals with natural variance
 const SakuraBackground = () => {
@@ -105,6 +107,8 @@ const FujiPagodaWatermark = () => (
 export default function NihongoTalkScreen() {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [homeQrUrl, setHomeQrUrl] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isBgmPlaying, setIsBgmPlaying] = useState(true);
   const [topPlayers, setTopPlayers] = useState<{ rank: string; name: string; pts: string }[]>([
@@ -160,6 +164,18 @@ export default function NihongoTalkScreen() {
       }
     }
 
+    // Generate QR code for nihongo.shan0h.my.id
+    QRCode.toDataURL('https://nihongo.shan0h.my.id', {
+      margin: 1,
+      width: 160,
+      color: {
+        dark: '#2e1014',
+        light: '#ffffff'
+      }
+    })
+      .then((url) => setHomeQrUrl(url))
+      .catch((err) => console.error('Failed to generate homepage QR code:', err));
+
     fetchTopPlayers();
   }, []);
 
@@ -209,6 +225,13 @@ export default function NihongoTalkScreen() {
         isOpen={isWelcomeModalOpen}
         onClose={handleClose}
         onStart={handleStart}
+      />
+
+      {/* QR Code Quick Access Modal */}
+      <QrAccessModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        url="https://nihongo.shan0h.my.id"
       />
 
       {/* "How to Play" Modal */}
@@ -306,6 +329,16 @@ export default function NihongoTalkScreen() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Mobile QR Code Scanner */}
+            <button
+              onClick={() => setShowQrModal(true)}
+              className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-[#e11d48] dark:text-rose-400 flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 transition-transform"
+              title="Scan QR to play on mobile (nihongo.shan0h.my.id)"
+            >
+              <span>📱</span>
+              <span>Scan QR</span>
+            </button>
+
             {/* How to Play */}
             <button
               onClick={() => setShowHowToPlay(true)}
@@ -569,18 +602,52 @@ export default function NihongoTalkScreen() {
                 </Link>
               ))}
 
-              {/* Japanese Calligraphic Poem with Mount Fuji & Pagoda Artwork Watermark (spanning 2 columns) */}
-              <div className="col-span-2 flex flex-col justify-center items-center text-center p-2.5 rounded-2xl select-none relative overflow-hidden">
+              {/* Interactive Mobile Quick Access QR Card (spanning 2 columns) */}
+              <div 
+                onClick={() => setShowQrModal(true)}
+                className="col-span-2 flex items-center justify-between gap-3 p-2 sm:p-2.5 rounded-2xl bg-gradient-to-r from-rose-50/95 via-amber-50/80 to-rose-50/95 dark:from-stone-900/80 dark:via-stone-900/60 dark:to-stone-900/80 border border-rose-200/90 dark:border-white/10 shadow-xs cursor-pointer group hover:border-rose-400 dark:hover:border-rose-500 transition-all select-none relative overflow-hidden"
+                title="Click to enlarge QR Code (nihongo.shan0h.my.id)"
+              >
                 <FujiPagodaWatermark />
-                <div 
-                  className="relative z-10 text-rose-900/85 dark:text-rose-200 text-xs sm:text-[13px] font-medium leading-relaxed tracking-widest"
-                  style={{ fontFamily: 'var(--font-noto-sans-jp), serif' }}
-                >
-                  学びは、<br />
-                  きっとどこかで花ひらく。
+                
+                {/* Left: QR Code Thumbnail + Website Info */}
+                <div className="flex items-center gap-2.5 sm:gap-3 relative z-10">
+                  <div className="w-13 h-13 sm:w-15 sm:h-15 bg-white p-1 rounded-xl border border-amber-300/80 dark:border-white/20 shadow-xs shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden">
+                    {homeQrUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={homeQrUrl}
+                        alt="Scan QR for nihongo.shan0h.my.id"
+                        className="w-full h-full object-contain select-none"
+                      />
+                    ) : (
+                      <span className="text-lg">📱</span>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-[#e11d48] dark:text-rose-400 bg-rose-100/90 dark:bg-rose-950/70 px-2 py-0.5 rounded-full leading-none">
+                        📱 SCAN TO PLAY
+                      </span>
+                    </div>
+                    <div className="text-xs sm:text-sm font-black text-stone-900 dark:text-white mt-1 group-hover:text-[#e11d48] transition-colors leading-tight font-mono">
+                      nihongo.shan0h.my.id
+                    </div>
+                    <div className="text-[9.5px] sm:text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">
+                      Open with phone camera to play
+                    </div>
+                  </div>
                 </div>
-                <div className="relative z-10 text-[8.5px] sm:text-[9.5px] font-bold text-stone-400 dark:text-stone-500 tracking-[0.22em] uppercase mt-1">
-                  EVERY WORD OPENS A BRIGHTER TOMORROW.
+
+                {/* Right: Enlarge Icon & Japanese Badge */}
+                <div className="hidden sm:flex flex-col items-end relative z-10 shrink-0 pr-1.5">
+                  <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 group-hover:text-[#e11d48] flex items-center gap-1 transition-colors">
+                    <span>Enlarge</span>
+                    <span>↗</span>
+                  </span>
+                  <span className="text-[9.5px] text-rose-800/90 dark:text-rose-300 font-japanese mt-0.5">
+                    スマホで遊ぶ 🌸
+                  </span>
                 </div>
               </div>
             </div>

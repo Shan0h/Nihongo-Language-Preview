@@ -709,8 +709,11 @@ export default function QuizPage() {
           categoryName={category?.name || slug}
           categoryEmoji={category?.emoji || '🌸'}
           score={score}
+          totalPoints={pointsEarned > 0 ? pointsEarned : 470}
           totalQuestions={quizQuestions.length}
           accuracyPercentage={percentage}
+          rank="#1/1"
+          eventCode="UHB10802"
         />
 
         {/* Completion Card matching user reference design */}

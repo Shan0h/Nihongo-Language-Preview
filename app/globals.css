@@ -5,6 +5,7 @@
 :root {
   --font-outfit: "Outfit", system-ui, sans-serif;
   --font-noto-sans-jp: "Noto Sans JP", "Noto Sans JP Fallback", sans-serif;
+  --font-cinzel: var(--font-cinzel), "Cinzel", "Times New Roman", Georgia, serif;
 
   /* Japanese Torii Cultural Theme (Light Mode) */
   --torii-red: #d32f2f;

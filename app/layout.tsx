@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, Noto_Sans_JP } from "next/font/google";
+import { Outfit, Noto_Sans_JP, Cinzel } from "next/font/google";
 import "./globals.css";
 import DarkModeToggle from "@/app/components/DarkModeToggle";
 import BgmPlayer from "@/app/components/BgmPlayer";
@@ -22,6 +22,14 @@ const notoSansJP = Noto_Sans_JP({
   preload: false,
 });
 
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  variable: "--font-cinzel",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   title: "Nihongo Education | 日本語教育 (UHB10802)",
   description: "Learn Japanese Beautifully 🌸 Interactive Quizzes, Vocabulary Drills & Live Classroom Multiplayer Arena",
@@ -38,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} h-full`} suppressHydrationWarning>
+    <html lang="ja" className={`${outfit.variable} ${notoSansJP.variable} ${cinzel.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans antialiased transition-colors duration-300" suppressHydrationWarning>
         <DarkModeToggle />
         <BgmPlayer />
