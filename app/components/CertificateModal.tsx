@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
+import Link from 'next/link';
 
 interface CertificateModalProps {
   isOpen: boolean;
@@ -803,13 +804,24 @@ export default function CertificateModal({
           </button>
         </div>
 
-        {/* Back Button */}
-        <button
-          onClick={onClose}
-          className="mt-2.5 text-xs font-bold text-stone-300 hover:text-white underline underline-offset-4 cursor-pointer transition-colors"
-        >
-          ‹ Back to Results
-        </button>
+        {/* Navigation Actions */}
+        <div className="mt-3 flex items-center justify-center gap-4 text-xs font-bold text-stone-300">
+          <button
+            onClick={onClose}
+            className="hover:text-white underline underline-offset-4 cursor-pointer transition-colors"
+          >
+            ‹ Close Certificate
+          </button>
+          <span className="opacity-40">•</span>
+          <Link
+            href="/"
+            onClick={onClose}
+            className="hover:text-white underline underline-offset-4 cursor-pointer transition-colors flex items-center gap-1.5 text-rose-300 hover:text-rose-200"
+          >
+            <span>🏠</span>
+            <span>Back to Homepage</span>
+          </Link>
+        </div>
 
       </div>
     </div>
