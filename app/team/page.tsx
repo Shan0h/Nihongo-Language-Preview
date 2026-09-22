@@ -20,7 +20,7 @@ export default function TeamPage() {
 
   const teamMembers: TeamMember[] = [
     {
-      name: 'Hana Tanaka',
+      name: 'MUHAMMAD FIKRI AKMAL BIN MOHD FAUZI',
       badge: 'Leader / Developer',
       badgeType: 'leader',
       badgeIcon: '👑',
@@ -30,7 +30,7 @@ export default function TeamPage() {
       hasBlossomAccent: true,
     },
     {
-      name: 'Ren Saito',
+      name: 'MUHAMMAD DANISH BIN MOHD ARIS',
       badge: 'Developer',
       badgeType: 'developer',
       badgeIcon: '</>',
@@ -40,7 +40,7 @@ export default function TeamPage() {
       hasBlossomAccent: true,
     },
     {
-      name: 'Yui Nakamura',
+      name: 'AYDIN NAUFAL BIN MD FAISHALIM',
       badge: 'Miniature Japanese House Model',
       badgeType: 'model',
       badgeIcon: '📦',
@@ -50,7 +50,7 @@ export default function TeamPage() {
       hasBlossomAccent: true,
     },
     {
-      name: 'Kaito Yamamoto',
+      name: 'AHMAD FADHIL BIN ROSLI',
       badge: 'Helper',
       badgeType: 'helper',
       badgeIcon: '👥',
@@ -59,7 +59,7 @@ export default function TeamPage() {
       hasBlossomAccent: true,
     },
     {
-      name: 'Mei Suzuki',
+      name: 'MUHAMMAD SAIFUL SYAHMI BIN ISHAK',
       badge: 'Helper',
       badgeType: 'helper',
       badgeIcon: '👥',
@@ -68,7 +68,7 @@ export default function TeamPage() {
       hasBlossomAccent: true,
     },
     {
-      name: 'Sora Fujimoto',
+      name: 'MUHAMMAD IKHWAN BIN MOHAMMAD UZAINI',
       badge: 'Helper',
       badgeType: 'helper',
       badgeIcon: '👥',
@@ -280,7 +280,7 @@ export default function TeamPage() {
                       </div>
 
                       {/* Member Name */}
-                      <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-2 leading-tight">
+                      <h3 className="text-xs sm:text-sm lg:text-[14px] font-black uppercase text-slate-900 dark:text-white tracking-tight mt-2 leading-snug break-words">
                         {member.name}
                       </h3>
 
