@@ -26,7 +26,7 @@ export default function TeamPage() {
       badgeIcon: '👑',
       description: 'Project coordination, design direction, and system development.',
       quote: '"Small steps. A brighter you."',
-      photo: '/images/team/hana.png',
+      photo: '/images/team/FIKRI.jpg',
       hasBlossomAccent: true,
     },
     {
@@ -36,7 +36,7 @@ export default function TeamPage() {
       badgeIcon: '</>',
       description: 'Frontend support, technical development, and digital experience.',
       quote: '"Turning ideas into real experiences."',
-      photo: '/images/team/ren.png',
+      photo: '/images/team/DANISH.png',
       hasBlossomAccent: true,
     },
     {
@@ -46,7 +46,7 @@ export default function TeamPage() {
       badgeIcon: '📦',
       description: 'Model preparation, physical activity design, and vocabulary interaction.',
       quote: '"Culture in miniature, connections in real life."',
-      photo: '/images/team/yui.png',
+      photo: '/images/team/AYDIN.jpg',
       hasBlossomAccent: true,
     },
     {
@@ -55,7 +55,7 @@ export default function TeamPage() {
       badgeType: 'helper',
       badgeIcon: '👥',
       description: 'Promote to people, invite visitors to the booth, and assist participants.',
-      photo: '/images/team/kaito.png',
+      photo: '/images/team/FADHIL.jpg',
       hasBlossomAccent: true,
     },
     {
@@ -64,7 +64,7 @@ export default function TeamPage() {
       badgeType: 'helper',
       badgeIcon: '👥',
       description: 'Promote to people, invite visitors to the booth, and assist participants.',
-      photo: '/images/team/mei.png',
+      photo: '/images/team/SAIFUL.jpg',
       hasBlossomAccent: true,
     },
     {
@@ -73,7 +73,7 @@ export default function TeamPage() {
       badgeType: 'helper',
       badgeIcon: '👥',
       description: 'Promote to people, invite visitors to the booth, and assist participants.',
-      photo: '/images/team/sora.png',
+      photo: '/images/team/IKHWAN.png',
       hasBlossomAccent: true,
     },
   ];
@@ -256,7 +256,7 @@ export default function TeamPage() {
                       alt={member.name}
                       fill
                       sizes="(max-width: 640px) 96px, 112px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
 
