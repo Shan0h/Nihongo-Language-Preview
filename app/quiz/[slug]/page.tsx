@@ -409,10 +409,7 @@ export default function QuizPage() {
   // Pre-Quiz Countdown Screen matching user's exact reference image
   if (countdown !== 'finished') {
     return (
-      <div 
-        onClick={() => setCountdown('finished')}
-        className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-300 bg-[#fff0f3] dark:bg-[#0c080e] cursor-pointer"
-      >
+      <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-300 bg-[#fff0f3] dark:bg-[#0c080e] cursor-default">
         {/* Full-bleed Scenic Sakura Background matching first user-provided picture */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
           {/* Day Mode: User-provided clean Fuji Sakura background */}
@@ -462,7 +459,7 @@ export default function QuizPage() {
         {/* CENTER HERO: Minimalist Circular Glassmorphic Disc */}
         <main className="relative z-10 my-auto flex flex-col items-center justify-center animate-fade-in-up">
           {/* The Circular Glass Disc */}
-          <div className="relative w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-92 lg:h-92 rounded-full bg-white/55 dark:bg-[#181424]/70 backdrop-blur-2xl border border-white/90 dark:border-white/15 shadow-[0_20px_50px_rgba(244,114,182,0.18),inset_0_2px_4px_rgba(255,255,255,0.85)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)] flex flex-col items-center justify-center p-6 text-center select-none group">
+          <div className="relative w-64 h-64 sm:w-76 sm:h-76 md:w-84 md:h-84 lg:w-92 lg:h-92 rounded-full bg-white/55 dark:bg-[#181424]/70 backdrop-blur-2xl border border-white/90 dark:border-white/15 shadow-[0_20px_50px_rgba(244,114,182,0.18),inset_0_2px_4px_rgba(255,255,255,0.85)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)] flex flex-col items-center justify-center p-6 text-center select-none cursor-default">
             {/* Top Cherry Blossom Icon */}
             <span className="text-xl sm:text-2xl text-rose-400 dark:text-rose-300 animate-pulse">
               🌸
