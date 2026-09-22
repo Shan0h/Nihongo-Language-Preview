@@ -348,6 +348,16 @@ export default function NihongoTalkScreen() {
               <span className="hidden sm:inline">How to Play</span>
             </button>
 
+            {/* Our Team */}
+            <Link
+              href="/team"
+              title="About Our Team"
+              className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-[#e11d48] dark:hover:text-rose-400 flex items-center gap-1.5 transition-all shadow-2xs hover:scale-105"
+            >
+              <span>👥</span>
+              <span>Our Team</span>
+            </Link>
+
             {/* Quick Host */}
             <Link
               href="/host"
@@ -677,6 +687,14 @@ export default function NihongoTalkScreen() {
             <span>日本語で、もっと素敵な毎日を</span>
             <span>｜</span>
             <span>NIHONGO EDUCATION 🌸</span>
+            <span>｜</span>
+            <Link 
+              href="/team" 
+              className="text-[#e11d48] dark:text-rose-400 hover:underline font-bold transition-colors inline-flex items-center gap-1"
+            >
+              <span>Our Team</span>
+              <span>👥</span>
+            </Link>
           </div>
 
           {/* Right Floating Controls matching reference */}
