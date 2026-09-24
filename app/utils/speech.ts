@@ -296,6 +296,9 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   'くるみ': 'くる',
   '苦': 'くる',
   '繰': 'くる',
+  'グーグル': 'くる',
+  'グー': 'くる',
+  'グッド': 'くる',
   '来ます': 'くる',
   'きます': 'くる',
   '帰る': 'かえる',
@@ -475,8 +478,10 @@ export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
     'クール', 'クルー', 'クロ', 'くろ', '黒', '狂う', '繰る', '久留',
     '車', 'くるま', 'クルマ', 'くれ', 'クレ', '暮れ', 'これ', 'コレ', '此れ',
     '胡桃', 'くるみ', '苦', '九', '繰', '空', 'く', 'くう', 'くろい',
+    'グーグル', 'グー', 'グッド',
     'グル', 'guru', '苦労', 'くろう', 'クー', 'ク', '来るよ', 'くるよ', '来るね', 'くるね', '来るの', 'くるの',
-    'kuru', 'kuro', 'kuruma', 'kure', 'kore', 'guru', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'cure', 'cruz', 'come', 'to come', 'coming'
+    'kuru', 'kuro', 'kuruma', 'kure', 'kore', 'guru', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'cure', 'cruz', 'come', 'to come', 'coming',
+    'google', 'goog', 'goo', 'good', "it's goo", 'its goo', 'itsgoo', "it's good", 'its good', 'itsgood'
   ],
   'はなす': [
     '話す', '離す', '放す', '話', '話し', 'はなし', 'ハナス', 'ハナシ',

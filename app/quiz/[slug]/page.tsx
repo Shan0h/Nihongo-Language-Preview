@@ -626,7 +626,7 @@ export default function QuizPage() {
           vocabList.push(clean);
         });
       }
-      // Also add known speech aliases (Kanji/variants/Romaji) for options to anchor context
+      // Add known speech aliases (Kanji/variants/Romaji), keeping entries compact to avoid prompt overflow
       [currentQuestion.correct_answer, ...currentQuestion.options].forEach((opt) => {
         const aliases = [
           ...(COLOR_SPEECH_ALIASES[opt] || []),
@@ -634,10 +634,12 @@ export default function QuizPage() {
           ...(VERB_SPEECH_ALIASES[opt] || []),
         ];
         aliases.forEach((a) => {
-          vocabList.push(a);
+          if (!a.includes(' ') && a.length <= 8) {
+            vocabList.push(a);
+          }
         });
       });
-      const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).join('、');
+      const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).slice(0, 25).join('、');
 
       speechRecognizerRef.current.start(
         (result) => {

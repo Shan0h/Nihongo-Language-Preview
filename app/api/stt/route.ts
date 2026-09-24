@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
     groqFormData.append('response_format', 'json');
     groqFormData.append('temperature', '0.0');
     if (prompt && prompt.trim()) {
-      groqFormData.append('prompt', prompt.trim());
+      // Groq Whisper API has a strict 896 character limit for prompt. Clamping to 800 prevents HTTP 400.
+      const clampedPrompt = prompt.trim().slice(0, 800);
+      groqFormData.append('prompt', clampedPrompt);
     } else {
       groqFormData.append('prompt', '日本語、単語、ひらがな、漢字');
     }
