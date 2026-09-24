@@ -138,7 +138,7 @@ export default function QuizPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
   const [showOnePlusHelp, setShowOnePlusHelp] = useState(false);
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
@@ -187,9 +187,12 @@ export default function QuizPage() {
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved) {
+      if (saved === 'google' || saved === 'auto' || saved === 'whisper') {
         setSpeechEngine(saved);
         recognizer.setEngine(saved);
+      } else {
+        setSpeechEngine('google');
+        recognizer.setEngine('google');
       }
     }
     return () => {
@@ -1416,28 +1419,29 @@ export default function QuizPage() {
                     <div className="flex items-center gap-1 bg-stone-100/90 dark:bg-stone-800/90 p-0.5 sm:p-1 rounded-full border border-stone-200/60 dark:border-white/10 shadow-xs">
                       <button
                         type="button"
-                        onClick={() => handleEngineChange('auto')}
+                        onClick={() => handleEngineChange('google')}
                         className={`flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                          speechEngine === 'google'
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                            : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
+                        }`}
+                        title="Fast native Google Speech Recognition with instant client-side response"
+                      >
+                        <span className="font-black">G</span>
+                        <span>Google (Fast)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEngineChange('auto')}
+                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'auto'
                             ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
                         }`}
-                        title="Intelligently uses Whisper for short words (Colors, Numbers) and Google for long phrases"
+                        title="Intelligently uses Whisper for short words (Colors, Numbers) and Google for phrases"
                       >
                         <span>⚡</span>
-                        <span>Auto (Hybrid)</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleEngineChange('google')}
-                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                          speechEngine === 'google'
-                            ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-xs'
-                            : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
-                        }`}
-                      >
-                        <span className="text-[#4285F4] font-black">G</span>
-                        <span>Google</span>
+                        <span>Auto</span>
                       </button>
                       <button
                         type="button"

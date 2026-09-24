@@ -40,7 +40,7 @@ export default function PlayPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
@@ -48,9 +48,12 @@ export default function PlayPage() {
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved) {
+      if (saved === 'google' || saved === 'auto' || saved === 'whisper') {
         setSpeechEngine(saved);
         recognizer.setEngine(saved);
+      } else {
+        setSpeechEngine('google');
+        recognizer.setEngine('google');
       }
     }
     return () => {

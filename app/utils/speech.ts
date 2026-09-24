@@ -230,14 +230,23 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '聴く': 'きく',
   '効く': 'きく',
   '利く': 'きく',
+  '菊': 'きく',
   '聞きます': 'きく',
   'ききます': 'きく',
   '読む': 'よむ',
+  '詠む': 'よむ',
+  '読もう': 'よむ',
   '読みます': 'よむ',
   'よみます': 'よむ',
   '書く': 'かく',
   '描く': 'かく',
   '掻く': 'かく',
+  '各': 'かく',
+  '角': 'かく',
+  '核': 'かく',
+  '格': 'かく',
+  '画': 'かく',
+  '殻': 'かく',
   '書きます': 'かく',
   'かきます': 'かく',
   '話す': 'はなす',
@@ -261,6 +270,11 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '行きます': 'いく',
   'いきます': 'いく',
   '来る': 'くる',
+  '狂う': 'くる',
+  '繰る': 'くる',
+  '久留': 'くる',
+  'クール': 'くる',
+  'クルー': 'くる',
   '来ます': 'くる',
   'きます': 'くる',
   '帰る': 'かえる',
@@ -436,24 +450,28 @@ export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
     'iku', 'eco', 'iq', 'go', 'to go'
   ],
   'くる': [
-    '来る', 'くる', '来ます', 'きます', '来て', 'きて',
-    'kuru', 'crew', 'cool', 'come', 'to come'
+    '来る', 'くる', 'クル', '来ます', 'きます', '来て', 'きて', '来い', 'こい', 'こない',
+    'クール', 'クルー', 'クロ', 'くろ', '黒', '狂う', '繰る', '久留',
+    'kuru', 'kuro', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'come', 'to come'
   ],
   'はなす': [
     '話す', '離す', 'はなす', '話します', 'はなします', '話して', 'はなして',
     'hanasu', 'speak', 'talk', 'to speak', 'to talk'
   ],
   'きく': [
-    '聞く', '聴く', '効く', '利く', 'きく', '聞きます', 'ききます', '聞いて', 'きいて',
-    'kiku', 'kick', 'listen', 'hear', 'to listen', 'to hear'
+    '聞く', '聴く', '効く', '利く', 'きく', 'キク', '菊', 'キック', 'きっく',
+    '聞きます', 'ききます', '聞いて', 'きいて', '聞こえる', 'きこえる', '聞こう', 'きこう',
+    'kiku', 'kick', 'kicks', 'kiko', 'kik', 'keek', 'listen', 'hear', 'to listen', 'to hear'
   ],
   'よむ': [
-    '読む', 'よむ', '読みます', 'よみます', '読んで', 'よんで',
-    'yomu', 'read', 'to read'
+    '読む', '詠む', 'よむ', 'ヨム', '読もう', 'よもう', '読め', 'よめ', '嫁',
+    '読みます', 'よみます', '読んで', 'よんで',
+    'yomu', 'yom', 'yam', 'yum', 'yummy', 'yo mu', 'you mu', 'read', 'reading', 'to read'
   ],
   'かく': [
-    '書く', '描く', '掻く', 'かく', '書きます', 'かきます', '書いて', 'かいて',
-    'kaku', 'khaki', 'write', 'to write'
+    '書く', '描く', '掻く', 'かく', 'カク', '各', '角', '核', '格', '画', '殻',
+    '書きます', 'かきます', '書いて', 'かいて', '過去', 'かこ',
+    'kaku', 'khaki', 'kako', 'cuckoo', 'cock', 'cook', 'write', 'to write'
   ],
   'おきる': [
     '起きる', 'おきる', '起きます', 'おきます', '起きて', 'おきて',
@@ -788,7 +806,7 @@ export class JapaneseSpeechRecognizer {
   private chunks: Blob[] = [];
   private currentMimeType: string = '';
   private discardNextStop: boolean = false;
-  private engine: SpeechEnginePreference = 'auto';
+  private engine: SpeechEnginePreference = 'google';
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -796,8 +814,10 @@ export class JapaneseSpeechRecognizer {
       if (saved === 'auto' || saved === 'whisper' || saved === 'google') {
         this.engine = saved;
       } else {
-        this.engine = 'auto';
+        this.engine = 'google';
       }
+    } else {
+      this.engine = 'google';
     }
   }
 
@@ -880,7 +900,6 @@ export class JapaneseSpeechRecognizer {
       const isShortWordCategory =
         slug === 'colors' ||
         slug === 'numbers' ||
-        slug === 'verbs' ||
         (vocabPrompt && vocabPrompt.split('、').some((w) => w.trim().length <= 2));
 
       if (isShortWordCategory) {
@@ -916,16 +935,19 @@ export class JapaneseSpeechRecognizer {
       };
 
       rec.onresult = (event: any) => {
-        if (event.results && event.results[0]) {
+        if (event.results && event.results.length > 0) {
           const alternatives: string[] = [];
-          for (let i = 0; i < event.results[0].length; i++) {
-            const t = event.results[0][i]?.transcript?.trim();
-            if (t && !alternatives.includes(t)) {
-              alternatives.push(t);
+          for (let r = 0; r < event.results.length; r++) {
+            const res = event.results[r];
+            for (let i = 0; i < res.length; i++) {
+              const t = res[i]?.transcript?.trim();
+              if (t && !alternatives.includes(t)) {
+                alternatives.push(t);
+              }
             }
           }
           const transcript = alternatives[0] || '';
-          const confidence = event.results[0][0]?.confidence || 0;
+          const confidence = event.results[0]?.[0]?.confidence || 0;
           this.restoreBgm();
 
           if (transcript) {
