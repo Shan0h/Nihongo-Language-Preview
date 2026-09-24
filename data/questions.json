@@ -1029,51 +1029,7 @@
     }
   },
   {
-    "id": "greet-6",
-    "category": "Greetings",
-    "japanese_text": "はじめまして",
-    "hiragana": "はじめまして",
-    "romaji": "Hajimemashite",
-    "english_translation": "Nice to meet you (for the first time)",
-    "image": "🤝",
-    "options": [
-      "はじめまして",
-      "またあした",
-      "おやすみ",
-      "ありがとう"
-    ],
-    "correct_answer": "はじめまして",
-    "option_hiragana": {
-      "はじめまして": "はじめまして (hajimemashite)",
-      "またあした": "またあした (mata ashita)",
-      "おやすみ": "おやすみ (oyasumi)",
-      "ありがとう": "ありがとう (arigatou)"
-    }
-  },
-  {
-    "id": "greet-7",
-    "category": "Greetings",
-    "japanese_text": "よろしくおねがいします",
-    "hiragana": "よろしくおねがいします",
-    "romaji": "Yoroshiku onegaishimasu",
-    "english_translation": "Pleased to meet you / Let's work well together",
-    "image": "🙇",
-    "options": [
-      "よろしくおねがいします",
-      "おはようございます",
-      "すみません",
-      "さようなら"
-    ],
-    "correct_answer": "よろしくおねがいします",
-    "option_hiragana": {
-      "よろしくおねがいします": "よろしくおねがいします (yoroshiku onegaishimasu)",
-      "おはようございます": "おはようございます (ohayou gozaimasu)",
-      "すみません": "すみません (sumimasen)",
-      "さようなら": "さようなら (sayounara)"
-    }
-  },
-  {
-    "id": "greet-8",
+    "id": "greet-11",
     "category": "Greetings",
     "japanese_text": "じゃあ、また",
     "hiragana": "じゃあ、また",
@@ -1095,7 +1051,7 @@
     }
   },
   {
-    "id": "greet-9",
+    "id": "greet-12",
     "category": "Greetings",
     "japanese_text": "おひさしぶりです",
     "hiragana": "おひさしぶりです",
@@ -1117,7 +1073,7 @@
     }
   },
   {
-    "id": "greet-10",
+    "id": "greet-13",
     "category": "Greetings",
     "japanese_text": "またあした",
     "hiragana": "またあした",

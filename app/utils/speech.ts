@@ -146,15 +146,53 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '首': 'くび',
   '爪': 'つめ',
 
-  // Colors
-  '赤': 'あか',
-  '青': 'あお',
-  '黄色': 'きいろ',
-  '緑': 'みどり',
-  '黒': 'くろ',
+  // Colors & Homophones
+  '城': 'しろ',
   '白': 'しろ',
+  '白色': 'しろ',
+  '白い': 'しろ',
+  '四郎': 'しろ',
+  '史郎': 'しろ',
+  '志郎': 'しろ',
+  '士郎': 'しろ',
+  '司朗': 'しろ',
+  'ホワイト': 'しろ',
+  '白さ': 'しろ',
+  '黒': 'くろ',
+  '黒色': 'くろ',
+  '黒い': 'くろ',
+  '玄': 'くろ',
+  'ブラック': 'くろ',
+  '赤': 'あか',
+  '赤色': 'あか',
+  '赤い': 'あか',
+  '紅': 'あか',
+  '朱': 'あか',
+  'レッド': 'あか',
+  '青': 'あお',
+  '青色': 'あお',
+  '青い': 'あお',
+  '蒼': 'あお',
+  '碧': 'あお',
+  'ブルー': 'あお',
+  '黄色': 'きいろ',
+  '黄色い': 'きいろ',
+  '黄': 'きいろ',
+  'イエロー': 'きいろ',
+  '緑': 'みどり',
+  '緑色': 'みどり',
+  '翠': 'みどり',
+  'グリーン': 'みどり',
+  '桃色': 'ピンク',
+  '桃': 'ピンク',
+  '橙色': 'オレンジ',
+  '橙': 'オレンジ',
   '紫': 'むらさき',
+  '紫色': 'むらさき',
+  'パープル': 'むらさき',
   '茶色': 'ちゃいろ',
+  '茶色い': 'ちゃいろ',
+  'ブラウン': 'ちゃいろ',
 
   // Food & Drinks
   '林檎': 'りんご',
@@ -281,6 +319,63 @@ export const NUMBER_SPEECH_ALIASES: Record<string, string[]> = {
   'ひゃく': ['100', '１００', '百', 'hyaku', 'hyak', 'hundred', 'one hundred'],
   '千': ['1000', '１０００', '千', 'せん', 'sen', 'thousand'],
   'せん': ['1000', '１０００', '千', 'せん', 'sen', 'thousand'],
+};
+
+/**
+ * Common Color aliases including Kanji, Romaji variants, English color names, and phonetic homophones
+ * Ensures short color words (especially 2-mora colors like しろ/白/城, くろ/黒, あか/赤, あお/青) match reliably
+ */
+export const COLOR_SPEECH_ALIASES: Record<string, string[]> = {
+  'しろ': [
+    '白', '城', '代', '白色', '白い', '白さ', '四郎', '史郎', '志郎', '士郎', '司朗',
+    'ホワイト', 'シロ', 'しろ', 'しろい', 'しろいろ',
+    'shiro', 'shiroi', 'white', 'shilo', 'shiloh', 'hero', 'silo', 'cero', 'she row', 'sherow', 'shirou', 'chiro'
+  ],
+  'くろ': [
+    '黒', '玄', '黒色', '黒い', '九郎', '十郎',
+    'クロ', 'ブラック', 'くろ', 'くろい', 'くろいろ',
+    'kuro', 'kuroi', 'black', 'crow', 'cool', 'clow', 'kurou'
+  ],
+  'あか': [
+    '赤', '紅', '朱', '赤色', '赤い',
+    'アカ', 'レッド', 'あか', 'あかい', 'あかいろ',
+    'aka', 'akai', 'red'
+  ],
+  'あお': [
+    '青', '蒼', '碧', '青色', '青い',
+    'アオ', 'ブルー', 'あお', 'あおい', 'あおいろ',
+    'ao', 'aoi', 'blue'
+  ],
+  'きいろ': [
+    '黄色', '黄', '黄色い',
+    'キイロ', 'イエロー', 'きいろ', 'きいろい',
+    'kiiro', 'kiiroi', 'kiro', 'yellow'
+  ],
+  'みどり': [
+    '緑', '翠', '碧', '緑色',
+    'ミドリ', 'グリーン', 'みどり', 'みどりいろ',
+    'midori', 'green'
+  ],
+  'ピンク': [
+    '桃色', '桃',
+    'ピンク', 'ピンク色', 'ぴんく', 'ももいろ',
+    'pink', 'pinku'
+  ],
+  'オレンジ': [
+    '橙', '橙色',
+    'オレンジ', 'オレンジ色', 'おれんじ', 'だいだいいろ',
+    'orange', 'orenji'
+  ],
+  'むらさき': [
+    '紫', '紫色',
+    'ムラサキ', 'パープル', 'むらさき', 'むらさきいろ',
+    'murasaki', 'purple'
+  ],
+  'ちゃいろ': [
+    '茶色', '茶', '茶色い',
+    'チャイロ', 'ブラウン', 'ちゃいろ', 'ちゃいろい',
+    'chairo', 'chairoi', 'brown'
+  ],
 };
 
 /**
@@ -422,27 +517,45 @@ export function matchOptionFromSpeech(
 ): string | null {
   const allTranscripts = [spoken, ...alternatives].filter(Boolean);
 
-  // 0. High-priority Number aliases check (covers digits, Kanji, Romaji, and phonetic variants like "10", "１０", "十", "juu", "ju", "jyu", "ten", "jew", "you")
+  // 0. High-priority Number & Color aliases check (covers digits, Kanji, Romaji, and phonetic variants like "10", "十", "juu", "しろ", "白", "城", "white", etc.)
   for (const trans of allTranscripts) {
     const cleanTrans = trans.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').trim().toLowerCase();
     const halfWidthTrans = cleanTrans.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+    const normTrans = normalizeJapaneseSpeech(cleanTrans);
 
-    const correctAliases = NUMBER_SPEECH_ALIASES[correctAnswer] || [];
-    if (
-      correctAliases.includes(cleanTrans) ||
-      correctAliases.includes(halfWidthTrans) ||
-      correctAliases.some((alias) => cleanTrans === alias.toLowerCase() || halfWidthTrans === alias.toLowerCase())
-    ) {
+    const getAliases = (word: string): string[] => {
+      const numAliases = NUMBER_SPEECH_ALIASES[word] || [];
+      const colorAliases = COLOR_SPEECH_ALIASES[word] || [];
+      return [...numAliases, ...colorAliases];
+    };
+
+    const isMatch = (aliases: string[]): boolean => {
+      if (!aliases.length) return false;
+      return (
+        aliases.includes(cleanTrans) ||
+        aliases.includes(halfWidthTrans) ||
+        aliases.includes(normTrans) ||
+        aliases.some((alias) => {
+          const lowerAlias = alias.toLowerCase();
+          return (
+            cleanTrans === lowerAlias ||
+            halfWidthTrans === lowerAlias ||
+            normTrans === lowerAlias ||
+            (lowerAlias.length >= 3 && cleanTrans.includes(lowerAlias)) ||
+            (cleanTrans.length >= 3 && lowerAlias.includes(cleanTrans))
+          );
+        })
+      );
+    };
+
+    const correctAliases = getAliases(correctAnswer);
+    if (isMatch(correctAliases)) {
       return correctAnswer;
     }
 
     for (const opt of options) {
-      const optAliases = NUMBER_SPEECH_ALIASES[opt] || [];
-      if (
-        optAliases.includes(cleanTrans) ||
-        optAliases.includes(halfWidthTrans) ||
-        optAliases.some((alias) => cleanTrans === alias.toLowerCase() || halfWidthTrans === alias.toLowerCase())
-      ) {
+      const optAliases = getAliases(opt);
+      if (isMatch(optAliases)) {
         return opt;
       }
     }
