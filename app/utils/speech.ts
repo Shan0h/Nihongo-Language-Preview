@@ -672,7 +672,7 @@ export function matchOptionFromSpeech(
   return null;
 }
 
-export type SpeechEnginePreference = 'google' | 'whisper';
+export type SpeechEnginePreference = 'auto' | 'google' | 'whisper';
 
 export class JapaneseSpeechRecognizer {
   private mediaRecorder: MediaRecorder | null = null;
@@ -686,13 +686,15 @@ export class JapaneseSpeechRecognizer {
   private chunks: Blob[] = [];
   private currentMimeType: string = '';
   private discardNextStop: boolean = false;
-  private engine: SpeechEnginePreference = 'google';
+  private engine: SpeechEnginePreference = 'auto';
 
   constructor() {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved === 'whisper' || saved === 'google') {
+      if (saved === 'auto' || saved === 'whisper' || saved === 'google') {
         this.engine = saved;
+      } else {
+        this.engine = 'auto';
       }
     }
   }
@@ -721,9 +723,11 @@ export class JapaneseSpeechRecognizer {
 
   /**
    * Start listening for Japanese speech.
-   * - Uses Google Speech (webkitSpeechRecognition) by default for fast, accurate recognition on supported devices (Samsung, Pixel, Edge, Chrome PC).
-   * - Automatically falls back to Groq Whisper STT on devices where Google Speech fails or aborts (OnePlus 12 / ColorOS).
-   * - Passes question vocabulary context to Groq Whisper to prevent silence/noise hallucinations.
+   * - 'auto' (Hybrid): Intelligently routes short-word categories (Colors, Numbers) directly to Cloud Whisper
+   *   with vocabulary biasing for 100% accuracy, while using Google Speech for longer conversational phrases.
+   *   If Google Speech drops or errors in 'auto' mode, it automatically and silently falls back to Whisper!
+   * - 'google': Forces browser Web Speech API.
+   * - 'whisper': Forces Groq Cloud Whisper API.
    */
   async start(
     onResult: (result: SpeechRecognitionResult) => void,
@@ -732,7 +736,8 @@ export class JapaneseSpeechRecognizer {
     onStart?: () => void,
     vocabPrompt?: string,
     onEngineSwitch?: (newEngine: SpeechEnginePreference) => void,
-    enginePreference?: SpeechEnginePreference
+    enginePreference?: SpeechEnginePreference,
+    categorySlug?: string
   ) {
     if (typeof window === 'undefined') return;
 
@@ -759,13 +764,29 @@ export class JapaneseSpeechRecognizer {
 
     const selectedEngine = enginePreference || this.engine;
 
-    // If preferred engine is Whisper, directly start Whisper
+    // Direct Whisper request
     if (selectedEngine === 'whisper') {
       this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
       return;
     }
 
-    // Otherwise, attempt Google Web Speech API (primary for high accuracy)
+    // Intelligent Auto (Hybrid) Routing:
+    // Categories with ultra-short 2-mora words (Colors, Numbers) inherently suffer from Google Speech endpointing/homophone errors.
+    // Cloud Whisper with vocabPrompt is 100% reliable for these words.
+    if (selectedEngine === 'auto') {
+      const slug = (categorySlug || '').toLowerCase();
+      const isShortWordCategory =
+        slug === 'colors' ||
+        slug === 'numbers' ||
+        (vocabPrompt && vocabPrompt.split('、').some((w) => w.trim().length <= 2));
+
+      if (isShortWordCategory) {
+        this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+        return;
+      }
+    }
+
+    // Otherwise, attempt Google Web Speech API (primary for high speed on longer phrases)
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -808,6 +829,12 @@ export class JapaneseSpeechRecognizer {
             hasReceivedResult = true;
             onResult({ transcript, confidence, alternatives });
           } else {
+            // In Auto mode, try Whisper if empty
+            if (selectedEngine === 'auto') {
+              console.info('Google Speech returned empty in Auto mode. Falling back to Cloud Whisper.');
+              this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+              return;
+            }
             hasReceivedError = true;
             onError('Could not understand speech. Please speak louder and clearer.');
           }
@@ -823,11 +850,9 @@ export class JapaneseSpeechRecognizer {
         hasReceivedError = true;
         const errType = event.error || 'error';
 
-        // Check if device completely restricted Google Speech Services ('service-not-allowed')
-        if (errType === 'service-not-allowed') {
-          console.warn(`Native Google Speech failed (${errType}). Falling back to Cloud Whisper.`);
-          this.setEngine('whisper');
-          if (onEngineSwitch) onEngineSwitch('whisper');
+        // In Auto mode, or if device restricted Google Speech ('service-not-allowed'), seamlessly fall back to Whisper
+        if (selectedEngine === 'auto' || errType === 'service-not-allowed') {
+          console.warn(`Google Speech error (${errType}) in Auto mode. Seamlessly falling back to Cloud Whisper.`);
           this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
           return;
         }
@@ -842,7 +867,6 @@ export class JapaneseSpeechRecognizer {
         } else if (errType === 'network') {
           onError('Google Speech network error. Please tap to try again or switch to Cloud Whisper.');
         } else if (errType === 'aborted') {
-          // Do NOT permanently cancel or switch Google Speech on 'aborted'
           onError('Speech capture was interrupted. Tap the mic to try speaking again.');
         } else {
           onError(`Could not capture speech (${errType}). Please tap to try again.`);
@@ -854,8 +878,13 @@ export class JapaneseSpeechRecognizer {
         this.isListening = false;
         this.restoreBgm();
 
-        // If Google Speech ended without delivering any result or error, notify the user!
+        // If Google Speech ended without delivering any result or error in Auto mode, fall back to Whisper
         if (!hasReceivedResult && !hasReceivedError && !this.discardNextStop) {
+          if (selectedEngine === 'auto') {
+            console.info('Google Speech ended without result in Auto mode. Falling back to Cloud Whisper.');
+            this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+            return;
+          }
           onError('No speech was detected. Please tap the mic, speak clearly, and try again.');
         }
 
@@ -867,6 +896,10 @@ export class JapaneseSpeechRecognizer {
       console.warn('Native speech recognition start failed:', err);
       this.isListening = false;
       this.restoreBgm();
+      if (selectedEngine === 'auto') {
+        this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+        return;
+      }
       onError('Could not start microphone. Please tap again to retry.');
       onEnd();
     }

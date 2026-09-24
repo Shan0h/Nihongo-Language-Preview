@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import AudioWave from '@/app/components/AudioWave';
 
@@ -40,14 +40,14 @@ export default function PlayPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
     const recognizer = new JapaneseSpeechRecognizer();
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nihongo_speech_engine') as 'google' | 'whisper' | null;
+      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
       if (saved) {
         setSpeechEngine(saved);
         recognizer.setEngine(saved);
@@ -60,7 +60,7 @@ export default function PlayPage() {
     };
   }, []);
 
-  const handleEngineChange = (engine: 'google' | 'whisper') => {
+  const handleEngineChange = (engine: SpeechEnginePreference) => {
     setSpeechEngine(engine);
     speechRecognizerRef.current?.setEngine(engine);
   };
@@ -199,7 +199,8 @@ export default function PlayPage() {
         (newEngine) => {
           setSpeechEngine(newEngine);
         },
-        speechEngine
+        speechEngine,
+        q.category
       );
     }
   };
@@ -428,31 +429,44 @@ export default function PlayPage() {
                 <div className="flex items-center gap-1 bg-white/70 backdrop-blur-sm p-0.5 rounded-full text-[10px] font-bold border border-gray-200">
                   <button
                     type="button"
-                    onClick={() => handleEngineChange('google')}
+                    onClick={() => handleEngineChange('auto')}
                     className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                      speechEngine === 'auto'
+                        ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs'
+                        : 'text-stone-400 hover:text-stone-600'
+                    }`}
+                  >
+                    ⚡ Auto (Hybrid)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleEngineChange('google')}
+                    className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       speechEngine === 'google'
                         ? 'bg-white text-stone-800 shadow-xs'
                         : 'text-stone-400 hover:text-stone-600'
                     }`}
                   >
-                    🎙️ Google Speech
+                    Google
                   </button>
                   <button
                     type="button"
                     onClick={() => handleEngineChange('whisper')}
-                    className={`px-2.5 py-0.5 rounded-full transition-all cursor-pointer ${
+                    className={`px-2 py-0.5 rounded-full transition-all cursor-pointer ${
                       speechEngine === 'whisper'
-                        ? 'bg-white text-red-600 shadow-xs'
+                        ? 'bg-white text-rose-600 shadow-xs'
                         : 'text-stone-400 hover:text-stone-600'
                     }`}
                   >
-                    ⚡ Cloud Whisper
+                    Whisper
                   </button>
                 </div>
                 <p className="text-[10px] text-stone-400 mt-1">
-                  {speechEngine === 'google'
+                  {speechEngine === 'auto'
+                    ? '⚡ Auto: Uses Whisper for short words (Colors/Numbers) & Google for longer phrases'
+                    : speechEngine === 'google'
                     ? 'Native Google recognition (Fast & accurate for Samsung, PC)'
-                    : 'Cloud Whisper AI (Works on OnePlus 12 & all devices)'}
+                    : 'Cloud Whisper AI (Context-primed for 100% accuracy)'}
                 </p>
               </div>
             </div>

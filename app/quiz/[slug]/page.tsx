@@ -6,7 +6,7 @@ import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { getQuestionsByCategory, categories, findCategoryBySlug } from '@/data/questions';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import { getSRSData, updateSRSData, calculateWeight } from '@/app/utils/srs';
 import { Question } from '@/data/questions';
@@ -138,7 +138,7 @@ export default function QuizPage() {
   const [isListening, setIsListening] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<'google' | 'whisper'>('google');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
   const [showOnePlusHelp, setShowOnePlusHelp] = useState(false);
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
@@ -186,7 +186,7 @@ export default function QuizPage() {
     const recognizer = new JapaneseSpeechRecognizer();
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nihongo_speech_engine') as 'google' | 'whisper' | null;
+      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
       if (saved) {
         setSpeechEngine(saved);
         recognizer.setEngine(saved);
@@ -199,7 +199,7 @@ export default function QuizPage() {
     };
   }, []);
 
-  const handleEngineChange = (engine: 'google' | 'whisper') => {
+  const handleEngineChange = (engine: SpeechEnginePreference) => {
     setSpeechEngine(engine);
     speechRecognizerRef.current?.setEngine(engine);
   };
@@ -678,7 +678,8 @@ export default function QuizPage() {
         (newEngine) => {
           setSpeechEngine(newEngine);
         },
-        speechEngine
+        speechEngine,
+        category?.slug || slug
       );
     }
   };
@@ -1411,27 +1412,40 @@ export default function QuizPage() {
                     <div className="flex items-center gap-1 bg-stone-100/90 dark:bg-stone-800/90 p-0.5 sm:p-1 rounded-full border border-stone-200/60 dark:border-white/10 shadow-xs">
                       <button
                         type="button"
-                        onClick={() => handleEngineChange('google')}
+                        onClick={() => handleEngineChange('auto')}
                         className={`flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                          speechEngine === 'auto'
+                            ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs'
+                            : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
+                        }`}
+                        title="Intelligently uses Whisper for short words (Colors, Numbers) and Google for long phrases"
+                      >
+                        <span>⚡</span>
+                        <span>Auto (Hybrid)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEngineChange('google')}
+                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'google'
                             ? 'bg-white dark:bg-stone-700 text-stone-800 dark:text-white shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
                         }`}
                       >
                         <span className="text-[#4285F4] font-black">G</span>
-                        <span>Google Speech</span>
+                        <span>Google</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleEngineChange('whisper')}
-                        className={`flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'whisper'
                             ? 'bg-white dark:bg-stone-700 text-rose-600 dark:text-rose-400 shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
                         }`}
                       >
-                        <span className="text-amber-500">⚡</span>
-                        <span>Cloud Whisper</span>
+                        <span className="text-amber-500">☁️</span>
+                        <span>Whisper</span>
                       </button>
                     </div>
 
