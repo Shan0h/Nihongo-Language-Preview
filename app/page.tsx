@@ -9,6 +9,7 @@ import { supabase } from '@/app/utils/supabase';
 import Logo from '@/app/components/Logo';
 import { bgm } from '@/app/utils/bgm';
 import QRCode from 'qrcode';
+import { categories, questions } from '@/data/questions';
 
 // Gentle falling sakura petals with natural variance
 const SakuraBackground = () => {
@@ -116,6 +117,14 @@ export default function NihongoTalkScreen() {
     { rank: "2", name: "-", pts: "-" },
     { rank: "3", name: "-", pts: "-" }
   ]);
+  // Live category question counts (initialized from data/questions.ts)
+  const [countsBySlug, setCountsBySlug] = useState<Record<string, number>>(() => {
+    const initialCounts: Record<string, number> = {};
+    categories.forEach((cat) => {
+      initialCounts[cat.slug.toLowerCase()] = cat.questionCount;
+    });
+    return initialCounts;
+  });
 
   useEffect(() => {
     // Check dark mode state
@@ -177,6 +186,23 @@ export default function NihongoTalkScreen() {
       .catch((err) => console.error('Failed to generate homepage QR code:', err));
 
     fetchTopPlayers();
+
+    // Live synchronize question counts with questions API if modified dynamically
+    fetch('/api/admin/questions')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && Array.isArray(data.questions)) {
+          const freshCounts: Record<string, number> = {};
+          data.questions.forEach((q: { category?: string }) => {
+            if (q.category) {
+              const key = q.category.toLowerCase();
+              freshCounts[key] = (freshCounts[key] || 0) + 1;
+            }
+          });
+          setCountsBySlug((prev) => ({ ...prev, ...freshCounts }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleStart = () => setIsWelcomeModalOpen(false);
@@ -205,7 +231,7 @@ export default function NihongoTalkScreen() {
     }
   };
 
-  // 10 Topic Modules matching the reference image layout and palette
+  // 10 Topic Modules matching the reference image layout and palette, dynamically synchronized with questions.json
   const topicModules = [
     { name: 'Greetings', slug: 'Greetings', emoji: '👋', bg: 'bg-amber-50/90 dark:bg-amber-950/40', isText: false },
     { name: 'Numbers', slug: 'Numbers', emoji: '123', bg: 'bg-blue-50/90 dark:bg-blue-950/40', isText: true },
@@ -217,7 +243,11 @@ export default function NihongoTalkScreen() {
     { name: 'Body Parts', slug: 'Body Parts', emoji: '👤', bg: 'bg-stone-100/90 dark:bg-stone-800/40', isText: false },
     { name: 'Animals', slug: 'Animals', emoji: '🐶', bg: 'bg-orange-50/90 dark:bg-orange-950/40', isText: false },
     { name: 'Family', slug: 'Family', emoji: '👨‍👩‍👧', bg: 'bg-rose-50/90 dark:bg-rose-950/40', isText: false },
-  ];
+  ].map((item) => {
+    const key = item.slug.toLowerCase();
+    const count = countsBySlug[key] ?? categories.find((c) => c.slug.toLowerCase() === key)?.questionCount ?? 10;
+    return { ...item, questionCount: count };
+  });
 
   return (
     <>
@@ -602,7 +632,7 @@ export default function NihongoTalkScreen() {
                         {item.name}
                       </div>
                       <div className="text-[10px] sm:text-[11px] font-semibold text-[#e11d48] dark:text-rose-400 truncate mt-0.5">
-                        10 Questions
+                        {item.questionCount} Questions
                       </div>
                     </div>
                   </div>
