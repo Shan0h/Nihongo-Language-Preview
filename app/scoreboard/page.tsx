@@ -16,6 +16,12 @@ export interface ScoreEntry {
   badge: string;
 }
 
+export function isMultiplayerEntry(entry: ScoreEntry): boolean {
+  const cat = (entry.category || '').toLowerCase();
+  const badge = (entry.badge || '').toLowerCase();
+  return cat.includes('multiplayer') || badge.includes('multiplayer') || badge.includes('kami');
+}
+
 // Gentle falling sakura petals
 const SakuraBackground = () => {
   const [mounted, setMounted] = useState(false);
@@ -88,6 +94,7 @@ const RibbonMedal = ({ className = "w-12 h-12" }: { className?: string }) => (
 
 export default function ScoreboardPage() {
   const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<'solo' | 'multiplayer'>('solo');
   const [loading, setLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isBgmPlaying, setIsBgmPlaying] = useState(true);
@@ -169,10 +176,14 @@ export default function ScoreboardPage() {
     }
   };
 
-  // Fallback demo score matching reference image if Supabase has no scores yet
-  const displayScores: ScoreEntry[] = scores.length > 0 ? scores : [
+  // Split scores into Solo Practice vs Multiplayer Arena
+  const soloScores = scores.filter(s => !isMultiplayerEntry(s));
+  const multiplayerScores = scores.filter(s => isMultiplayerEntry(s));
+
+  // Fallback demo scores matching reference design if Supabase has no scores yet
+  const demoSoloScores: ScoreEntry[] = [
     {
-      id: 'demo-1',
+      id: 'demo-solo-1',
       name: 'Guest Samurai',
       category: 'Food',
       points: 12500,
@@ -182,7 +193,23 @@ export default function ScoreboardPage() {
     }
   ];
 
-  const champion = displayScores[0];
+  const demoMultiplayerScores: ScoreEntry[] = [
+    {
+      id: 'demo-multi-1',
+      name: 'Daimyo Champion',
+      category: 'Multiplayer Arena',
+      points: 8500,
+      accuracy: 95,
+      created_at: '2026-09-20T00:00:00.000Z',
+      badge: 'MULTIPLAYER CHAMPION',
+    }
+  ];
+
+  const activeScores = activeTab === 'solo' ? soloScores : multiplayerScores;
+  const hasRealScores = activeScores.length > 0;
+  const champion = hasRealScores
+    ? activeScores[0]
+    : (activeTab === 'solo' ? demoSoloScores[0] : demoMultiplayerScores[0]);
 
   return (
     <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-y-auto lg:overflow-hidden bg-[#fff5f6] dark:bg-[#0c080e] text-stone-900 dark:text-white flex flex-col justify-between p-3 sm:p-5 md:p-6 lg:p-7 select-none transition-colors duration-300">
@@ -283,17 +310,66 @@ export default function ScoreboardPage() {
       {/* MAIN CONTENT AREA */}
       <main className="relative z-10 w-full max-w-4xl mx-auto my-auto flex-1 flex flex-col justify-center py-1">
         
-        {/* TOP CHAMPION SHOWCASE CARD (#1 Podium) matching reference mockup */}
-        <div className="w-full max-w-md mx-auto bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl rounded-[28px] border-2 border-rose-200/90 dark:border-white/10 shadow-[0_12px_40px_rgba(244,114,182,0.18)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-4 sm:p-5 text-center relative overflow-hidden transition-all my-1.5 sm:my-2.5">
+        {/* MODE SWITCHER: Solo Practice vs Multiplayer Arena */}
+        <div className="flex items-center justify-center gap-2 mb-1.5 sm:mb-2">
+          <div className="glass-pill p-1 rounded-2xl flex items-center gap-1.5 border border-white/80 dark:border-white/10 shadow-sm backdrop-blur-md">
+            {/* Solo Practice Tab */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('solo')}
+              className={`px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'solo'
+                  ? 'bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 text-white shadow-md shadow-rose-500/25 scale-[1.02]'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
+              }`}
+            >
+              <span>🎯</span>
+              <span>Solo Practice</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'solo' ? 'bg-white/20 text-white' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'
+              }`}>
+                {soloScores.length}
+              </span>
+            </button>
+
+            {/* Multiplayer Arena Tab */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('multiplayer')}
+              className={`px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'multiplayer'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 scale-[1.02]'
+                  : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'
+              }`}
+            >
+              <span>👥</span>
+              <span>Multiplayer Arena</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono ${
+                activeTab === 'multiplayer' ? 'bg-white/20 text-white' : 'bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400'
+              }`}>
+                {multiplayerScores.length}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* TOP CHAMPION SHOWCASE CARD (#1 Podium) */}
+        <div className={`w-full max-w-md mx-auto bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl rounded-[28px] border-2 ${
+          activeTab === 'solo'
+            ? 'border-rose-200/90 dark:border-rose-900/40 shadow-[0_12px_40px_rgba(244,114,182,0.18)]'
+            : 'border-amber-200/90 dark:border-amber-900/40 shadow-[0_12px_40px_rgba(245,158,11,0.18)]'
+        } dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-4 sm:p-5 text-center relative overflow-hidden transition-all my-1 sm:my-2`}>
           {/* Medal with ribbon */}
           <div className="flex justify-center mb-1">
             <RibbonMedal className="w-11 h-11" />
           </div>
 
           {/* Rank Badge */}
-          <div className="text-[10px] sm:text-[11px] font-black tracking-wider text-red-600 dark:text-rose-400 uppercase mb-0.5 flex items-center justify-center gap-1">
-            <span>👑</span>
-            <span>{champion.badge || 'SAMURAI MASTER'}</span>
+          <div className={`text-[10px] sm:text-[11px] font-black tracking-wider uppercase mb-0.5 flex items-center justify-center gap-1 ${
+            activeTab === 'solo' ? 'text-red-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'
+          }`}>
+            <span>{activeTab === 'solo' ? '👑' : '🏆'}</span>
+            <span>{champion.badge || (activeTab === 'solo' ? 'SAMURAI MASTER' : 'MULTIPLAYER CHAMPION')}</span>
           </div>
 
           {/* Flanked Winner Section with Laurel Wreaths */}
@@ -305,7 +381,7 @@ export default function ScoreboardPage() {
                 {champion.name}
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 font-semibold mt-0.5">
-                {champion.category}
+                {activeTab === 'solo' ? `🌸 Topic: ${champion.category}` : `⚔️ Mode: ${champion.category || 'Multiplayer Arena'}`}
               </p>
 
               {/* Glowing Golden Score Digits */}
@@ -323,70 +399,111 @@ export default function ScoreboardPage() {
           </div>
         </div>
 
-        {/* ALL TIME LEADERBOARD PANEL */}
-        <div className="w-full bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl rounded-[28px] border border-white/90 dark:border-white/10 shadow-[0_12px_40px_rgba(244,114,182,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-4 sm:p-5 mb-2 sm:mb-3 relative overflow-hidden">
+        {/* LEADERBOARD PANEL (Filtered for Active Mode) */}
+        <div className="w-full bg-white/85 dark:bg-[#141416]/85 backdrop-blur-xl rounded-[28px] border border-white/90 dark:border-white/10 shadow-[0_12px_40px_rgba(244,114,182,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-4 sm:p-5 mb-2 sm:mb-2.5 relative overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-stone-200/80 dark:border-white/10">
             <div className="flex items-center gap-2 text-sm sm:text-base font-black text-stone-800 dark:text-white">
-              <span>📊</span>
-              <span>ALL TIME LEADERBOARD</span>
+              <span>{activeTab === 'solo' ? '📊' : '⚔️'}</span>
+              <span>{activeTab === 'solo' ? 'SOLO PRACTICE LEADERBOARD' : 'MULTIPLAYER ARENA LEADERBOARD'}</span>
             </div>
-            <span className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">
-              {displayScores.length} Players
+            <span className={`text-xs sm:text-sm font-bold ${activeTab === 'solo' ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600 dark:text-amber-400'}`}>
+              {activeScores.length} {activeTab === 'solo' ? 'Learners' : 'Champions'}
             </span>
           </div>
 
           {/* List of Scores */}
           <div className="mt-3 space-y-2 max-h-48 sm:max-h-56 overflow-y-auto pr-1">
-            {displayScores.map((entry, index) => (
-              <div
-                key={entry.id}
-                className="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-stone-200/60 dark:border-white/5 bg-white/75 dark:bg-stone-800/40 hover:bg-white dark:hover:bg-stone-800/80 hover:border-rose-300 dark:hover:border-rose-700 transition-all shadow-2xs"
-              >
-                {/* Left: Rank & Player Info */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0 shadow-xs ${
-                    index === 0
-                      ? 'bg-amber-400 text-stone-900'
-                      : index === 1
-                      ? 'bg-slate-300 text-slate-900'
-                      : index === 2
-                      ? 'bg-amber-700 text-white'
-                      : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300'
-                  }`}>
-                    {index + 1}
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="font-black text-sm sm:text-base text-stone-900 dark:text-white truncate">
-                      {entry.name}
-                    </div>
-                    <div className="text-[11px] sm:text-xs text-stone-400 dark:text-stone-400 font-medium">
-                      Topic: <span className="font-bold text-stone-600 dark:text-stone-300">{entry.category}</span> • {new Date(entry.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
+            {!hasRealScores ? (
+              <div className="text-center py-7 px-4">
+                <div className="text-3xl mb-1.5">{activeTab === 'solo' ? '🌸' : '⚔️'}</div>
+                <div className="font-bold text-sm text-stone-700 dark:text-stone-200">
+                  {activeTab === 'solo' ? 'No Solo Practice scores yet.' : 'No Multiplayer Arena champions yet.'}
                 </div>
-
-                {/* Right: Score & Correct % */}
-                <div className="text-right shrink-0">
-                  <div className="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400 font-mono">
-                    {String(entry.points).padStart(6, '0')} PTS
-                  </div>
-                  <div className="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                    {entry.accuracy}% Correct
-                  </div>
+                <div className="text-xs text-stone-500 dark:text-stone-400 mt-1 mb-3">
+                  {activeTab === 'solo' ? 'Complete any quiz topic to claim the throne!' : 'Host or join a live game room to compete!'}
+                </div>
+                <div>
+                  {activeTab === 'solo' ? (
+                    <Link
+                      href="/topics"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-xs font-bold shadow-md shadow-rose-500/25 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      <span>🎯</span>
+                      <span>Take a Quiz Now</span>
+                      <span>→</span>
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/play"
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-md shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      <span>👥</span>
+                      <span>Join Live Arena</span>
+                      <span>→</span>
+                    </Link>
+                  )}
                 </div>
               </div>
-            ))}
+            ) : (
+              activeScores.map((entry, index) => (
+                <div
+                  key={entry.id}
+                  className="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-stone-200/60 dark:border-white/5 bg-white/75 dark:bg-stone-800/40 hover:bg-white dark:hover:bg-stone-800/80 hover:border-rose-300 dark:hover:border-rose-700 transition-all shadow-2xs"
+                >
+                  {/* Left: Rank & Player Info */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0 shadow-xs ${
+                      index === 0
+                        ? 'bg-amber-400 text-stone-900'
+                        : index === 1
+                        ? 'bg-slate-300 text-slate-900'
+                        : index === 2
+                        ? 'bg-amber-700 text-white'
+                        : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300'
+                    }`}>
+                      {index + 1}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="font-black text-sm sm:text-base text-stone-900 dark:text-white truncate">
+                        {entry.name}
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-stone-400 dark:text-stone-400 font-medium">
+                        {activeTab === 'solo' ? (
+                          <>Topic: <span className="font-bold text-stone-600 dark:text-stone-300">{entry.category}</span> • {new Date(entry.created_at).toLocaleDateString()}</>
+                        ) : (
+                          <>Mode: <span className="font-bold text-amber-600 dark:text-amber-400">{entry.category || 'Live Match'}</span> • {new Date(entry.created_at).toLocaleDateString()}</>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Score & Correct % */}
+                  <div className="text-right shrink-0">
+                    <div className="text-sm sm:text-base font-black text-rose-600 dark:text-rose-400 font-mono">
+                      {String(entry.points).padStart(6, '0')} PTS
+                    </div>
+                    <div className="text-[11px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                      {entry.accuracy}% Correct
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* ACTION BUTTONS: Choose Solo Topic & Join Multiplayer matching reference image */}
+        {/* ACTION BUTTONS: Contextual for Solo Practice vs Multiplayer Arena */}
         <div className="flex items-center justify-center gap-3 sm:gap-4 mt-1">
           {/* Choose Solo Topic */}
           <Link
             href="/topics"
-            className="flex-1 max-w-[220px] py-3 px-5 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-rose-600/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className={`flex-1 max-w-[220px] py-3 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'solo'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-md shadow-rose-600/25 hover:scale-105 active:scale-95 ring-2 ring-rose-300/40'
+                : 'bg-white/80 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-stone-700 hover:bg-white dark:hover:bg-stone-700'
+            }`}
           >
             <span>🎯</span>
             <span>Choose Solo Topic</span>
@@ -396,7 +513,11 @@ export default function ScoreboardPage() {
           {/* Join Multiplayer */}
           <Link
             href="/play"
-            className="flex-1 max-w-[220px] py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-600/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className={`flex-1 max-w-[220px] py-3 px-5 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'multiplayer'
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md shadow-amber-600/25 hover:scale-105 active:scale-95 ring-2 ring-amber-300/40'
+                : 'bg-white/80 dark:bg-stone-800 text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-stone-700 hover:bg-white dark:hover:bg-stone-700'
+            }`}
           >
             <span>👥</span>
             <span>Join Multiplayer</span>
@@ -438,27 +559,30 @@ export default function ScoreboardPage() {
                 🎵
               </span>
               <span>Zen BGM</span>
+              <span className={`w-2 h-2 rounded-full ${isBgmPlaying ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-stone-400'}`} />
             </button>
 
-            {/* Volume Popover Trigger */}
+            <span className="text-stone-300 dark:text-stone-600">|</span>
+
+            {/* Volume Icon Toggle */}
             <button
               onClick={() => setShowVolumeMenu(!showVolumeMenu)}
-              className="hover:text-red-600 dark:hover:text-rose-400 transition-colors cursor-pointer text-xs"
-              title="Adjust Volume"
+              className="hover:text-red-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+              title="Adjust Music Volume"
             >
-              ⚙️
+              🔊
             </button>
 
-            <span className="w-[1px] h-3 bg-stone-300 dark:bg-stone-700" />
+            <span className="text-stone-300 dark:text-stone-600">|</span>
 
-            {/* AFK Screensaver Button */}
+            {/* Trigger Screensaver */}
             <button
               onClick={handleTriggerAfk}
-              className="flex items-center gap-1 hover:text-red-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
-              title="Launch AFK Japanese Screensaver"
+              className="hover:text-red-600 dark:hover:text-rose-400 transition-colors flex items-center gap-1 cursor-pointer"
+              title="Launch Screensaver"
             >
-              <span>🌸</span>
-              <span>AFK</span>
+              <span>🏮</span>
+              <span>Zen Screensaver</span>
             </button>
           </div>
         </div>
