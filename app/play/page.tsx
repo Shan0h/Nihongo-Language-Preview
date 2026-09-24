@@ -152,13 +152,16 @@ export default function PlayPage() {
         ...q.options,
         q.japanese_text,
       ];
+      if (q.romaji) {
+        vocabList.push(q.romaji.toLowerCase());
+      }
       if (q.option_hiragana) {
         Object.values(q.option_hiragana).forEach((h) => {
           const clean = h.replace(/\s*\([^)]*\)/, '');
           vocabList.push(clean);
         });
       }
-      // Also add known speech aliases (Kanji/variants) for options to anchor Whisper context
+      // Also add known speech aliases (Kanji/variants/Romaji) for options to anchor context
       [q.correct_answer, ...q.options].forEach((opt) => {
         const aliases = [
           ...(COLOR_SPEECH_ALIASES[opt] || []),
@@ -166,9 +169,7 @@ export default function PlayPage() {
           ...(VERB_SPEECH_ALIASES[opt] || []),
         ];
         aliases.forEach((a) => {
-          if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(a)) {
-            vocabList.push(a);
-          }
+          vocabList.push(a);
         });
       });
       const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).join('、');

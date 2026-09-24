@@ -942,7 +942,7 @@ export class JapaneseSpeechRecognizer {
     try {
       const rec = new SpeechRecognition();
       rec.lang = 'ja-JP';
-      rec.continuous = true;
+      rec.continuous = false;
       rec.interimResults = true;
       rec.maxAlternatives = 5;
       this.browserRecognition = rec;
@@ -1008,8 +1008,8 @@ export class JapaneseSpeechRecognizer {
             bestAlternatives = alternatives;
 
             // Check if any transcript or alternative matches the question/prompt/aliases immediately!
-            // Even in interim results, if the user said "くる" and Chrome returned "くる" or "来る",
-            // we match immediately with ZERO latency!
+            // Even in interim results, if the user said "よむ", "のむ", "くる" and Chrome returned a match,
+            // we match immediately on the very first time with ZERO latency!
             let hasImmediateMatch = false;
             if (vocabPrompt) {
               const promptWords = vocabPrompt.split('、').map((w) => w.trim().toLowerCase());
@@ -1019,7 +1019,7 @@ export class JapaneseSpeechRecognizer {
                 if (
                   promptWords.includes(cleanAlt) ||
                   promptWords.includes(normAlt) ||
-                  promptWords.some((pw) => pw.length >= 2 && (cleanAlt.includes(pw) || pw.includes(cleanAlt)))
+                  promptWords.some((pw) => pw.length >= 2 && (cleanAlt === pw || cleanAlt.includes(pw) || pw.includes(cleanAlt)))
                 ) {
                   hasImmediateMatch = true;
                   break;
@@ -1032,13 +1032,13 @@ export class JapaneseSpeechRecognizer {
               return;
             }
 
-            // Otherwise, reset trailing silence debounce timer (750ms) to finalize if user stops speaking
+            // In single-shot mode, finalize fast (350ms debounce) if user finishes speaking
             if (this.googleAutoFinalizeTimer) clearTimeout(this.googleAutoFinalizeTimer);
             this.googleAutoFinalizeTimer = setTimeout(() => {
               if (!hasReceivedResult && bestTranscript && !this.discardNextStop) {
                 finishWithSuccess(bestTranscript, 0.85, bestAlternatives);
               }
-            }, 750);
+            }, 350);
           }
         }
       };

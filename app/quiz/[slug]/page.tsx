@@ -617,13 +617,16 @@ export default function QuizPage() {
         ...currentQuestion.options,
         currentQuestion.japanese_text,
       ];
+      if (currentQuestion.romaji) {
+        vocabList.push(currentQuestion.romaji.toLowerCase());
+      }
       if (currentQuestion.option_hiragana) {
         Object.values(currentQuestion.option_hiragana).forEach((h) => {
           const clean = h.replace(/\s*\([^)]*\)/, '');
           vocabList.push(clean);
         });
       }
-      // Also add known speech aliases (Kanji/variants) for options to anchor Whisper context
+      // Also add known speech aliases (Kanji/variants/Romaji) for options to anchor context
       [currentQuestion.correct_answer, ...currentQuestion.options].forEach((opt) => {
         const aliases = [
           ...(COLOR_SPEECH_ALIASES[opt] || []),
@@ -631,9 +634,7 @@ export default function QuizPage() {
           ...(VERB_SPEECH_ALIASES[opt] || []),
         ];
         aliases.forEach((a) => {
-          if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(a)) {
-            vocabList.push(a);
-          }
+          vocabList.push(a);
         });
       });
       const vocabPrompt = Array.from(new Set(vocabList.filter(Boolean))).join('、');
