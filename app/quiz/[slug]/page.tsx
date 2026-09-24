@@ -142,6 +142,20 @@ export default function QuizPage() {
   // Countdown before quiz starts: '3' | '2' | '1' | 'GO' | 'finished'
   const [countdown, setCountdown] = useState<'3' | '2' | '1' | 'GO' | 'finished'>('3');
 
+  // Player Name Setup before Practice starts (for Scoreboard generation)
+  const [nameEntered, setNameEntered] = useState(false);
+  const [playerNameInput, setPlayerNameInput] = useState('');
+
+  // Prefill player name if previously stored in localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('nihongo-player-name');
+      if (stored && stored.trim() && stored.trim() !== 'Guest Samurai') {
+        setPlayerNameInput(stored.trim());
+      }
+    }
+  }, []);
+
   // Microphone Speech Recognition States
   const [isListening, setIsListening] = useState(false);
   const [isConnectingMic, setIsConnectingMic] = useState(false);
@@ -230,7 +244,9 @@ export default function QuizPage() {
 
   // Countdown timer sequence (3 -> 2 -> 1 -> GO! -> Start Quiz)
   useEffect(() => {
-    if (!isReady || quizQuestions.length === 0) return;
+    if (!nameEntered || !isReady || quizQuestions.length === 0) return;
+
+    setCountdown('3');
 
     const t1 = setTimeout(() => {
       sfx.playTap();
@@ -257,7 +273,17 @@ export default function QuizPage() {
       clearTimeout(t3);
       clearTimeout(t4);
     };
-  }, [isReady, quizQuestions]);
+  }, [nameEntered, isReady, quizQuestions]);
+
+  const handleStartPractice = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const chosenName = playerNameInput.trim() || 'Guest Samurai';
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('nihongo-player-name', chosenName);
+    }
+    sfx.playTap();
+    setNameEntered(true);
+  };
 
   // Auto-play TTS when question loads
   useEffect(() => {
@@ -418,7 +444,162 @@ export default function QuizPage() {
     );
   }
 
-  // Pre-Quiz Countdown Screen matching user's exact reference image
+  // 1. Name Entry Screen (Prompt for player name before countdown starts)
+  if (!nameEntered) {
+    return (
+      <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-300 bg-[#fff0f3] dark:bg-[#0c080e] cursor-default">
+        {/* Full-bleed Scenic Sakura Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+          <Image
+            src="/images/fuji-sakura-clean-bg.png"
+            alt="Sakura Fuji Background"
+            fill
+            priority
+            sizes="100vw"
+            quality={80}
+            className="object-cover object-center scale-100 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
+          />
+          <Image
+            src="/images/fuji-night-bg.jpg"
+            alt="Mount Fuji Night Background"
+            fill
+            priority
+            sizes="100vw"
+            quality={80}
+            className="object-cover object-center scale-100 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out [transform:translateZ(0)] [will-change:opacity] select-none pointer-events-none"
+          />
+          <div className="absolute inset-0 bg-radial from-white/10 via-transparent to-pink-100/25 opacity-100 dark:opacity-0 transition-opacity duration-300 ease-out pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/60 opacity-0 dark:opacity-100 transition-opacity duration-300 ease-out pointer-events-none" />
+        </div>
+
+        <SakuraBackground />
+
+        {/* TOP HEADER: Back to Topics + Day / Night Theme Pill Switcher */}
+        <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between flex-shrink-0 animate-fade-in-up">
+          <Link
+            href="/topics"
+            className="glass-pill px-4 sm:px-5 py-2 rounded-full text-xs font-bold text-stone-700 dark:text-stone-200 border-rose-300/80 dark:border-rose-500/50 hover:border-rose-500 flex items-center gap-1.5 transition-all shadow-xs"
+          >
+            <span>←</span>
+            <span>Topics</span>
+          </Link>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTheme();
+            }}
+            className="glass-pill px-3.5 py-1.5 rounded-full text-xs font-bold text-stone-800 dark:text-stone-200 border-white/90 dark:border-white/10 flex items-center gap-2 cursor-pointer shadow-xs hover:shadow transition-all"
+            title={isDarkMode ? "Switch to Day Mode (昼)" : "Switch to Night Mode (夜)"}
+          >
+            <span>{isDarkMode ? '⛩️' : '🌸'}</span>
+            <span className="tracking-wider">{isDarkMode ? 'NIGHT' : 'DAY'}</span>
+            <span className="text-amber-500 text-xs">{isDarkMode ? '🌙' : '☀️'}</span>
+          </button>
+        </header>
+
+        {/* CENTER HERO: Name Entry Card */}
+        <main className="relative z-10 my-auto flex flex-col items-center justify-center animate-fade-in-up w-full max-w-md mx-auto">
+          <div className="w-full glass-panel-master rounded-[2rem] sm:rounded-[2.25rem] p-6 sm:p-8 backdrop-blur-2xl border border-white/90 dark:border-white/15 shadow-[0_20px_50px_rgba(244,114,182,0.18)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7)] text-center relative overflow-hidden">
+            {/* Top Icon Badge */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-rose-500/25 mb-4 mx-auto animate-bounce" style={{ animationDuration: '3s' }}>
+              ⚔️
+            </div>
+
+            {/* Topic Category Pill */}
+            <div className="mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100/90 dark:bg-rose-950/70 border border-rose-200/80 dark:border-rose-800/60 text-[#e11d48] dark:text-rose-300 font-extrabold text-xs shadow-2xs">
+                🌸 {category?.name || slug} Practice
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-white tracking-tight mb-1.5">
+              Enter Your Name
+            </h1>
+            <p className="text-xs sm:text-[13px] text-stone-600 dark:text-stone-300 font-medium mb-6 leading-relaxed">
+              Your name will appear on the Scoreboard & Japanese Certificate 🏆
+            </p>
+
+            <form onSubmit={handleStartPractice} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={playerNameInput}
+                  onChange={(e) => setPlayerNameInput(e.target.value)}
+                  placeholder="Guest Samurai (default)"
+                  maxLength={25}
+                  autoFocus
+                  className="w-full py-3.5 px-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-black/40 border-2 border-rose-200/80 dark:border-white/10 focus:border-rose-500 dark:focus:border-rose-400 focus:outline-none text-stone-900 dark:text-white font-bold text-base sm:text-lg text-center transition-all shadow-inner placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                />
+                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1.5 text-center">
+                  Leave blank to automatically default to <span className="font-bold text-[#e11d48] dark:text-rose-400">Guest Samurai</span>
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-black text-sm sm:text-base shadow-lg shadow-rose-500/30 hover:shadow-rose-500/50 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Start Practice</span>
+                  <span>⚔️</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlayerNameInput('');
+                    handleStartPractice();
+                  }}
+                  className="w-full py-2 text-xs font-bold text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  Skip & Play as Guest Samurai →
+                </button>
+              </div>
+            </form>
+          </div>
+        </main>
+
+        {/* BOTTOM FOOTER CONTROLS: Zen BGM & AFK */}
+        <footer className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-end flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleBgm();
+              }}
+              className="glass-pill rounded-full px-3 py-1.5 flex items-center gap-2 text-xs cursor-pointer transition-all"
+              title={isBgmPlaying ? "Pause Ambient BGM" : "Play Ambient BGM"}
+            >
+              <span className="w-4 h-4 rounded-full bg-[#e11d48] text-white flex items-center justify-center text-[9px]">
+                🎵
+              </span>
+              <span className="font-bold text-stone-700 dark:text-stone-200 text-xs">
+                Zen BGM
+              </span>
+              <div className={`w-7 h-4 rounded-full transition-colors relative flex items-center px-0.5 ${isBgmPlaying ? 'bg-[#e11d48]' : 'bg-stone-300 dark:bg-stone-700'}`}>
+                <div className={`w-3 h-3 rounded-full bg-white shadow-xs transition-transform transform ${isBgmPlaying ? 'translate-x-3' : 'translate-x-0'}`} />
+              </div>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTriggerAfk();
+              }}
+              className="glass-pill rounded-full px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-200 cursor-pointer"
+              title="Launch AFK Japanese Screensaver"
+            >
+              <span>🌸</span>
+              <span>AFK</span>
+            </button>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // 2. Pre-Quiz Countdown Screen matching user's exact reference image
   if (countdown !== 'finished') {
     return (
       <div className="relative min-h-screen lg:h-screen lg:max-h-screen overflow-hidden flex flex-col justify-between p-4 sm:p-6 lg:p-8 select-none transition-colors duration-300 bg-[#fff0f3] dark:bg-[#0c080e] cursor-default">
@@ -452,8 +633,16 @@ export default function QuizPage() {
 
         <SakuraBackground />
 
-        {/* TOP HEADER: Day / Night Theme Pill Switcher */}
-        <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-end flex-shrink-0 animate-fade-in-up">
+        {/* TOP HEADER: Back to Topics + Day / Night Theme Pill Switcher */}
+        <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between flex-shrink-0 animate-fade-in-up">
+          <Link
+            href="/topics"
+            className="glass-pill px-4 sm:px-5 py-2 rounded-full text-xs font-bold text-stone-700 dark:text-stone-200 border-rose-300/80 dark:border-rose-500/50 hover:border-rose-500 flex items-center gap-1.5 transition-all shadow-xs"
+          >
+            <span>←</span>
+            <span>Topics</span>
+          </Link>
+
           <button
             onClick={(e) => {
               e.stopPropagation();
