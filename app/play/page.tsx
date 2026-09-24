@@ -41,20 +41,20 @@ export default function PlayPage() {
   const [isConnectingMic, setIsConnectingMic] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
   useEffect(() => {
     const recognizer = new JapaneseSpeechRecognizer();
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved === 'google' || saved === 'auto' || saved === 'whisper') {
-        setSpeechEngine(saved);
-        recognizer.setEngine(saved);
+      const v2 = localStorage.getItem('nihongo_speech_engine_v2') as SpeechEnginePreference | null;
+      if (v2 === 'google' || v2 === 'auto' || v2 === 'whisper') {
+        setSpeechEngine(v2);
+        recognizer.setEngine(v2, false);
       } else {
-        setSpeechEngine('google');
-        recognizer.setEngine('google');
+        setSpeechEngine('auto');
+        recognizer.setEngine('auto', false);
       }
     }
     return () => {
@@ -66,7 +66,7 @@ export default function PlayPage() {
 
   const handleEngineChange = (engine: SpeechEnginePreference) => {
     setSpeechEngine(engine);
-    speechRecognizerRef.current?.setEngine(engine);
+    speechRecognizerRef.current?.setEngine(engine, true);
   };
 
   // Connect on mount

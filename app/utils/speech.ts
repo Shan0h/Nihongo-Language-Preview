@@ -841,7 +841,7 @@ export class JapaneseSpeechRecognizer {
   private googleAutoFinalizeTimer: NodeJS.Timeout | number | null = null;
   private googleSafetyCeilingTimer: NodeJS.Timeout | number | null = null;
   private discardNextStop: boolean = false;
-  private engine: SpeechEnginePreference = 'google';
+  private engine: SpeechEnginePreference = 'auto';
 
   private cleanupGoogleTimers() {
     if (this.googleAutoFinalizeTimer) {
@@ -856,14 +856,14 @@ export class JapaneseSpeechRecognizer {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved === 'auto' || saved === 'whisper' || saved === 'google') {
-        this.engine = saved;
+      const v2 = localStorage.getItem('nihongo_speech_engine_v2') as SpeechEnginePreference | null;
+      if (v2 === 'auto' || v2 === 'whisper' || v2 === 'google') {
+        this.engine = v2;
       } else {
-        this.engine = 'google';
+        this.engine = 'auto';
       }
     } else {
-      this.engine = 'google';
+      this.engine = 'auto';
     }
   }
 
@@ -871,10 +871,11 @@ export class JapaneseSpeechRecognizer {
     return this.engine;
   }
 
-  public setEngine(engine: SpeechEnginePreference) {
+  public setEngine(engine: SpeechEnginePreference, saveToStorage: boolean = true) {
     this.engine = engine;
-    if (typeof window !== 'undefined') {
+    if (saveToStorage && typeof window !== 'undefined') {
       try {
+        localStorage.setItem('nihongo_speech_engine_v2', engine);
         localStorage.setItem('nihongo_speech_engine', engine);
       } catch {}
     }

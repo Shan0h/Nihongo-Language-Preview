@@ -147,7 +147,7 @@ export default function QuizPage() {
   const [isConnectingMic, setIsConnectingMic] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
-  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
+  const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('auto');
   const [showOnePlusHelp, setShowOnePlusHelp] = useState(false);
   const speechRecognizerRef = useRef<JapaneseSpeechRecognizer | null>(null);
 
@@ -195,13 +195,13 @@ export default function QuizPage() {
     const recognizer = new JapaneseSpeechRecognizer();
     speechRecognizerRef.current = recognizer;
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nihongo_speech_engine') as SpeechEnginePreference | null;
-      if (saved === 'google' || saved === 'auto' || saved === 'whisper') {
-        setSpeechEngine(saved);
-        recognizer.setEngine(saved);
+      const v2 = localStorage.getItem('nihongo_speech_engine_v2') as SpeechEnginePreference | null;
+      if (v2 === 'google' || v2 === 'auto' || v2 === 'whisper') {
+        setSpeechEngine(v2);
+        recognizer.setEngine(v2, false);
       } else {
-        setSpeechEngine('google');
-        recognizer.setEngine('google');
+        setSpeechEngine('auto');
+        recognizer.setEngine('auto', false);
       }
     }
     return () => {
@@ -213,7 +213,7 @@ export default function QuizPage() {
 
   const handleEngineChange = (engine: SpeechEnginePreference) => {
     setSpeechEngine(engine);
-    speechRecognizerRef.current?.setEngine(engine);
+    speechRecognizerRef.current?.setEngine(engine, true);
   };
 
   useEffect(() => {
@@ -1466,8 +1466,21 @@ export default function QuizPage() {
                     <div className="flex items-center gap-1 bg-stone-100/90 dark:bg-stone-800/90 p-0.5 sm:p-1 rounded-full border border-stone-200/60 dark:border-white/10 shadow-xs">
                       <button
                         type="button"
-                        onClick={() => handleEngineChange('google')}
+                        onClick={() => handleEngineChange('auto')}
                         className={`flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                          speechEngine === 'auto'
+                            ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs'
+                            : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
+                        }`}
+                        title="Intelligently uses Whisper for short words (Colors, Numbers, short verbs) and Google for longer phrases"
+                      >
+                        <span>⚡</span>
+                        <span>Auto (Safe)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEngineChange('google')}
+                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                           speechEngine === 'google'
                             ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
                             : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
@@ -1476,19 +1489,6 @@ export default function QuizPage() {
                       >
                         <span className="font-black">G</span>
                         <span>Google (Fast)</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleEngineChange('auto')}
-                        className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
-                          speechEngine === 'auto'
-                            ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-xs'
-                            : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200'
-                        }`}
-                        title="Intelligently uses Whisper for short words (Colors, Numbers) and Google for phrases"
-                      >
-                        <span>⚡</span>
-                        <span>Auto</span>
                       </button>
                       <button
                         type="button"
