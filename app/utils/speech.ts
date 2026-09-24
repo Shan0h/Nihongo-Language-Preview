@@ -452,7 +452,9 @@ export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
   'くる': [
     '来る', 'くる', 'クル', '来ます', 'きます', '来て', 'きて', '来い', 'こい', 'こない',
     'クール', 'クルー', 'クロ', 'くろ', '黒', '狂う', '繰る', '久留',
-    'kuru', 'kuro', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'come', 'to come'
+    '車', 'くるま', 'クルマ', 'くれ', 'クレ', '暮れ', 'これ', 'コレ', '此れ',
+    'グル', 'guru', '苦労', 'くろう', 'クー', 'ク', '来るよ', 'くるよ', '来るね', 'くるね', '来るの', 'くるの',
+    'kuru', 'kuro', 'kuruma', 'kure', 'kore', 'guru', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'cure', 'cruz', 'come', 'to come', 'coming'
   ],
   'はなす': [
     '話す', '離す', 'はなす', '話します', 'はなします', '話して', 'はなして',
@@ -647,8 +649,8 @@ export function matchOptionFromSpeech(
             cleanTrans === lowerAlias ||
             halfWidthTrans === lowerAlias ||
             normTrans === lowerAlias ||
-            (lowerAlias.length >= 3 && cleanTrans.includes(lowerAlias)) ||
-            (cleanTrans.length >= 3 && lowerAlias.includes(cleanTrans))
+            (lowerAlias.length >= 2 && cleanTrans.includes(lowerAlias)) ||
+            (cleanTrans.length >= 2 && lowerAlias.includes(cleanTrans))
           );
         })
       );
@@ -883,6 +885,7 @@ export class JapaneseSpeechRecognizer {
 
     // 4. Cancel any running session cleanly
     this.cancel();
+    this.discardNextStop = false;
 
     const selectedEngine = enginePreference || this.engine;
 
@@ -922,15 +925,18 @@ export class JapaneseSpeechRecognizer {
       const rec = new SpeechRecognition();
       rec.lang = 'ja-JP';
       rec.continuous = false;
-      rec.interimResults = false;
+      rec.interimResults = true;
       rec.maxAlternatives = 5;
       this.browserRecognition = rec;
 
       let hasReceivedResult = false;
       let hasReceivedError = false;
+      let bestTranscript = '';
+      let bestAlternatives: string[] = [];
 
       rec.onstart = () => {
         this.isListening = true;
+        this.discardNextStop = false;
         if (onStart) onStart();
       };
 
@@ -948,20 +954,24 @@ export class JapaneseSpeechRecognizer {
           }
           const transcript = alternatives[0] || '';
           const confidence = event.results[0]?.[0]?.confidence || 0;
-          this.restoreBgm();
 
           if (transcript) {
-            hasReceivedResult = true;
-            onResult({ transcript, confidence, alternatives });
-          } else {
-            // In Auto mode, try Whisper if empty
-            if (selectedEngine === 'auto') {
-              console.info('Google Speech returned empty in Auto mode. Falling back to Cloud Whisper.');
-              this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
-              return;
+            bestTranscript = transcript;
+            bestAlternatives = alternatives;
+
+            let isAnyFinal = false;
+            for (let r = 0; r < event.results.length; r++) {
+              if (event.results[r]?.isFinal) {
+                isAnyFinal = true;
+                break;
+              }
             }
-            hasReceivedError = true;
-            onError('Could not understand speech. Please speak louder and clearer.');
+
+            if (isAnyFinal) {
+              hasReceivedResult = true;
+              this.restoreBgm();
+              onResult({ transcript, confidence, alternatives });
+            }
           }
         }
       };
@@ -972,8 +982,17 @@ export class JapaneseSpeechRecognizer {
           return;
         }
 
-        hasReceivedError = true;
         const errType = event.error || 'error';
+
+        // If we captured an interim transcript before Google dropped/aborted, salvage it!
+        if (bestTranscript) {
+          hasReceivedResult = true;
+          this.restoreBgm();
+          onResult({ transcript: bestTranscript, confidence: 0.8, alternatives: bestAlternatives });
+          return;
+        }
+
+        hasReceivedError = true;
 
         // In Auto mode, or if device restricted Google Speech ('service-not-allowed'), seamlessly fall back to Whisper
         if (selectedEngine === 'auto' || errType === 'service-not-allowed') {
@@ -1002,6 +1021,14 @@ export class JapaneseSpeechRecognizer {
       rec.onend = () => {
         this.isListening = false;
         this.restoreBgm();
+
+        // If onend fired and we haven't delivered a final result yet, but have a best interim transcript, deliver it!
+        if (!hasReceivedResult && bestTranscript && !this.discardNextStop) {
+          hasReceivedResult = true;
+          onResult({ transcript: bestTranscript, confidence: 0.8, alternatives: bestAlternatives });
+          onEnd();
+          return;
+        }
 
         // If Google Speech ended without delivering any result or error in Auto mode, fall back to Whisper
         if (!hasReceivedResult && !hasReceivedError && !this.discardNextStop) {
