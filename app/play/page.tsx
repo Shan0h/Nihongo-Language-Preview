@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import AudioWave from '@/app/components/AudioWave';
 
@@ -154,7 +154,11 @@ export default function PlayPage() {
       }
       // Also add known speech aliases (Kanji/variants) for options to anchor Whisper context
       [q.correct_answer, ...q.options].forEach((opt) => {
-        const aliases = [...(COLOR_SPEECH_ALIASES[opt] || []), ...(NUMBER_SPEECH_ALIASES[opt] || [])];
+        const aliases = [
+          ...(COLOR_SPEECH_ALIASES[opt] || []),
+          ...(NUMBER_SPEECH_ALIASES[opt] || []),
+          ...(VERB_SPEECH_ALIASES[opt] || []),
+        ];
         aliases.forEach((a) => {
           if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(a)) {
             vocabList.push(a);

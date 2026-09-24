@@ -6,7 +6,7 @@ import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { getQuestionsByCategory, categories, findCategoryBySlug } from '@/data/questions';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import { getSRSData, updateSRSData, calculateWeight } from '@/app/utils/srs';
 import { Question } from '@/data/questions';
@@ -611,7 +611,11 @@ export default function QuizPage() {
       }
       // Also add known speech aliases (Kanji/variants) for options to anchor Whisper context
       [currentQuestion.correct_answer, ...currentQuestion.options].forEach((opt) => {
-        const aliases = [...(COLOR_SPEECH_ALIASES[opt] || []), ...(NUMBER_SPEECH_ALIASES[opt] || [])];
+        const aliases = [
+          ...(COLOR_SPEECH_ALIASES[opt] || []),
+          ...(NUMBER_SPEECH_ALIASES[opt] || []),
+          ...(VERB_SPEECH_ALIASES[opt] || []),
+        ];
         aliases.forEach((a) => {
           if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(a)) {
             vocabList.push(a);

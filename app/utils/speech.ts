@@ -216,26 +216,58 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   // Verbs & Actions
   '食べる': 'たべる',
   '食べます': 'たべる',
+  'たべます': 'たべる',
   '飲む': 'のむ',
+  '呑む': 'のむ',
   '飲みます': 'のむ',
+  'のみます': 'のむ',
   '見る': 'みる',
+  '観る': 'みる',
+  '診る': 'みる',
   '見ます': 'みる',
+  'みます': 'みる',
   '聞く': 'きく',
+  '聴く': 'きく',
+  '効く': 'きく',
+  '利く': 'きく',
   '聞きます': 'きく',
+  'ききます': 'きく',
   '読む': 'よむ',
   '読みます': 'よむ',
+  'よみます': 'よむ',
   '書く': 'かく',
+  '描く': 'かく',
+  '掻く': 'かく',
   '書きます': 'かく',
+  'かきます': 'かく',
   '話す': 'はなす',
   '話します': 'はなす',
+  'はなします': 'はなす',
   '寝る': 'ねる',
+  '練る': 'ねる',
+  '煉る': 'ねる',
+  'ネル': 'ねる',
   '寝ます': 'ねる',
+  'ねます': 'ねる',
+  '寝て': 'ねる',
+  'ねて': 'ねる',
+  '寝た': 'ねる',
+  'ねた': 'ねる',
   '起きる': 'おきる',
   '起きます': 'おきる',
+  'おきます': 'おきる',
   '行く': 'いく',
+  '逝く': 'いく',
   '行きます': 'いく',
+  'いきます': 'いく',
   '来る': 'くる',
   '来ます': 'くる',
+  'きます': 'くる',
+  '帰る': 'かえる',
+  '変える': 'かえる',
+  '返る': 'かえる',
+  '帰ります': 'かえる',
+  'かえります': 'かえる',
 
   // Adjectives
   '大きい': 'おおきい',
@@ -375,6 +407,61 @@ export const COLOR_SPEECH_ALIASES: Record<string, string[]> = {
     '茶色', '茶', '茶色い',
     'チャイロ', 'ブラウン', 'ちゃいろ', 'ちゃいろい',
     'chairo', 'chairoi', 'brown'
+  ],
+};
+
+/**
+ * Common Verb aliases including Kanji, Romaji variants, English verb meanings, and phonetic homophones
+ * Ensures short 2-mora verbs (especially ねる/寝る/練る, いく/行く, くる/来る, のむ/飲む, みる/見る, きく/聞く, かく/書く) match reliably
+ */
+export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
+  'ねる': [
+    '寝る', '練る', '煉る', 'ネル', 'ねる', '寝ます', 'ねます', '寝て', 'ねて', '寝た', 'ねた',
+    'neru', 'nero', 'nel', 'nell', 'nail', 'narrow', 'mellow', 'sleep', 'to sleep', 'asleep'
+  ],
+  'たべる': [
+    '食べる', 'たべる', '食べます', 'たべます', '食べて', 'たべて',
+    'taberu', 'tabe', 'eat', 'to eat', 'eating'
+  ],
+  'のむ': [
+    '飲む', '呑む', 'のむ', '飲みます', 'のみます', '飲んで', 'のんで',
+    'nomu', 'norm', 'gnome', 'drink', 'to drink'
+  ],
+  'みる': [
+    '見る', '観る', '診る', 'みる', '見ます', 'みます', '見て', 'みて',
+    'miru', 'mill', 'meal', 'milo', 'see', 'watch', 'to see', 'to watch'
+  ],
+  'いく': [
+    '行く', '逝く', 'いく', '行きます', 'いきます', '行って', 'いって',
+    'iku', 'eco', 'iq', 'go', 'to go'
+  ],
+  'くる': [
+    '来る', 'くる', '来ます', 'きます', '来て', 'きて',
+    'kuru', 'crew', 'cool', 'come', 'to come'
+  ],
+  'はなす': [
+    '話す', '離す', 'はなす', '話します', 'はなします', '話して', 'はなして',
+    'hanasu', 'speak', 'talk', 'to speak', 'to talk'
+  ],
+  'きく': [
+    '聞く', '聴く', '効く', '利く', 'きく', '聞きます', 'ききます', '聞いて', 'きいて',
+    'kiku', 'kick', 'listen', 'hear', 'to listen', 'to hear'
+  ],
+  'よむ': [
+    '読む', 'よむ', '読みます', 'よみます', '読んで', 'よんで',
+    'yomu', 'read', 'to read'
+  ],
+  'かく': [
+    '書く', '描く', '掻く', 'かく', '書きます', 'かきます', '書いて', 'かいて',
+    'kaku', 'khaki', 'write', 'to write'
+  ],
+  'おきる': [
+    '起きる', 'おきる', '起きます', 'おきます', '起きて', 'おきて',
+    'okiru', 'wake', 'wake up', 'to wake up'
+  ],
+  'かえる': [
+    '帰る', '変える', '返る', 'かえる', '帰ります', 'かえります', '帰って', 'かえって',
+    'kaeru', 'return', 'go home', 'to return', 'to go home'
   ],
 };
 
@@ -526,7 +613,8 @@ export function matchOptionFromSpeech(
     const getAliases = (word: string): string[] => {
       const numAliases = NUMBER_SPEECH_ALIASES[word] || [];
       const colorAliases = COLOR_SPEECH_ALIASES[word] || [];
-      return [...numAliases, ...colorAliases];
+      const verbAliases = VERB_SPEECH_ALIASES[word] || [];
+      return [...numAliases, ...colorAliases, ...verbAliases];
     };
 
     const isMatch = (aliases: string[]): boolean => {
@@ -614,8 +702,10 @@ export function matchOptionFromSpeech(
         ) {
           return correctAnswer;
         }
-        // Levenshtein fuzzy similarity
-        if (levenshteinSimilarity(normTransRomaji, normTarget) >= 0.78) {
+        // Levenshtein fuzzy similarity (allows 1 character tolerance for short words like neru vs nero)
+        const sim = levenshteinSimilarity(normTransRomaji, normTarget);
+        const maxDist = Math.round((1 - sim) * Math.max(normTransRomaji.length, normTarget.length));
+        if (sim >= 0.78 || (normTarget.length <= 4 && maxDist <= 1)) {
           return correctAnswer;
         }
       }
@@ -635,14 +725,18 @@ export function matchOptionFromSpeech(
           const romajiMatch = hiraganaInfo.match(/\(([^)]+)\)/);
           if (romajiMatch) {
             const optRomaji = normalizeRomaji(romajiMatch[1]);
-            if (
-              optRomaji &&
-              (lowerTrans === optRomaji ||
+            if (optRomaji) {
+              const sim = levenshteinSimilarity(lowerTrans, optRomaji);
+              const maxDist = Math.round((1 - sim) * Math.max(lowerTrans.length, optRomaji.length));
+              if (
+                lowerTrans === optRomaji ||
                 lowerTrans.includes(optRomaji) ||
                 optRomaji.includes(lowerTrans) ||
-                levenshteinSimilarity(lowerTrans, optRomaji) >= 0.78)
-            ) {
-              return opt;
+                sim >= 0.78 ||
+                (optRomaji.length <= 4 && maxDist <= 1)
+              ) {
+                return opt;
+              }
             }
           }
         }
@@ -657,14 +751,22 @@ export function matchOptionFromSpeech(
     if (!normTrans || normTrans.length < 2) continue;
 
     const normCorrect = normalizeJapaneseSpeech(correctAnswer);
-    if (normCorrect && levenshteinSimilarity(normTrans, normCorrect) >= 0.78) {
-      return correctAnswer;
+    if (normCorrect) {
+      const sim = levenshteinSimilarity(normTrans, normCorrect);
+      const maxDist = Math.round((1 - sim) * Math.max(normTrans.length, normCorrect.length));
+      if (sim >= 0.78 || (normCorrect.length <= 2 && maxDist <= 1 && normTrans.length <= 3)) {
+        return correctAnswer;
+      }
     }
 
     for (const opt of options) {
       const normOpt = normalizeJapaneseSpeech(opt);
-      if (normOpt && levenshteinSimilarity(normTrans, normOpt) >= 0.78) {
-        return opt;
+      if (normOpt) {
+        const sim = levenshteinSimilarity(normTrans, normOpt);
+        const maxDist = Math.round((1 - sim) * Math.max(normTrans.length, normOpt.length));
+        if (sim >= 0.78 || (normOpt.length <= 2 && maxDist <= 1 && normTrans.length <= 3)) {
+          return opt;
+        }
       }
     }
   }
@@ -778,6 +880,7 @@ export class JapaneseSpeechRecognizer {
       const isShortWordCategory =
         slug === 'colors' ||
         slug === 'numbers' ||
+        slug === 'verbs' ||
         (vocabPrompt && vocabPrompt.split('、').some((w) => w.trim().length <= 2));
 
       if (isShortWordCategory) {
@@ -1090,16 +1193,16 @@ export class JapaneseSpeechRecognizer {
             const rms = Math.sqrt(sumSquares / dataArray.length);
 
             const now = Date.now();
-            // RMS threshold for speech activity (~0.035)
-            if (rms > 0.035) {
+            // RMS threshold for speech activity (~0.018 for sensitive detection of soft syllables like "neru")
+            if (rms > 0.018) {
               speechDetected = true;
               silenceStartTime = 0;
             } else if (speechDetected) {
               // User has spoken and is now silent
               if (silenceStartTime === 0) {
                 silenceStartTime = now;
-              } else if (now - silenceStartTime >= 850) {
-                // 850ms of post-speech silence detected -> auto-stop recording
+              } else if (now - silenceStartTime >= 650) {
+                // 650ms of post-speech silence detected -> auto-stop recording
                 if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
                   this.mediaRecorder.stop();
                   return;
@@ -1155,7 +1258,7 @@ export class JapaneseSpeechRecognizer {
    * Stop listening and transcribe speech captured so far (when user taps mic to say they finished)
    */
   stop() {
-    this.discardNextStop = true;
+    this.discardNextStop = false;
     if (this.autoStopTimer) {
       clearTimeout(this.autoStopTimer);
       this.autoStopTimer = null;
