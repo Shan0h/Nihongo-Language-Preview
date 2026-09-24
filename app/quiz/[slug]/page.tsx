@@ -132,6 +132,8 @@ export default function QuizPage() {
   const [correctFirstTry, setCorrectFirstTry] = useState(0);
   const [hasCurrentQuestionFailed, setHasCurrentQuestionFailed] = useState(false);
   const [totalMistakes, setTotalMistakes] = useState(0);
+  const [speechMistakeCount, setSpeechMistakeCount] = useState(0);
+  const [lastSpeechPenalty, setLastSpeechPenalty] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -341,6 +343,8 @@ export default function QuizPage() {
       setSelectedAnswer(null);
       setIsAnswered(false);
       setHasCurrentQuestionFailed(false);
+      setSpeechMistakeCount(0);
+      setLastSpeechPenalty(0);
       setCurrentStep('practice');
       setSpokenTranscript('');
       setSpeechError('');
@@ -420,6 +424,8 @@ export default function QuizPage() {
     setMaxStreak(0);
     setCorrectFirstTry(0);
     setHasCurrentQuestionFailed(false);
+    setSpeechMistakeCount(0);
+    setLastSpeechPenalty(0);
     setTotalMistakes(0);
     setSelectedAnswer(null);
     setIsAnswered(false);
@@ -827,6 +833,7 @@ export default function QuizPage() {
     setSpeechError('');
     setSpeechSuccess('');
     setSpokenTranscript('');
+    setLastSpeechPenalty(0);
     setIsConnectingMic(true);
     setIsListening(false);
 
@@ -885,21 +892,33 @@ export default function QuizPage() {
             matchedOption === currentQuestion.correct_answer ||
             (normSpoken && (normSpoken === normCorrect || normSpoken === normTarget));
 
+          const handleSpeechRejection = (errorMessage: string) => {
+            sfx.playWrong();
+            setSpeechSuccess('');
+            setSpeechError(errorMessage);
+
+            // Deduct 10 pt on first mistake for this question, 5 pt for subsequent speech retries
+            const penalty = speechMistakeCount === 0 && !hasCurrentQuestionFailed ? 10 : 5;
+            setLastSpeechPenalty(penalty);
+            setPoints(prev => Math.max(0, prev - penalty));
+            setStreak(0);
+            setHasCurrentQuestionFailed(true);
+            setTotalMistakes(prev => prev + 1);
+            setSpeechMistakeCount(prev => prev + 1);
+          };
+
           if (isCorrect) {
             sfx.playCorrect();
             setSpeechSuccess(`Great pronunciation! You said "${spoken}"`);
             setSpeechError('');
+            setLastSpeechPenalty(0);
             handleAnswer(currentQuestion.correct_answer);
           } else if (matchedOption) {
-            sfx.playWrong();
-            setSpeechSuccess('');
-            setSpeechError(
+            handleSpeechRejection(
               `You said "${spoken}" (${matchedOption}), which is incorrect. The target word is "${currentQuestion.japanese_text}" (${currentQuestion.correct_answer}). Tap mic to try again!`
             );
           } else {
-            sfx.playWrong();
-            setSpeechSuccess('');
-            setSpeechError(
+            handleSpeechRejection(
               `Pronunciation not recognized: "${spoken}". Target word is "${currentQuestion.japanese_text}" (${currentQuestion.correct_answer}). Speak clearly and try again!`
             );
           }
@@ -908,6 +927,7 @@ export default function QuizPage() {
           sfx.playWrong();
           setSpeechError(err);
           setSpeechSuccess('');
+          setLastSpeechPenalty(0);
           setIsListening(false);
           setIsConnectingMic(false);
         },
@@ -1266,7 +1286,7 @@ export default function QuizPage() {
         {/* Flanking Badges Row */}
         <div className="flex items-center justify-between mb-1">
           {/* Score Badge */}
-          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border ${hasCurrentQuestionFailed && isAnswered ? 'border-rose-400 dark:border-rose-600' : 'border-stone-200/80 dark:border-white/10'} shadow-xs transition-colors`}>
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border ${hasCurrentQuestionFailed ? 'border-rose-400 dark:border-rose-600' : 'border-stone-200/80 dark:border-white/10'} shadow-xs transition-colors`}>
             <span className="text-base">⭐</span>
             <div className="text-left">
               <div className="text-[8px] sm:text-[9px] font-extrabold text-stone-400 uppercase tracking-wider leading-none">SCORE</div>
@@ -1565,11 +1585,22 @@ export default function QuizPage() {
                       )}
                     </div>
                   ) : speechError ? (
-                    <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 ring-2 ring-rose-200 dark:ring-rose-900/50 animate-shake">
+                    <div className="flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 ring-2 ring-rose-200 dark:ring-rose-900/50 animate-shake">
                       <div className="flex items-center justify-center gap-1.5 text-rose-700 dark:text-rose-300 font-black text-xs">
-                        <span>❌</span>
-                        <span>Pronunciation Not Accepted</span>
+                        <span>{lastSpeechPenalty > 0 ? '❌' : '⚠️'}</span>
+                        <span>{lastSpeechPenalty > 0 ? 'Pronunciation Not Accepted' : 'Microphone Notice'}</span>
                       </div>
+
+                      {/* Penalty & Accuracy Drop Banner */}
+                      {lastSpeechPenalty > 0 && (
+                        <div className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-rose-100/90 dark:bg-rose-900/60 border border-rose-300/80 text-rose-700 dark:text-rose-200 font-extrabold text-[11px] shadow-2xs">
+                          <span>📉</span>
+                          <span>Score -{lastSpeechPenalty} pt</span>
+                          <span className="text-rose-400 dark:text-rose-600">•</span>
+                          <span>Accuracy: {accuracyPercentage}%</span>
+                        </div>
+                      )}
+
                       <p className="text-[10px] sm:text-[11px] text-stone-700 dark:text-stone-200 font-medium leading-normal max-w-md">
                         {speechError}
                       </p>
