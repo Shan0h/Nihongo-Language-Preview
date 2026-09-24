@@ -295,6 +295,19 @@ html.dark .btn-kahoot-green { border-color: rgba(255, 255, 255, 0.4); }
 .hall-of-fame .rank-2 { color: #94a3b8; }
 .hall-of-fame .rank-3 { color: #cd7f32; }
 
+.zen-text-primary {
+  color: #2d2d2d;
+}
+html.dark .zen-text-primary {
+  color: #ffffff;
+}
+.zen-text-secondary {
+  color: #5a5a5a;
+}
+html.dark .zen-text-secondary {
+  color: #a1a1aa;
+}
+
 /* Minimalist Zen Styling */
 .btn-zen-option {
   background: rgba(255, 255, 255, 0.7);

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { sfx } from '@/app/utils/sfx';
+import ScenicBackground from '@/app/components/ScenicBackground';
 
 function HostContent() {
   const searchParams = useSearchParams();
@@ -99,15 +100,17 @@ function HostContent() {
   // Waiting lobby
   if (gameStatus === 'waiting') {
     return (
-      <div className="min-h-screen bg-[#fdfbf7] p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
-              <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#8a8a8a] hover:text-[#d32f2f] mb-1">
+              <Link href="/" className="inline-flex items-center gap-1 text-sm font-bold text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 mb-1 transition-colors">
                 ← Back to Home
               </Link>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#2d2d2d]">🎮 Host Lobby</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#4c0519] dark:text-white transition-colors">🎮 Host Lobby</h1>
             </div>
             <div className="flex gap-2">
               {!connected && (
@@ -253,14 +256,16 @@ function HostContent() {
   // Playing - Host view
   if (gameStatus === 'playing' && currentQuestion) {
     return (
-      <div className="min-h-screen bg-[#fdfbf7] p-4 sm:p-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#2d2d2d]">🎮 Host Control</h1>
-              <p className="text-sm text-[#8a8a8a]">
-                PIN: <span className="font-mono font-bold text-[#d32f2f]">{pin}</span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#4c0519] dark:text-white transition-colors">🎮 Host Control</h1>
+              <p className="text-sm font-medium text-stone-600 dark:text-zinc-300">
+                PIN: <span className="font-mono font-bold text-rose-600 dark:text-rose-400">{pin}</span>
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -434,12 +439,14 @@ function HostContent() {
       : 0;
 
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6 select-none">
-        <div className="max-w-3xl w-full">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-3xl w-full">
           <div className="text-center mb-6">
             <div className="text-6xl mb-2 animate-bounce">🏆</div>
             <h1 className="text-3xl sm:text-5xl font-black gradient-text-torii mb-2">GAME CHAMPIONS!</h1>
-            <p className="text-sm sm:text-base text-[#5a5a5a] font-bold">Nihongo Communication 1 Exhibition Victory 🌸</p>
+            <p className="text-sm sm:text-base text-stone-700 dark:text-zinc-300 font-bold">Nihongo Communication 1 Exhibition Victory 🌸</p>
           </div>
 
           {/* Game Stats Summary */}
@@ -576,12 +583,14 @@ function HostContent() {
 
   // Default / connecting state or server not running
   return (
-    <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center">
+    <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 select-none overflow-x-hidden">
+      <ScenicBackground />
+
+      <div className="relative z-10 max-w-md w-full text-center">
         <div className="text-6xl mb-4">
           {error ? '⚠️' : '⛩️'}
         </div>
-        <h1 className="text-2xl font-bold mb-2">
+        <h1 className="text-2xl font-extrabold text-[#4c0519] dark:text-white mb-2 transition-colors">
           {error ? 'Game Server Not Running' : 'Connecting to Game Server...'}
         </h1>
 
@@ -641,10 +650,11 @@ export default function HostPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#fdfbf7] p-4">
-          <div className="text-center">
-            <div className="w-10 h-10 border-4 border-[#d32f2f] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-sm font-semibold text-[#5a5a5a]">Initializing Host Room...</p>
+        <div className="relative min-h-screen flex items-center justify-center bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 select-none overflow-x-hidden">
+          <ScenicBackground />
+          <div className="relative z-10 text-center">
+            <div className="w-10 h-10 border-4 border-rose-600 dark:border-rose-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-sm font-bold text-[#4c0519] dark:text-zinc-200">Initializing Host Room...</p>
           </div>
         </div>
       }

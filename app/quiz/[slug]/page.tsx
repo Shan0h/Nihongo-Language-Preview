@@ -6,7 +6,7 @@ import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import { getQuestionsByCategory, categories, findCategoryBySlug } from '@/data/questions';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, normalizeJapaneseSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, GREETING_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import { getSRSData, updateSRSData, calculateWeight } from '@/app/utils/srs';
 import { Question } from '@/data/questions';
@@ -632,6 +632,7 @@ export default function QuizPage() {
           ...(COLOR_SPEECH_ALIASES[opt] || []),
           ...(NUMBER_SPEECH_ALIASES[opt] || []),
           ...(VERB_SPEECH_ALIASES[opt] || []),
+          ...(GREETING_SPEECH_ALIASES[opt] || []),
         ];
         aliases.forEach((a) => {
           if (!a.includes(' ') && a.length <= 8) {

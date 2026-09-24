@@ -329,24 +329,42 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '面白い': 'おもしろい',
 
   // Greetings & Expressions
+  'どう致しまして': 'どういたしまして',
+  'どういたしました': 'どういたしまして',
+  'どう致しました': 'どういたしまして',
+  'どうい致しまして': 'どういたしまして',
+  'どういしまして': 'どういたしまして',
+  'どいたしまして': 'どういたしまして',
+  'どいしまして': 'どういたしまして',
   '有難う': 'ありがとう',
   '有難うございます': 'ありがとうございます',
+  '有難う御座います': 'ありがとうございます',
   'お願いします': 'おねがいします',
   '頂きます': 'いただきます',
+  '戴きます': 'いただきます',
   'ご馳走様': 'ごちそうさま',
   '御馳走様': 'ごちそうさま',
+  'ご馳走様でした': 'ごちそうさまでした',
+  '御馳走様でした': 'ごちそうさまでした',
+  'ご馳走さま': 'ごちそうさまでした',
+  'ごちそうさま': 'ごちそうさまでした',
   'ごちそう様': 'ごちそうさま',
   '御免なさい': 'ごめんなさい',
+  '済みません': 'すみません',
   'お休み': 'おやすみ',
   'お休みなさい': 'おやすみなさい',
+  'お休みなさいませ': 'おやすみなさい',
   'お早う': 'おはよう',
-  'お早うございます': 'お早うございます',
+  'お早うございます': 'おはようございます',
+  'お早う御座います': 'おはようございます',
   '今日は': 'こんにちは',
   '今晩は': 'こんばんは',
   '左様なら': 'さようなら',
   '初めまして': 'はじめまして',
   'また明日': 'またあした',
   '宜しくお願いします': 'よろしくおねがいします',
+  'よろしくお願いします': 'よろしくおねがいします',
+  '宜しく': 'よろしく',
   'お久しぶりです': 'おひさしぶりです',
   '大丈夫': 'だいじょうぶ',
   '大丈夫です': 'だいじょうぶです',
@@ -517,6 +535,87 @@ export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
 };
 
 /**
+ * Common Greeting aliases including Kanji, phonetic variants, Romaji, and English equivalents
+ */
+export const GREETING_SPEECH_ALIASES: Record<string, string[]> = {
+  'どういたしまして': [
+    'どう致しまして', 'どういたしました', 'どう致しました', 'どういたしまして',
+    'どういしまして', 'どいたしまして', 'どいしまして', 'どうい致しまして',
+    'ドウイタシマシテ', 'ドイタシマシテ', 'ドウイシマシテ',
+    'douitashimashite', 'doitashimashite', 'douishimashite', 'doishimashite',
+    'douitashimashit', 'doitashimashi', 'douitashi', 'dohitashimashite',
+    'you are welcome', "you're welcome", 'your welcome', 'welcome', 'not at all', "don't mention it"
+  ],
+  'ありがとうございます': [
+    '有難うございます', '有難う御座います', 'ありがとうございます', 'ありがとございます',
+    'ありがとう', '有難う', 'アリガトウゴザイマス', 'アリガトウ',
+    'arigatou gozaimasu', 'arigato gozaimasu', 'arigatougozaimasu', 'arigatogozaimasu',
+    'arigato', 'arigatou', 'thank you', 'thanks', 'thank you very much'
+  ],
+  'ありがとう': [
+    '有難う', 'ありがとう', 'アリガトウ', 'ありがと',
+    'arigato', 'arigatou', 'thank you', 'thanks'
+  ],
+  'こんにちは': [
+    '今日は', 'こんにちは', 'コンニチハ', 'こんにちわ', 'コンニチワ',
+    'konnichiwa', 'konnichwa', 'konnichi ha', 'hello', 'good afternoon'
+  ],
+  'こんばんは': [
+    '今晩は', 'こんばんは', 'コンバンハ', 'こんばんわ', 'コンバンワ',
+    'konbanwa', 'konban ha', 'good evening'
+  ],
+  'おはようございます': [
+    'お早うございます', 'お早う御座います', 'おはようございます', 'お早う', 'おはよう',
+    'オハヨウゴザイマス', 'オハヨウ',
+    'ohayou gozaimasu', 'ohayo gozaimasu', 'ohayougozaimasu', 'ohayogozaimasu',
+    'ohayo', 'ohayou', 'good morning'
+  ],
+  'おはよう': [
+    'お早う', 'おはよう', 'オハヨウ', 'おはよ',
+    'ohayo', 'ohayou', 'morning', 'good morning'
+  ],
+  'さようなら': [
+    '左様なら', 'さようなら', 'サヨウナラ', 'さよなら', 'サヨナラ',
+    'sayounara', 'sayonara', 'goodbye', 'bye', 'see you'
+  ],
+  'おやすみなさい': [
+    'お休みなさい', 'お休みなさいませ', 'おやすみなさい', 'おやすみ', 'お休み',
+    'オヤスミナサイ', 'オヤスミ',
+    'oyasuminasai', 'oyasumi nasai', 'oyasumi', 'good night'
+  ],
+  'おやすみ': [
+    'お休み', 'おやすみ', 'オヤスミ',
+    'oyasumi', 'good night', 'night'
+  ],
+  'よろしくおねがいします': [
+    'よろしくお願いします', 'よろしくお願い申し上げます', '宜しくお願いします', '宜しくお願い致します', 'よろしくおねがいします', 'よろしく', '宜しく',
+    'ヨロシクオネガイシマス', 'ヨロシク',
+    'yoroshiku onegaishimasu', 'yoroshikuonegaishimasu', 'yoroshiku', 'nice to meet you'
+  ],
+  'よろしくお願いします': [
+    'よろしくおねがいします', 'よろしくお願い申し上げます', '宜しくお願いします', '宜しくお願い致します', 'よろしくお願いします', 'よろしく', '宜しく',
+    'ヨロシクオネガイシマス', 'ヨロシク',
+    'yoroshiku onegaishimasu', 'yoroshikuonegaishimasu', 'yoroshiku', 'nice to meet you'
+  ],
+  'はじめまして': [
+    '初めまして', 'はじめまして', 'ハジメマシテ',
+    'hajimemashite', 'hajimemasite', 'nice to meet you', 'how do you do'
+  ],
+  'すみません': [
+    '済みません', 'すみません', 'すいません', 'スイマセン', 'スミマセン',
+    'sumimasen', 'suimasen', 'excuse me', 'sorry', "i'm sorry"
+  ],
+  'いただきます': [
+    '頂きます', '戴きます', 'いただきます', 'イタダキマス',
+    'itadakimasu', 'itadakimas', 'let\'s eat', 'bon appetit'
+  ],
+  'ごちそうさまでした': [
+    'ご馳走様でした', '御馳走様でした', 'ごちそうさま', 'ご馳走さま', 'ごちそうさまでした', 'ゴチソウサマデシタ',
+    'gochisousama deshita', 'gochisousamadeshita', 'gochisousama', 'thank you for the meal'
+  ]
+};
+
+/**
  * Convert Katakana characters to Hiragana
  */
 export function katakanaToHiragana(text: string): string {
@@ -665,7 +764,8 @@ export function matchOptionFromSpeech(
       const numAliases = NUMBER_SPEECH_ALIASES[word] || [];
       const colorAliases = COLOR_SPEECH_ALIASES[word] || [];
       const verbAliases = VERB_SPEECH_ALIASES[word] || [];
-      return [...numAliases, ...colorAliases, ...verbAliases];
+      const greetingAliases = GREETING_SPEECH_ALIASES[word] || [];
+      return [...numAliases, ...colorAliases, ...verbAliases, ...greetingAliases];
     };
 
     const isMatch = (aliases: string[]): boolean => {
@@ -676,12 +776,18 @@ export function matchOptionFromSpeech(
         aliases.includes(normTrans) ||
         aliases.some((alias) => {
           const lowerAlias = alias.toLowerCase();
+          const cleanAlias = lowerAlias.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '');
           return (
             cleanTrans === lowerAlias ||
+            cleanTrans === cleanAlias ||
             halfWidthTrans === lowerAlias ||
+            halfWidthTrans === cleanAlias ||
             normTrans === lowerAlias ||
+            normTrans === cleanAlias ||
             (lowerAlias.length >= 2 && cleanTrans.includes(lowerAlias)) ||
-            (cleanTrans.length >= 2 && lowerAlias.includes(cleanTrans))
+            (cleanAlias.length >= 2 && cleanTrans.includes(cleanAlias)) ||
+            (cleanTrans.length >= 2 && lowerAlias.includes(cleanTrans)) ||
+            (cleanTrans.length >= 2 && cleanAlias.includes(cleanTrans))
           );
         })
       );

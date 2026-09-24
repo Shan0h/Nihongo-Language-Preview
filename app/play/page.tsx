@@ -5,9 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
-import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
+import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, NUMBER_SPEECH_ALIASES, VERB_SPEECH_ALIASES, GREETING_SPEECH_ALIASES, SpeechEnginePreference } from '@/app/utils/speech';
 import { sfx } from '@/app/utils/sfx';
 import AudioWave from '@/app/components/AudioWave';
+import ScenicBackground from '@/app/components/ScenicBackground';
 
 export default function PlayPage() {
   const {
@@ -167,6 +168,7 @@ export default function PlayPage() {
           ...(COLOR_SPEECH_ALIASES[opt] || []),
           ...(NUMBER_SPEECH_ALIASES[opt] || []),
           ...(VERB_SPEECH_ALIASES[opt] || []),
+          ...(GREETING_SPEECH_ALIASES[opt] || []),
         ];
         aliases.forEach((a) => {
           if (!a.includes(' ') && a.length <= 8) {
@@ -241,56 +243,58 @@ export default function PlayPage() {
   // Join form
   if (phase === 'join') {
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 overflow-x-hidden select-none">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-md w-full">
           <div className="text-center mb-6 sm:mb-8">
-            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">📱</div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">Join Multiplayer</h1>
-            <p className="text-xs sm:text-sm text-[#5a5a5a] mt-1 sm:mt-2">Enter the PIN from host screen</p>
+            <div className="text-5xl sm:text-6xl mb-3 sm:mb-4 drop-shadow-md animate-bounce" style={{ animationDuration: '3s' }}>📱</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#4c0519] dark:text-white transition-colors tracking-tight">Join Multiplayer</h1>
+            <p className="text-xs sm:text-sm text-[#7f1d1d]/85 dark:text-zinc-300 font-medium mt-1 sm:mt-2 transition-colors">Enter the PIN from host screen</p>
           </div>
 
           {/* Connection Status */}
           <div className="mb-4">
             {!connected ? (
-              <div className="flex items-center justify-center gap-2 text-sm text-orange-500">
-                <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+              <div className="flex items-center justify-center gap-2 text-sm text-amber-600 dark:text-amber-400 font-bold bg-amber-50/80 dark:bg-amber-950/40 py-1.5 px-3 rounded-full border border-amber-200 dark:border-amber-800/50 backdrop-blur-sm shadow-xs w-fit mx-auto">
+                <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
                 Connecting to server...
               </div>
             ) : (
-              <div className="flex items-center justify-center gap-2 text-sm text-green-600">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <div className="flex items-center justify-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50/80 dark:bg-emerald-950/40 py-1.5 px-3 rounded-full border border-emerald-200 dark:border-emerald-800/50 backdrop-blur-sm shadow-xs w-fit mx-auto">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
                 Connected to game server
               </div>
             )}
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">
-              {error}
-              <button onClick={() => setError('')} className="ml-2 font-bold">×</button>
+            <div className="bg-rose-50/90 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-200 px-4 py-3 rounded-2xl mb-4 text-sm backdrop-blur-sm shadow-md flex items-center justify-between">
+              <span>{error}</span>
+              <button onClick={() => setError('')} className="ml-2 font-bold hover:opacity-75 cursor-pointer">✕</button>
             </div>
           )}
 
-          <form onSubmit={handleJoin} className="card-zen p-6 sm:p-8 space-y-4 sm:space-y-6 mb-8">
+          <form onSubmit={handleJoin} className="card-zen p-6 sm:p-8 space-y-4 sm:space-y-6 mb-8 border border-white/80 dark:border-white/10 shadow-xl">
             <div>
-              <label className="block text-xs sm:text-sm font-semibold mb-2 zen-text-secondary">Your Name</label>
+              <label className="block text-xs sm:text-sm font-bold mb-2 text-[#4c0519] dark:text-zinc-200">Your Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 bg-white/50 backdrop-blur-sm transition-all"
+                className="w-full border border-pink-200/80 dark:border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-base sm:text-lg focus:outline-none focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-400/20 bg-white/85 dark:bg-zinc-900/80 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-zinc-500 backdrop-blur-md transition-all font-medium shadow-xs"
                 placeholder="Enter your name"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs sm:text-sm font-semibold mb-2 zen-text-secondary">Game PIN</label>
+              <label className="block text-xs sm:text-sm font-bold mb-2 text-[#4c0519] dark:text-zinc-200">Game PIN</label>
               <input
                 type="text"
                 value={roomPin}
                 onChange={(e) => setRoomPin(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xl sm:text-2xl tracking-[6px] sm:tracking-[8px] text-center font-mono focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400 bg-white/50 backdrop-blur-sm transition-all uppercase"
+                className="w-full border border-pink-200/80 dark:border-white/10 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xl sm:text-2xl tracking-[6px] sm:tracking-[8px] text-center font-mono focus:outline-none focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-400/20 bg-white/85 dark:bg-zinc-900/80 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-zinc-500 backdrop-blur-md transition-all uppercase font-bold shadow-xs"
                 placeholder="123456"
                 maxLength={6}
                 required
@@ -300,17 +304,18 @@ export default function PlayPage() {
             <button
               type="submit"
               disabled={!connected}
-              className={`w-full py-3 sm:py-4 text-lg sm:text-xl font-medium rounded-full transition-all shadow-md hover:-translate-y-0.5 ${connected
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+              className={`w-full py-3.5 sm:py-4 text-lg sm:text-xl font-bold rounded-full transition-all shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer ${
+                connected
+                  ? 'bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white shadow-rose-500/25 hover:shadow-rose-500/40'
+                  : 'bg-stone-200 dark:bg-zinc-800 text-stone-400 dark:text-zinc-600 cursor-not-allowed'
+              }`}
             >
-              {connected ? 'Join Game' : 'Connecting...'}
+              {connected ? 'Join Game 🎮' : 'Connecting...'}
             </button>
           </form>
 
           <div className="text-center mt-4 sm:mt-6">
-            <Link href="/" className="text-xs sm:text-sm text-[#8a8a8a] hover:text-[#d32f2f]">
+            <Link href="/" className="text-xs sm:text-sm font-bold text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors inline-flex items-center gap-1">
               ← Back to Home
             </Link>
           </div>
@@ -322,14 +327,18 @@ export default function PlayPage() {
   // Waiting lobby
   if (phase === 'lobby') {
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full text-center">
-          <div className="text-6xl mb-4 animate-bounce">⏳</div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Waiting for Host...</h1>
-          <p className="text-[#5a5a5a] mb-1">Joined with PIN: <span className="font-mono font-bold">{pin}</span></p>
-          <p className="text-sm text-[#8a8a8a]">The host will start the game soon</p>
-          <div className="mt-6">
-            <div className="w-8 h-8 border-4 border-[#d32f2f] border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 overflow-x-hidden select-none">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-md w-full text-center card-zen p-8 sm:p-10 border border-white/80 dark:border-white/10 shadow-2xl">
+          <div className="text-6xl mb-4 animate-bounce drop-shadow-md">⏳</div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#4c0519] dark:text-white mb-2 transition-colors">Waiting for Host...</h1>
+          <p className="text-stone-700 dark:text-zinc-300 font-medium mb-1">
+            Joined with PIN: <span className="font-mono font-bold text-rose-600 dark:text-rose-400 text-lg">{pin}</span>
+          </p>
+          <p className="text-xs sm:text-sm text-stone-500 dark:text-zinc-400">The host will start the game soon</p>
+          <div className="mt-8 flex justify-center">
+            <div className="w-10 h-10 border-4 border-rose-600 dark:border-rose-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
         </div>
       </div>
@@ -341,8 +350,10 @@ export default function PlayPage() {
     const question = currentQuestion.question;
 
     return (
-      <div className="min-h-screen bg-[#fdfbf7] p-4 sm:p-6">
-        <div className="max-w-2xl mx-auto">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-2xl mx-auto">
           {/* Arcade Gaming Header */}
           <div className="flex items-center justify-between mb-3 bg-[#12101f] p-3 rounded-2xl border border-amber-500/40 text-white shadow-lg">
             <div className="flex items-center gap-2">
@@ -603,17 +614,19 @@ export default function PlayPage() {
     const myRank = finalLeaderboard.findIndex((e) => e.name === name || e.score === myScore) + 1;
 
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full text-center">
-          <div className="text-6xl mb-4">🏆</div>
-          <h1 className="text-3xl font-extrabold mb-2">Game Complete!</h1>
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-md w-full text-center">
+          <div className="text-6xl mb-4 drop-shadow-md">🏆</div>
+          <h1 className="text-3xl font-extrabold mb-2 text-[#4c0519] dark:text-white transition-colors">Game Complete!</h1>
 
           {myScore !== null && (
-            <div className="card-zen p-8 mb-8 text-center border border-gray-100 shadow-sm">
-              <div className="text-sm zen-text-secondary uppercase tracking-widest font-medium mb-2">Final Score</div>
-              <div className="text-6xl font-light text-gray-900 mb-4">{myScore}</div>
+            <div className="card-zen p-8 mb-8 text-center border border-white/80 dark:border-white/10 shadow-xl">
+              <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-2">Final Score</div>
+              <div className="text-6xl font-light text-stone-900 dark:text-white mb-4">{myScore}</div>
               {myRank > 0 && (
-                <div className="text-sm font-medium bg-gray-50 inline-block px-4 py-1.5 rounded-full border border-gray-200 text-gray-600">
+                <div className="text-sm font-bold bg-rose-50 dark:bg-rose-950/60 inline-block px-4 py-1.5 rounded-full border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300">
                   Rank: {myRank === 1 ? '🥇 1st Place' : myRank === 2 ? '🥈 2nd Place' : myRank === 3 ? '🥉 3rd Place' : `#${myRank}`}
                 </div>
               )}
@@ -622,27 +635,28 @@ export default function PlayPage() {
 
           {/* Leaderboard */}
           {finalLeaderboard.length > 0 && (
-            <div className="card-zen p-6 mb-8 text-left">
-              <h3 className="font-medium mb-4 zen-text-primary px-2">Final Rankings</h3>
+            <div className="card-zen p-6 mb-8 text-left border border-white/80 dark:border-white/10 shadow-xl">
+              <h3 className="font-bold mb-4 text-[#4c0519] dark:text-white px-2">Final Rankings</h3>
               <div className="space-y-2">
                 {finalLeaderboard.map((entry, i) => (
                   <div
                     key={i}
-                    className={`flex items-center justify-between p-4 rounded-2xl ${entry.name === name || (entry.score === myScore && entry.name === 'You')
-                        ? 'bg-gray-100 border-none'
-                        : 'bg-white border-none'
-                      }`}
+                    className={`flex items-center justify-between p-4 rounded-2xl transition-all ${
+                      entry.name === name || (entry.score === myScore && entry.name === 'You')
+                        ? 'bg-rose-100/70 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60'
+                        : 'bg-white/60 dark:bg-zinc-800/60 border border-stone-200/50 dark:border-white/5'
+                    }`}
                   >
                     <div className="flex items-center gap-4">
                       <span className="text-xl w-6 text-center">
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-gray-400 text-sm font-medium">#{i + 1}</span>}
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-stone-400 dark:text-zinc-500 text-sm font-bold">#{i + 1}</span>}
                       </span>
-                      <span className={`font-medium ${entry.name === name || (entry.score === myScore && entry.name === 'You') ? 'text-gray-900 font-bold' : 'text-gray-600'}`}>
+                      <span className={`font-medium ${entry.name === name || (entry.score === myScore && entry.name === 'You') ? 'text-rose-950 dark:text-white font-bold' : 'text-stone-700 dark:text-zinc-300'}`}>
                         {entry.name}
                         {entry.name === name || (entry.score === myScore && entry.name === 'You') ? ' (You)' : ''}
                       </span>
                     </div>
-                    <span className="font-medium text-gray-500">{entry.score} pts</span>
+                    <span className="font-bold text-rose-600 dark:text-rose-400">{entry.score} pts</span>
                   </div>
                 ))}
               </div>
@@ -652,13 +666,13 @@ export default function PlayPage() {
           <div className="flex flex-col gap-3">
             <button
               onClick={handlePlayAgain}
-              className="w-full py-4 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-md"
+              className="w-full py-4 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-full font-bold text-lg hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-rose-500/30 cursor-pointer"
             >
               Play Again
             </button>
             <Link
               href="/"
-              className="w-full py-4 bg-white border border-gray-200 text-gray-600 rounded-full font-medium text-lg text-center inline-block hover:bg-gray-50 transition-all"
+              className="w-full py-4 bg-white/80 dark:bg-zinc-800/80 border border-stone-200 dark:border-zinc-700 text-stone-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-full font-bold text-lg text-center inline-block hover:bg-white dark:hover:bg-zinc-700/80 transition-all shadow-sm cursor-pointer"
             >
               Back to Home
             </Link>
@@ -671,31 +685,33 @@ export default function PlayPage() {
   // Host left / disconnected
   if (phase === 'host-left') {
     return (
-      <div className="min-h-screen bg-[#fdfbf7] flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full text-center">
-          <div className="text-6xl mb-4">🚪</div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Host Left the Game</h1>
-          <p className="text-[#5a5a5a] mb-6">
+      <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
+        <ScenicBackground />
+
+        <div className="relative z-10 max-w-md w-full text-center">
+          <div className="text-6xl mb-4 drop-shadow-md">🚪</div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-[#4c0519] dark:text-white transition-colors">Host Left the Game</h1>
+          <p className="text-stone-700 dark:text-zinc-300 font-medium mb-6">
             The game has been ended because the host disconnected.
           </p>
 
           {myScore !== null && (
-            <div className="card-zen p-6 mb-8 text-center border border-gray-100 shadow-sm">
-              <div className="text-sm zen-text-secondary uppercase tracking-widest font-medium mb-2">Your Final Score</div>
-              <div className="text-5xl font-light text-gray-900">{myScore} pts</div>
+            <div className="card-zen p-6 mb-8 text-center border border-white/80 dark:border-white/10 shadow-xl">
+              <div className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-2">Your Final Score</div>
+              <div className="text-5xl font-light text-stone-900 dark:text-white">{myScore} pts</div>
             </div>
           )}
 
           <div className="flex flex-col gap-3">
             <button
               onClick={handlePlayAgain}
-              className="w-full py-4 bg-gray-900 text-white rounded-full font-medium text-lg hover:-translate-y-0.5 transition-all shadow-md"
+              className="w-full py-4 bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-full font-bold text-lg hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-rose-500/30 cursor-pointer"
             >
               Join New Game
             </button>
             <Link
               href="/"
-              className="w-full py-4 bg-white border border-gray-200 text-gray-600 rounded-full font-medium text-lg text-center inline-block hover:bg-gray-50 transition-all"
+              className="w-full py-4 bg-white/80 dark:bg-zinc-800/80 border border-stone-200 dark:border-zinc-700 text-stone-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 rounded-full font-bold text-lg text-center inline-block hover:bg-white dark:hover:bg-zinc-700/80 transition-all shadow-sm cursor-pointer"
             >
               Back to Home
             </Link>
