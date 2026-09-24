@@ -122,6 +122,18 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '100': 'ひゃく',
   '1000': 'せん',
 
+  // Number Homophones & Financial/Formal Kanji (Google Speech frequently outputs these)
+  '拾': 'じゅう',
+  '重': 'じゅう',
+  '銃': 'じゅう',
+  '住': 'じゅう',
+  '壱': 'いち',
+  '弐': 'に',
+  '参': 'さん',
+  '漆': 'なな',
+  '捌': 'はち',
+  '玖': 'きゅう',
+
   // Extra Animals
   '牛': 'うし',
   '鹿': 'しか',
@@ -238,6 +250,40 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
 const SORTED_KANJI_KEYS = Object.keys(KANJI_TO_HIRAGANA).sort((a, b) => b.length - a.length);
 
 /**
+ * Common Number aliases including Romaji variants, Kanji, Arabic digits, and phonetic homophones
+ * Ensures numbers (especially single-syllable numbers like 10 / Juu, 5 / Go, 2 / Ni) match reliably
+ */
+export const NUMBER_SPEECH_ALIASES: Record<string, string[]> = {
+  'いち': ['1', '１', '一', '壱', 'ichi', 'itchy', 'each', 'one'],
+  'に': ['2', '２', '二', '弐', 'ni', 'knee', 'two'],
+  'さん': ['3', '３', '三', '参', 'san', 'sun', 'three'],
+  'よん': ['4', '４', '四', 'yon', 'shi', 'four'],
+  'し': ['4', '４', '四', 'yon', 'shi', 'four'],
+  'ご': ['5', '５', '五', 'go', 'five'],
+  'ろく': ['6', '６', '六', 'roku', 'rock', 'six'],
+  'なな': ['7', '７', '七', '漆', 'nana', 'shichi', 'seven'],
+  'しち': ['7', '７', '七', '漆', 'nana', 'shichi', 'seven'],
+  'はち': ['8', '８', '八', '捌', 'hachi', 'hatch', 'eight'],
+  'きゅう': ['9', '９', '九', '玖', 'kyuu', 'kyu', 'ku', 'nine', 'q'],
+  'く': ['9', '９', '九', '玖', 'kyuu', 'kyu', 'ku', 'nine', 'q'],
+  'じゅう': ['10', '１０', '十', '拾', '重', '銃', '住', 'juu', 'ju', 'jyu', 'jyuu', 'jew', 'you', 'ten'],
+  'にじゅう': ['20', '２０', '二十', 'nijyuu', 'nijuu', 'niju', 'twenty'],
+  'さんじゅう': ['30', '３０', '三十', 'sanjuu', 'sanju', 'sanjyuu', 'thirty'],
+  'よんじゅう': ['40', '４０', '四十', 'yonjuu', 'yonju', 'yonjyuu', 'forty'],
+  'ごじゅう': ['50', '５０', '五十', 'gojuu', 'goju', 'gojyuu', 'fifty'],
+  'ろくじゅう': ['60', '６０', '六十', 'rokujuu', 'rokuju', 'rokujyuu', 'sixty'],
+  '七十': ['70', '７０', '七十', 'nanajuu', 'nanaju', 'nanajyuu', 'seventy'],
+  'ななじゅう': ['70', '７０', '七十', 'nanajuu', 'nanaju', 'nanajyuu', 'seventy'],
+  '八十': ['80', '８０', '八十', 'hachijuu', 'hachiju', 'hachijyuu', 'eighty'],
+  'はちじゅう': ['80', '８０', '八十', 'hachijuu', 'hachiju', 'hachijyuu', 'eighty'],
+  '九十': ['90', '９０', '九十', 'kyuujuu', 'kyuuju', 'kyuujyuu', 'ninety'],
+  'きゅうじゅう': ['90', '９０', '九十', 'kyuujuu', 'kyuuju', 'kyuujyuu', 'ninety'],
+  'ひゃく': ['100', '１００', '百', 'hyaku', 'hyak', 'hundred', 'one hundred'],
+  '千': ['1000', '１０００', '千', 'せん', 'sen', 'thousand'],
+  'せん': ['1000', '１０００', '千', 'せん', 'sen', 'thousand'],
+};
+
+/**
  * Convert Katakana characters to Hiragana
  */
 export function katakanaToHiragana(text: string): string {
@@ -249,6 +295,8 @@ export function katakanaToHiragana(text: string): string {
 
 /**
  * Normalizes speech text into a standard Hiragana representation:
+ * - Converts full-width Japanese digits (０-９) to ASCII digits (0-9)
+ * - Converts full-width Latin alphabet (Ａ-Ｚ, ａ-ｚ) to ASCII
  * - Replaces Kanji with Hiragana readings
  * - Converts Katakana to Hiragana
  * - Removes spaces, punctuation, and Japanese punctuation marks
@@ -256,6 +304,12 @@ export function katakanaToHiragana(text: string): string {
 export function normalizeJapaneseSpeech(text: string): string {
   if (!text) return '';
   let normalized = text.trim();
+
+  // Convert full-width numbers (０-９) to half-width (0-9)
+  normalized = normalized.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+
+  // Convert full-width Latin alphabet (Ａ-Ｚ, ａ-ｚ) to standard ASCII
+  normalized = normalized.replace(/[Ａ-Ｚａ-ｚ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
 
   // Replace Kanji with Hiragana
   for (const kanji of SORTED_KANJI_KEYS) {
@@ -287,6 +341,9 @@ export function normalizeRomaji(text: string): string {
   if (!text) return '';
   let s = text.toLowerCase().trim();
 
+  // Convert full-width characters
+  s = s.replace(/[０-９Ａ-Ｚａ-ｚ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+
   // Replace macrons
   s = s
     .replace(/[āâ]/g, 'a')
@@ -297,6 +354,17 @@ export function normalizeRomaji(text: string): string {
 
   // Strip non-alphanumeric (keep only a-z0-9)
   s = s.replace(/[^a-z0-9]/g, '');
+
+  // Normalize common Romanization variants (Nihon-shiki / Kunrei-shiki vs Hepburn)
+  s = s
+    .replace(/jyu/g, 'ju')
+    .replace(/zyu/g, 'ju')
+    .replace(/syu/g, 'shu')
+    .replace(/tyu/g, 'chu')
+    .replace(/si/g, 'shi')
+    .replace(/ti/g, 'chi')
+    .replace(/tu/g, 'tsu')
+    .replace(/hu/g, 'fu');
 
   // Normalize common long vowels
   s = s
@@ -353,6 +421,32 @@ export function matchOptionFromSpeech(
   targetRomaji?: string
 ): string | null {
   const allTranscripts = [spoken, ...alternatives].filter(Boolean);
+
+  // 0. High-priority Number aliases check (covers digits, Kanji, Romaji, and phonetic variants like "10", "１０", "十", "juu", "ju", "jyu", "ten", "jew", "you")
+  for (const trans of allTranscripts) {
+    const cleanTrans = trans.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').trim().toLowerCase();
+    const halfWidthTrans = cleanTrans.replace(/[０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+
+    const correctAliases = NUMBER_SPEECH_ALIASES[correctAnswer] || [];
+    if (
+      correctAliases.includes(cleanTrans) ||
+      correctAliases.includes(halfWidthTrans) ||
+      correctAliases.some((alias) => cleanTrans === alias.toLowerCase() || halfWidthTrans === alias.toLowerCase())
+    ) {
+      return correctAnswer;
+    }
+
+    for (const opt of options) {
+      const optAliases = NUMBER_SPEECH_ALIASES[opt] || [];
+      if (
+        optAliases.includes(cleanTrans) ||
+        optAliases.includes(halfWidthTrans) ||
+        optAliases.some((alias) => cleanTrans === alias.toLowerCase() || halfWidthTrans === alias.toLowerCase())
+      ) {
+        return opt;
+      }
+    }
+  }
 
   // 1. Direct and normalized exact match check
   for (const trans of allTranscripts) {
@@ -608,15 +702,19 @@ export class JapaneseSpeechRecognizer {
       };
 
       rec.onerror = (event: any) => {
+        // If we already received a valid result or this was an intentional stop/cancel, ignore trailing errors
+        if (hasReceivedResult || this.discardNextStop) {
+          return;
+        }
+
         hasReceivedError = true;
         const errType = event.error || 'error';
 
-        // Check if OnePlus 12 / ColorOS or device restricted Google Speech Services ('aborted')
-        if (errType === 'aborted' || errType === 'service-not-allowed' || errType === 'audio-capture') {
-          console.warn(`Native Google Speech failed (${errType}). Switching to Cloud Whisper.`);
+        // Check if device completely restricted Google Speech Services ('service-not-allowed')
+        if (errType === 'service-not-allowed') {
+          console.warn(`Native Google Speech failed (${errType}). Falling back to Cloud Whisper.`);
           this.setEngine('whisper');
           if (onEngineSwitch) onEngineSwitch('whisper');
-          // Seamlessly start Whisper STT for this speech attempt
           this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
           return;
         }
@@ -624,17 +722,15 @@ export class JapaneseSpeechRecognizer {
         this.isListening = false;
         this.restoreBgm();
 
-        if (this.discardNextStop) {
-          onEnd();
-          return;
-        }
-
         if (errType === 'no-speech') {
           onError('No speech was detected. Please speak closer to your microphone and try again.');
         } else if (errType === 'not-allowed') {
           onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
         } else if (errType === 'network') {
           onError('Google Speech network error. Please tap to try again or switch to Cloud Whisper.');
+        } else if (errType === 'aborted') {
+          // Do NOT permanently cancel or switch Google Speech on 'aborted'
+          onError('Speech capture was interrupted. Tap the mic to try speaking again.');
         } else {
           onError(`Could not capture speech (${errType}). Please tap to try again.`);
         }
@@ -655,10 +751,11 @@ export class JapaneseSpeechRecognizer {
 
       rec.start();
     } catch (err: any) {
-      console.warn('Native speech recognition start failed. Falling back to Whisper:', err);
-      this.setEngine('whisper');
-      if (onEngineSwitch) onEngineSwitch('whisper');
-      this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+      console.warn('Native speech recognition start failed:', err);
+      this.isListening = false;
+      this.restoreBgm();
+      onError('Could not start microphone. Please tap again to retry.');
+      onEnd();
     }
   }
 
@@ -912,7 +1009,7 @@ export class JapaneseSpeechRecognizer {
    * Stop listening and transcribe speech captured so far (when user taps mic to say they finished)
    */
   stop() {
-    this.discardNextStop = false;
+    this.discardNextStop = true;
     if (this.autoStopTimer) {
       clearTimeout(this.autoStopTimer);
       this.autoStopTimer = null;
