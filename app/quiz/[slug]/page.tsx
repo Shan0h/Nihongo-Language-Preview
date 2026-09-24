@@ -91,16 +91,24 @@ const BowingAvatar = ({ className = "w-20 h-20" }: { className?: string }) => (
 );
 
 // Flanking sound wave bars matching reference screenshot
-const SoundWaveBars = ({ isListening }: { isListening: boolean }) => (
+const SoundWaveBars = ({ isListening, isConnecting }: { isListening: boolean; isConnecting?: boolean }) => (
   <div className="flex items-center gap-1.5 px-2 sm:px-3">
     {[12, 22, 34, 18, 28, 14].map((h, i) => (
       <span
         key={i}
-        className={`w-1 rounded-full bg-rose-200 dark:bg-rose-900/60 transition-all ${
-          isListening ? 'animate-pulse' : ''
+        className={`w-1 rounded-full transition-all ${
+          isListening
+            ? 'bg-rose-500 dark:bg-rose-400 animate-pulse'
+            : isConnecting
+            ? 'bg-amber-400 dark:bg-amber-500 animate-pulse'
+            : 'bg-rose-200 dark:bg-rose-900/60'
         }`}
         style={{
-          height: isListening ? `${Math.max(12, (h * 1.5) % 38)}px` : `${h}px`,
+          height: isListening
+            ? `${Math.max(12, (h * 1.5) % 38)}px`
+            : isConnecting
+            ? `${Math.max(8, (h * 0.8) % 24)}px`
+            : `${h}px`,
           animationDelay: `${i * 0.15}s`,
         }}
       />
@@ -136,6 +144,7 @@ export default function QuizPage() {
 
   // Microphone Speech Recognition States
   const [isListening, setIsListening] = useState(false);
+  const [isConnectingMic, setIsConnectingMic] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
   const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
@@ -588,16 +597,18 @@ export default function QuizPage() {
   };
 
   const handleMicListen = () => {
-    if (isListening) {
+    if (isListening || isConnectingMic) {
       speechRecognizerRef.current?.stop();
       setIsListening(false);
+      setIsConnectingMic(false);
       return;
     }
 
     setSpeechError('');
     setSpeechSuccess('');
     setSpokenTranscript('');
-    setIsListening(true);
+    setIsConnectingMic(true);
+    setIsListening(false);
 
     if (speechRecognizerRef.current && currentQuestion) {
       // Build vocabulary prompt for Whisper context
@@ -674,12 +685,18 @@ export default function QuizPage() {
           setSpeechError(err);
           setSpeechSuccess('');
           setIsListening(false);
+          setIsConnectingMic(false);
         },
         () => {
           setIsListening(false);
+          setIsConnectingMic(false);
         },
         () => {
+          setIsConnectingMic(false);
           setIsListening(true);
+          try {
+            sfx.playTap();
+          } catch {}
         },
         vocabPrompt,
         (newEngine) => {
@@ -1347,6 +1364,24 @@ export default function QuizPage() {
                         </button>
                       </div>
                     </div>
+                  ) : isConnectingMic ? (
+                    <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 animate-pulse">
+                      <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-xs">
+                        <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Starting mic... speak right after tap tone</span>
+                      </div>
+                      <p className="text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400">
+                        Target: <span className="font-bold text-stone-800 dark:text-white">{currentQuestion.japanese_text}</span>
+                        {currentQuestion.romaji && (
+                          <span className="font-mono text-amber-600 dark:text-amber-400 font-bold ml-1">
+                            ({currentQuestion.romaji})
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   ) : isListening ? (
                     <div className="flex flex-col items-center gap-1 py-1 px-3 rounded-2xl bg-red-50/70 dark:bg-red-950/30 border border-red-200 dark:border-red-900">
                       <div className="flex items-center justify-center gap-2 text-rose-600 font-bold text-xs">
@@ -1383,17 +1418,26 @@ export default function QuizPage() {
                 {/* Center Mic Button Flanked by Waveforms */}
                 <div className="flex flex-col items-center justify-center my-auto py-1">
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
-                    <SoundWaveBars isListening={isListening} />
+                    <SoundWaveBars isListening={isListening} isConnecting={isConnectingMic} />
                     
-                    {/* Glowing Red Microphone Button */}
+                    {/* Glowing Red/Amber Microphone Button */}
                     <button
                       onClick={handleMicListen}
-                      className={`w-15 h-15 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full bg-gradient-to-tr from-rose-600 to-red-500 text-white flex items-center justify-center shadow-[0_8px_25px_rgba(239,68,68,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer relative z-10 ${
-                        isListening ? 'ring-4 sm:ring-5 ring-red-200 dark:ring-red-900 animate-pulse' : ''
-                      }`}
+                      className={`w-15 h-15 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full ${
+                        isConnectingMic
+                          ? 'bg-gradient-to-tr from-amber-500 to-amber-400 ring-4 sm:ring-5 ring-amber-200 dark:ring-amber-900 animate-pulse'
+                          : isListening
+                          ? 'bg-gradient-to-tr from-rose-600 to-red-500 ring-4 sm:ring-5 ring-red-200 dark:ring-red-900 animate-pulse'
+                          : 'bg-gradient-to-tr from-rose-600 to-red-500 hover:scale-105 active:scale-95'
+                      } text-white flex items-center justify-center shadow-[0_8px_25px_rgba(239,68,68,0.4)] transition-all cursor-pointer relative z-10`}
                       aria-label="Tap to speak"
                     >
-                      {isListening ? (
+                      {isConnectingMic ? (
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : isListening ? (
                         <div className="flex items-center gap-1">
                           <span className="w-1.5 h-5 bg-white rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
                           <span className="w-1.5 h-7 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
@@ -1407,11 +1451,11 @@ export default function QuizPage() {
                       )}
                     </button>
 
-                    <SoundWaveBars isListening={isListening} />
+                    <SoundWaveBars isListening={isListening} isConnecting={isConnectingMic} />
                   </div>
 
                   <span className="text-[11px] sm:text-xs font-bold text-stone-600 dark:text-stone-300 mt-1">
-                    {isListening ? 'Listening...' : 'Tap to Speak'}
+                    {isConnectingMic ? 'Connecting...' : isListening ? 'Listening...' : 'Tap to Speak'}
                   </span>
 
                   {/* Engine Switcher Pill */}

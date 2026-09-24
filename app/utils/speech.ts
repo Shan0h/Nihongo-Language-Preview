@@ -275,6 +275,10 @@ export const KANJI_TO_HIRAGANA: Record<string, string> = {
   '久留': 'くる',
   'クール': 'くる',
   'クルー': 'くる',
+  '胡桃': 'くる',
+  'くるみ': 'くる',
+  '苦': 'くる',
+  '繰': 'くる',
   '来ます': 'くる',
   'きます': 'くる',
   '帰る': 'かえる',
@@ -453,6 +457,7 @@ export const VERB_SPEECH_ALIASES: Record<string, string[]> = {
     '来る', 'くる', 'クル', '来ます', 'きます', '来て', 'きて', '来い', 'こい', 'こない',
     'クール', 'クルー', 'クロ', 'くろ', '黒', '狂う', '繰る', '久留',
     '車', 'くるま', 'クルマ', 'くれ', 'クレ', '暮れ', 'これ', 'コレ', '此れ',
+    '胡桃', 'くるみ', '苦', '九', '繰', '空', 'く', 'くう', 'くろい',
     'グル', 'guru', '苦労', 'くろう', 'クー', 'ク', '来るよ', 'くるよ', '来るね', 'くるね', '来るの', 'くるの',
     'kuru', 'kuro', 'kuruma', 'kure', 'kore', 'guru', 'crew', 'cool', 'clue', 'cru', 'kru', 'cur', 'cure', 'cruz', 'come', 'to come', 'coming'
   ],
@@ -807,8 +812,21 @@ export class JapaneseSpeechRecognizer {
   private wasBgmPlaying: boolean = false;
   private chunks: Blob[] = [];
   private currentMimeType: string = '';
+  private googleAutoFinalizeTimer: NodeJS.Timeout | number | null = null;
+  private googleSafetyCeilingTimer: NodeJS.Timeout | number | null = null;
   private discardNextStop: boolean = false;
   private engine: SpeechEnginePreference = 'google';
+
+  private cleanupGoogleTimers() {
+    if (this.googleAutoFinalizeTimer) {
+      clearTimeout(this.googleAutoFinalizeTimer);
+      this.googleAutoFinalizeTimer = null;
+    }
+    if (this.googleSafetyCeilingTimer) {
+      clearTimeout(this.googleSafetyCeilingTimer);
+      this.googleSafetyCeilingTimer = null;
+    }
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -924,7 +942,7 @@ export class JapaneseSpeechRecognizer {
     try {
       const rec = new SpeechRecognition();
       rec.lang = 'ja-JP';
-      rec.continuous = false;
+      rec.continuous = true;
       rec.interimResults = true;
       rec.maxAlternatives = 5;
       this.browserRecognition = rec;
@@ -934,17 +952,46 @@ export class JapaneseSpeechRecognizer {
       let bestTranscript = '';
       let bestAlternatives: string[] = [];
 
+      this.cleanupGoogleTimers();
+
+      const finishWithSuccess = (transcript: string, confidence: number, alternatives: string[]) => {
+        if (hasReceivedResult || this.discardNextStop) return;
+        hasReceivedResult = true;
+        this.cleanupGoogleTimers();
+        this.isListening = false;
+        this.restoreBgm();
+        try {
+          rec.stop();
+        } catch {}
+        onResult({ transcript, confidence, alternatives });
+      };
+
       rec.onstart = () => {
         this.isListening = true;
         this.discardNextStop = false;
         if (onStart) onStart();
+
+        // Safety ceiling: 5s max for single Japanese question answers
+        this.cleanupGoogleTimers();
+        this.googleSafetyCeilingTimer = setTimeout(() => {
+          if (!hasReceivedResult && !this.discardNextStop) {
+            try {
+              rec.stop();
+            } catch {}
+          }
+        }, 5000);
       };
 
       rec.onresult = (event: any) => {
+        if (hasReceivedResult || this.discardNextStop) return;
+
         if (event.results && event.results.length > 0) {
           const alternatives: string[] = [];
+          let isAnyFinal = false;
+
           for (let r = 0; r < event.results.length; r++) {
             const res = event.results[r];
+            if (res.isFinal) isAnyFinal = true;
             for (let i = 0; i < res.length; i++) {
               const t = res[i]?.transcript?.trim();
               if (t && !alternatives.includes(t)) {
@@ -952,31 +999,53 @@ export class JapaneseSpeechRecognizer {
               }
             }
           }
+
           const transcript = alternatives[0] || '';
-          const confidence = event.results[0]?.[0]?.confidence || 0;
+          const confidence = event.results[0]?.[0]?.confidence || 0.85;
 
           if (transcript) {
             bestTranscript = transcript;
             bestAlternatives = alternatives;
 
-            let isAnyFinal = false;
-            for (let r = 0; r < event.results.length; r++) {
-              if (event.results[r]?.isFinal) {
-                isAnyFinal = true;
-                break;
+            // Check if any transcript or alternative matches the question/prompt/aliases immediately!
+            // Even in interim results, if the user said "くる" and Chrome returned "くる" or "来る",
+            // we match immediately with ZERO latency!
+            let hasImmediateMatch = false;
+            if (vocabPrompt) {
+              const promptWords = vocabPrompt.split('、').map((w) => w.trim().toLowerCase());
+              for (const alt of alternatives) {
+                const cleanAlt = alt.replace(/[\s\u3000\u3001\u3002,.!?'"・〜~ー-]/g, '').toLowerCase();
+                const normAlt = normalizeJapaneseSpeech(cleanAlt);
+                if (
+                  promptWords.includes(cleanAlt) ||
+                  promptWords.includes(normAlt) ||
+                  promptWords.some((pw) => pw.length >= 2 && (cleanAlt.includes(pw) || pw.includes(cleanAlt)))
+                ) {
+                  hasImmediateMatch = true;
+                  break;
+                }
               }
             }
 
-            if (isAnyFinal) {
-              hasReceivedResult = true;
-              this.restoreBgm();
-              onResult({ transcript, confidence, alternatives });
+            if (isAnyFinal || hasImmediateMatch) {
+              finishWithSuccess(transcript, isAnyFinal ? confidence : 0.95, alternatives);
+              return;
             }
+
+            // Otherwise, reset trailing silence debounce timer (750ms) to finalize if user stops speaking
+            if (this.googleAutoFinalizeTimer) clearTimeout(this.googleAutoFinalizeTimer);
+            this.googleAutoFinalizeTimer = setTimeout(() => {
+              if (!hasReceivedResult && bestTranscript && !this.discardNextStop) {
+                finishWithSuccess(bestTranscript, 0.85, bestAlternatives);
+              }
+            }, 750);
           }
         }
       };
 
       rec.onerror = (event: any) => {
+        this.cleanupGoogleTimers();
+
         // If we already received a valid result or this was an intentional stop/cancel, ignore trailing errors
         if (hasReceivedResult || this.discardNextStop) {
           return;
@@ -986,17 +1055,21 @@ export class JapaneseSpeechRecognizer {
 
         // If we captured an interim transcript before Google dropped/aborted, salvage it!
         if (bestTranscript) {
-          hasReceivedResult = true;
-          this.restoreBgm();
-          onResult({ transcript: bestTranscript, confidence: 0.8, alternatives: bestAlternatives });
+          finishWithSuccess(bestTranscript, 0.85, bestAlternatives);
           return;
         }
 
         hasReceivedError = true;
 
-        // In Auto mode, or if device restricted Google Speech ('service-not-allowed'), seamlessly fall back to Whisper
-        if (selectedEngine === 'auto' || errType === 'service-not-allowed') {
-          console.warn(`Google Speech error (${errType}) in Auto mode. Seamlessly falling back to Cloud Whisper.`);
+        // In Auto mode, or if Google Speech throws no-speech / network / service errors,
+        // seamlessly fall back to Cloud Whisper so the user is never left stranded!
+        if (
+          selectedEngine === 'auto' ||
+          errType === 'no-speech' ||
+          errType === 'network' ||
+          errType === 'service-not-allowed'
+        ) {
+          console.warn(`Google Speech error (${errType}). Seamlessly falling back to Cloud Whisper.`);
           this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
           return;
         }
@@ -1004,12 +1077,8 @@ export class JapaneseSpeechRecognizer {
         this.isListening = false;
         this.restoreBgm();
 
-        if (errType === 'no-speech') {
-          onError('No speech was detected. Please speak closer to your microphone and try again.');
-        } else if (errType === 'not-allowed') {
+        if (errType === 'not-allowed') {
           onError('Microphone permission was denied. Please allow microphone access in Chrome settings.');
-        } else if (errType === 'network') {
-          onError('Google Speech network error. Please tap to try again or switch to Cloud Whisper.');
         } else if (errType === 'aborted') {
           onError('Speech capture was interrupted. Tap the mic to try speaking again.');
         } else {
@@ -1019,25 +1088,23 @@ export class JapaneseSpeechRecognizer {
       };
 
       rec.onend = () => {
+        this.cleanupGoogleTimers();
         this.isListening = false;
         this.restoreBgm();
 
-        // If onend fired and we haven't delivered a final result yet, but have a best interim transcript, deliver it!
+        // If onend fired and we haven't delivered a final result yet, but have a best transcript, deliver it!
         if (!hasReceivedResult && bestTranscript && !this.discardNextStop) {
-          hasReceivedResult = true;
-          onResult({ transcript: bestTranscript, confidence: 0.8, alternatives: bestAlternatives });
+          finishWithSuccess(bestTranscript, 0.85, bestAlternatives);
           onEnd();
           return;
         }
 
-        // If Google Speech ended without delivering any result or error in Auto mode, fall back to Whisper
+        // If Google Speech ended without delivering any result or error:
+        // Seamlessly fall back to Cloud Whisper so user never gets stuck!
         if (!hasReceivedResult && !hasReceivedError && !this.discardNextStop) {
-          if (selectedEngine === 'auto') {
-            console.info('Google Speech ended without result in Auto mode. Falling back to Cloud Whisper.');
-            this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
-            return;
-          }
-          onError('No speech was detected. Please tap the mic, speak clearly, and try again.');
+          console.info('Google Speech ended without result. Seamlessly falling back to Cloud Whisper.');
+          this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
+          return;
         }
 
         onEnd();
@@ -1046,14 +1113,11 @@ export class JapaneseSpeechRecognizer {
       rec.start();
     } catch (err: any) {
       console.warn('Native speech recognition start failed:', err);
+      this.cleanupGoogleTimers();
       this.isListening = false;
       this.restoreBgm();
-      if (selectedEngine === 'auto') {
-        this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
-        return;
-      }
-      onError('Could not start microphone. Please tap again to retry.');
-      onEnd();
+      // On any browser start error, seamlessly fall back to Whisper
+      this.startWhisper(onResult, onError, onEnd, onStart, vocabPrompt);
     }
   }
 
@@ -1308,6 +1372,7 @@ export class JapaneseSpeechRecognizer {
    */
   stop() {
     this.discardNextStop = false;
+    this.cleanupGoogleTimers();
     if (this.autoStopTimer) {
       clearTimeout(this.autoStopTimer);
       this.autoStopTimer = null;
@@ -1335,6 +1400,7 @@ export class JapaneseSpeechRecognizer {
    */
   cancel() {
     this.discardNextStop = true;
+    this.cleanupGoogleTimers();
     this.cleanupStream();
     this.restoreBgm();
 

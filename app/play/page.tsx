@@ -38,6 +38,7 @@ export default function PlayPage() {
 
   // Microphone Speech Recognition States
   const [isListening, setIsListening] = useState(false);
+  const [isConnectingMic, setIsConnectingMic] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState<string>('');
   const [speechError, setSpeechError] = useState<string>('');
   const [speechEngine, setSpeechEngine] = useState<SpeechEnginePreference>('google');
@@ -132,15 +133,17 @@ export default function PlayPage() {
   const handleMicListen = () => {
     if (hasAnswered || !currentQuestion) return;
 
-    if (isListening) {
+    if (isListening || isConnectingMic) {
       speechRecognizerRef.current?.stop();
       setIsListening(false);
+      setIsConnectingMic(false);
       return;
     }
 
     setSpeechError('');
     setSpokenTranscript('');
-    setIsListening(true);
+    setIsConnectingMic(true);
+    setIsListening(false);
 
     if (speechRecognizerRef.current) {
       const q = currentQuestion.question;
@@ -172,6 +175,8 @@ export default function PlayPage() {
 
       speechRecognizerRef.current.start(
         (result) => {
+          setIsConnectingMic(false);
+          setIsListening(false);
           const spoken = result.transcript;
           setSpokenTranscript(spoken);
 
@@ -195,12 +200,18 @@ export default function PlayPage() {
           sfx.playWrong();
           setSpeechError(err);
           setIsListening(false);
+          setIsConnectingMic(false);
         },
         () => {
           setIsListening(false);
+          setIsConnectingMic(false);
         },
         () => {
+          setIsConnectingMic(false);
           setIsListening(true);
+          try {
+            sfx.playTap();
+          } catch {}
         },
         vocabPrompt,
         (newEngine) => {
@@ -404,19 +415,33 @@ export default function PlayPage() {
               <button
                 onClick={handleMicListen}
                 disabled={hasAnswered}
-                className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs border cursor-pointer ${isListening
+                className={`w-full py-3 px-4 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2.5 shadow-xs border cursor-pointer ${
+                  isConnectingMic
+                    ? 'bg-amber-100 text-amber-700 border-amber-300 ring-4 ring-amber-200 animate-pulse'
+                    : isListening
                     ? 'bg-rose-100 text-rose-600 border-rose-300 shadow-[0_0_15px_rgba(225,29,72,0.25)] ring-4 ring-rose-200'
                     : hasAnswered
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
-                      : 'bg-white text-stone-800 hover:bg-rose-50/50 hover:text-red-600 active:scale-95 border-rose-200'
-                  }`}
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                    : 'bg-white text-stone-800 hover:bg-rose-50/50 hover:text-red-600 active:scale-95 border-rose-200'
+                }`}
               >
-                {isListening ? (
+                {isConnectingMic ? (
+                  <svg className="w-5 h-5 animate-spin text-amber-600" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : isListening ? (
                   <AudioWave />
                 ) : (
                   <span className="w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center text-sm shadow-xs">🎤</span>
                 )}
-                <span>{isListening ? 'Listening... (Tap to finish)' : 'Tap to Speak'}</span>
+                <span>
+                  {isConnectingMic
+                    ? 'Starting mic... speak right after tap tone'
+                    : isListening
+                    ? 'Listening... (Tap to finish)'
+                    : 'Tap to Speak'}
+                </span>
               </button>
 
               {spokenTranscript && (
