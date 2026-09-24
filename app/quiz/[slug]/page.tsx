@@ -126,7 +126,12 @@ export default function QuizPage() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
+  const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [correctFirstTry, setCorrectFirstTry] = useState(0);
+  const [hasCurrentQuestionFailed, setHasCurrentQuestionFailed] = useState(false);
+  const [totalMistakes, setTotalMistakes] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -335,6 +340,7 @@ export default function QuizPage() {
       setCurrentIndex(currentIndex + 1);
       setSelectedAnswer(null);
       setIsAnswered(false);
+      setHasCurrentQuestionFailed(false);
       setCurrentStep('practice');
       setSpokenTranscript('');
       setSpeechError('');
@@ -343,21 +349,21 @@ export default function QuizPage() {
       setShowResult(true);
 
       // Save score to leaderboard
-      const percentage = Math.round((score / (quizQuestions.length || 1)) * 100);
-      const totalPoints = score * 1000 + streak * 250;
+      const finalAccuracy = Math.round((correctFirstTry / (quizQuestions.length || 1)) * 100);
+      const totalLeaderboardPoints = points * 50 + maxStreak * 150;
 
       let rankTitle = "🌸 SAMURAI LEARNER";
-      if (percentage === 100) rankTitle = "👑 SAMURAI MASTER";
-      else if (percentage >= 80) rankTitle = "🌟 GOLD SHOGUN";
-      else if (percentage >= 60) rankTitle = "⭐ NINJA WARRIOR";
+      if (finalAccuracy === 100) rankTitle = "👑 SAMURAI MASTER";
+      else if (finalAccuracy >= 80) rankTitle = "🌟 GOLD SHOGUN";
+      else if (finalAccuracy >= 60) rankTitle = "⭐ NINJA WARRIOR";
 
       const playerName = localStorage.getItem('nihongo-player-name') || 'Guest Samurai';
 
       await supabase.from('leaderboard').insert({
         name: playerName,
         category: category?.name || 'Solo Practice',
-        points: totalPoints,
-        accuracy: percentage,
+        points: totalLeaderboardPoints,
+        accuracy: finalAccuracy,
         badge: rankTitle
       });
     }
@@ -375,6 +381,7 @@ export default function QuizPage() {
     setSpokenTranscript('');
     setSpeechError('');
     setSpeechSuccess('');
+    // hasCurrentQuestionFailed intentionally preserved to prevent retry exploitation
   };
 
   const handleShowAnswer = () => {
@@ -383,6 +390,7 @@ export default function QuizPage() {
     if (currentQuestion) {
       setSelectedAnswer(currentQuestion.correct_answer);
     }
+    setHasCurrentQuestionFailed(true);
     setIsAnswered(true);
   };
 
@@ -407,7 +415,12 @@ export default function QuizPage() {
   const resetQuiz = () => {
     setCurrentIndex(0);
     setScore(0);
+    setPoints(0);
     setStreak(0);
+    setMaxStreak(0);
+    setCorrectFirstTry(0);
+    setHasCurrentQuestionFailed(false);
+    setTotalMistakes(0);
     setSelectedAnswer(null);
     setIsAnswered(false);
     setShowResult(false);
@@ -749,8 +762,9 @@ export default function QuizPage() {
   }
 
   const progress = ((currentIndex + 1) / (quizQuestions.length || 1)) * 100;
-  const accuracyPercentage = (currentIndex > 0 || isAnswered)
-    ? Math.round((score / (currentIndex + (isAnswered ? 1 : 0))) * 100)
+  const questionsAttempted = currentIndex + (isAnswered || hasCurrentQuestionFailed ? 1 : 0);
+  const accuracyPercentage = questionsAttempted > 0
+    ? Math.max(0, Math.min(100, Math.round((correctFirstTry / questionsAttempted) * 100)))
     : 100;
 
   const handleAnswer = (answer: string) => {
@@ -768,11 +782,28 @@ export default function QuizPage() {
     updateSRSData(currentQuestion.id, isCorrect);
 
     if (isCorrect) {
-      setScore(score + 1);
-      setStreak(streak + 1);
+      if (!hasCurrentQuestionFailed) {
+        // First try correct: +20 points, record clean first-try success, increment streak
+        setCorrectFirstTry(prev => prev + 1);
+        setPoints(prev => prev + 20);
+        setScore(prev => prev + 1);
+        setStreak(prev => {
+          const next = prev + 1;
+          setMaxStreak(m => Math.max(m, next));
+          return next;
+        });
+      } else {
+        // Retry correct: partial +10 points for learning effort, doesn't boost clean first-try accuracy
+        setPoints(prev => prev + 10);
+        setStreak(1);
+      }
       sfx.playCorrect();
       setFeedbackModal('correct');
     } else {
+      // Wrong answer: drop score by 10 points (floor 0), break streak, mark question as failed
+      setHasCurrentQuestionFailed(true);
+      setTotalMistakes(prev => prev + 1);
+      setPoints(prev => Math.max(0, prev - 10));
       setStreak(0);
       sfx.playWrong();
       setFeedbackModal('wrong');
@@ -902,8 +933,8 @@ export default function QuizPage() {
   };
 
   if (showResult) {
-    const percentage = Math.round((score / (quizQuestions.length || 1)) * 100);
-    const pointsEarned = score * 20;
+    const finalAccuracy = Math.round((correctFirstTry / (quizQuestions.length || 1)) * 100);
+    const finalLeaderboardPoints = points * 50 + maxStreak * 150;
 
     return (
       <div className="min-h-screen bg-seigaiha transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none relative overflow-hidden">
@@ -932,10 +963,10 @@ export default function QuizPage() {
           onClose={() => setShowCertificate(false)}
           categoryName={category?.name || slug}
           categoryEmoji={category?.emoji || '🌸'}
-          score={score}
-          totalPoints={pointsEarned > 0 ? pointsEarned : 470}
+          score={correctFirstTry}
+          totalPoints={finalLeaderboardPoints > 0 ? finalLeaderboardPoints : 470}
           totalQuestions={quizQuestions.length}
-          accuracyPercentage={percentage}
+          accuracyPercentage={finalAccuracy}
           rank="#1/1"
           eventCode="UHB10802"
         />
@@ -968,7 +999,7 @@ export default function QuizPage() {
             {/* Points Earned */}
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-black text-amber-500 font-mono leading-none">
-                {pointsEarned}
+                {points}
               </div>
               <div className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 mt-1.5">
                 Points Earned
@@ -978,17 +1009,17 @@ export default function QuizPage() {
             {/* Questions */}
             <div className="text-center border-x border-stone-200 dark:border-stone-800">
               <div className="text-2xl sm:text-3xl font-black text-[#c5221f] dark:text-rose-400 font-mono leading-none">
-                {quizQuestions.length}/{quizQuestions.length}
+                {correctFirstTry}/{quizQuestions.length}
               </div>
               <div className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 mt-1.5">
-                Questions
+                Correct
               </div>
             </div>
 
             {/* Accuracy */}
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono leading-none">
-                {percentage}%
+              <div className={`text-2xl sm:text-3xl font-black font-mono leading-none ${finalAccuracy >= 80 ? 'text-emerald-600 dark:text-emerald-400' : finalAccuracy >= 60 ? 'text-amber-500 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {finalAccuracy}%
               </div>
               <div className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 mt-1.5">
                 Accuracy
@@ -1114,9 +1145,9 @@ export default function QuizPage() {
             </p>
 
             {/* Score Reward Pill */}
-            <div className="mt-5 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-700 dark:text-amber-300 font-black text-sm shadow-xs">
+            <div className="mt-5 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 font-black text-sm shadow-xs">
               <span>⭐</span>
-              <span>+20 pt</span>
+              <span>{hasCurrentQuestionFailed ? '+10 pt (Retry)' : '+20 pt (First Try!)'}</span>
             </div>
 
             <button
@@ -1146,6 +1177,14 @@ export default function QuizPage() {
             <p className="text-xs sm:text-sm font-medium text-stone-500 dark:text-stone-400 mt-0.5">
               Mou ichido! — Try again!
             </p>
+
+            {/* Penalty & Accuracy Drop Banner */}
+            <div className="mt-3 inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/80 text-rose-700 dark:text-rose-300 font-extrabold text-xs shadow-xs animate-shake">
+              <span>📉</span>
+              <span>Score -10 pt</span>
+              <span className="text-rose-400 dark:text-rose-600">•</span>
+              <span>Accuracy: {accuracyPercentage}%</span>
+            </div>
 
             {/* Yellow Hint Box */}
             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-800/60 rounded-2xl p-4 mt-4 text-left shadow-xs">
@@ -1227,22 +1266,22 @@ export default function QuizPage() {
         {/* Flanking Badges Row */}
         <div className="flex items-center justify-between mb-1">
           {/* Score Badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border border-stone-200/80 dark:border-white/10 shadow-xs">
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border ${hasCurrentQuestionFailed && isAnswered ? 'border-rose-400 dark:border-rose-600' : 'border-stone-200/80 dark:border-white/10'} shadow-xs transition-colors`}>
             <span className="text-base">⭐</span>
             <div className="text-left">
               <div className="text-[8px] sm:text-[9px] font-extrabold text-stone-400 uppercase tracking-wider leading-none">SCORE</div>
               <div className="text-xs sm:text-sm font-black text-stone-800 dark:text-stone-100 font-mono leading-tight">
-                {score * 20} <span className="text-[9px] font-bold text-stone-400 font-sans">pt</span>
+                {points} <span className="text-[9px] font-bold text-stone-400 font-sans">pt</span>
               </div>
             </div>
           </div>
 
           {/* Accuracy Badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border border-stone-200/80 dark:border-white/10 shadow-xs">
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-white/85 dark:bg-stone-900/85 backdrop-blur-md border ${accuracyPercentage < 70 ? 'border-rose-300 dark:border-rose-800' : 'border-stone-200/80 dark:border-white/10'} shadow-xs transition-colors`}>
             <span className="text-sm text-rose-500">📶</span>
             <div className="text-right sm:text-left">
               <div className="text-[8px] sm:text-[9px] font-extrabold text-stone-400 uppercase tracking-wider leading-none">ACCURACY</div>
-              <div className="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 font-mono leading-tight">
+              <div className={`text-xs sm:text-sm font-black font-mono leading-tight ${accuracyPercentage >= 80 ? 'text-emerald-600 dark:text-emerald-400' : accuracyPercentage >= 60 ? 'text-amber-500 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {accuracyPercentage}%
               </div>
             </div>
