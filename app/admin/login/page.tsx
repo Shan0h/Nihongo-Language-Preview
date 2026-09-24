@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ScenicBackground from '@/app/components/ScenicBackground';
+import TopLeftHomeButton from '@/app/components/TopLeftHomeButton';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
@@ -59,18 +61,21 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fdfbf7] p-4">
-      <div className="card-cultural p-6 sm:p-8 w-full max-w-md">
+    <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 overflow-x-hidden select-none">
+      <ScenicBackground />
+      <TopLeftHomeButton />
+
+      <div className="relative z-10 card-cultural p-6 sm:p-8 w-full max-w-md shadow-2xl border border-white/80 dark:border-white/10 backdrop-blur-xl">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="text-5xl mb-3">🔒</div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-[#2d2d2d]">Admin Login</h1>
-          <p className="text-sm text-[#8a8a8a]">Enter your password to access the admin panel</p>
+          <div className="text-5xl mb-3 drop-shadow-sm">🔒</div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-[#4c0519] dark:text-white transition-colors">Admin Login</h1>
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-zinc-300 font-medium">Enter your password to access the admin panel</p>
         </div>
 
         {/* Back to Home */}
         <div className="mb-6">
-          <Link href="/" className="inline-flex items-center gap-1 text-sm text-[#8a8a8a] hover:text-[#d32f2f]">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-stone-500 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
             ← Back to Nihongo Education
           </Link>
         </div>
@@ -78,22 +83,22 @@ export default function AdminLogin() {
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold mb-1.5 text-[#5a5a5a]">Password</label>
+            <label className="block text-xs sm:text-sm font-bold mb-1.5 text-stone-700 dark:text-zinc-200">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter admin password"
               disabled={isLoading}
-              className="w-full border-2 border-[#f4c2c2] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#d32f2f] transition-colors disabled:opacity-50"
+              className="w-full border border-pink-200/80 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-400/20 bg-white/85 dark:bg-zinc-900/80 text-stone-900 dark:text-white placeholder-stone-400 dark:placeholder-zinc-500 backdrop-blur-md transition-all font-medium shadow-xs disabled:opacity-50"
             />
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            {error && <p className="text-rose-600 dark:text-rose-400 text-xs sm:text-sm mt-2 font-medium">{error}</p>}
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="btn-torii w-full py-3 text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+            className="btn-torii w-full py-3.5 text-sm sm:text-base font-bold flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-lg hover:shadow-rose-500/25 active:scale-95 transition-all"
           >
             {isLoading ? (
               <>
