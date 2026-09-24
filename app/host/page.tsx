@@ -8,6 +8,7 @@ import { useMultiplayer } from '@/app/hooks/useMultiplayer';
 import { speakJapanese } from '@/app/utils/tts';
 import { sfx } from '@/app/utils/sfx';
 import ScenicBackground from '@/app/components/ScenicBackground';
+import TopLeftHomeButton from '@/app/components/TopLeftHomeButton';
 
 function HostContent() {
   const searchParams = useSearchParams();
@@ -102,8 +103,9 @@ function HostContent() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div className="relative z-10 max-w-4xl mx-auto pt-10 sm:pt-0">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
@@ -258,8 +260,9 @@ function HostContent() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div className="relative z-10 max-w-4xl mx-auto pt-10 sm:pt-0">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
             <div>
@@ -441,8 +444,9 @@ function HostContent() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-3xl w-full">
+        <div className="relative z-10 max-w-3xl w-full pt-10 sm:pt-0">
           <div className="text-center mb-6">
             <div className="text-6xl mb-2 animate-bounce">🏆</div>
             <h1 className="text-3xl sm:text-5xl font-black gradient-text-torii mb-2">GAME CHAMPIONS!</h1>
@@ -585,8 +589,9 @@ function HostContent() {
   return (
     <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 select-none overflow-x-hidden">
       <ScenicBackground />
+      <TopLeftHomeButton onDisconnect={disconnect} />
 
-      <div className="relative z-10 max-w-md w-full text-center">
+      <div className="relative z-10 max-w-md w-full text-center pt-10 sm:pt-0">
         <div className="text-6xl mb-4">
           {error ? '⚠️' : '⛩️'}
         </div>

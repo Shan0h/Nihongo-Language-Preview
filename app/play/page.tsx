@@ -9,6 +9,7 @@ import { JapaneseSpeechRecognizer, matchOptionFromSpeech, COLOR_SPEECH_ALIASES, 
 import { sfx } from '@/app/utils/sfx';
 import AudioWave from '@/app/components/AudioWave';
 import ScenicBackground from '@/app/components/ScenicBackground';
+import TopLeftHomeButton from '@/app/components/TopLeftHomeButton';
 
 export default function PlayPage() {
   const {
@@ -245,6 +246,7 @@ export default function PlayPage() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 overflow-x-hidden select-none">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
         <div className="relative z-10 max-w-md w-full">
           <div className="text-center mb-6 sm:mb-8">
@@ -329,6 +331,7 @@ export default function PlayPage() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 overflow-x-hidden select-none">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
         <div className="relative z-10 max-w-md w-full text-center card-zen p-8 sm:p-10 border border-white/80 dark:border-white/10 shadow-2xl">
           <div className="text-6xl mb-4 animate-bounce drop-shadow-md">⏳</div>
@@ -352,8 +355,9 @@ export default function PlayPage() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-2xl mx-auto">
+        <div className="relative z-10 max-w-2xl mx-auto pt-12 sm:pt-0">
           {/* Arcade Gaming Header */}
           <div className="flex items-center justify-between mb-3 bg-[#12101f] p-3 rounded-2xl border border-amber-500/40 text-white shadow-lg">
             <div className="flex items-center gap-2">
@@ -616,8 +620,9 @@ export default function PlayPage() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-md w-full text-center">
+        <div className="relative z-10 max-w-md w-full text-center pt-12 sm:pt-0">
           <div className="text-6xl mb-4 drop-shadow-md">🏆</div>
           <h1 className="text-3xl font-extrabold mb-2 text-[#4c0519] dark:text-white transition-colors">Game Complete!</h1>
 
@@ -687,8 +692,9 @@ export default function PlayPage() {
     return (
       <div className="relative min-h-screen bg-[#fff0f3] dark:bg-[#0c080e] transition-colors duration-500 flex items-center justify-center p-4 sm:p-6 select-none overflow-x-hidden">
         <ScenicBackground />
+        <TopLeftHomeButton onDisconnect={disconnect} />
 
-        <div className="relative z-10 max-w-md w-full text-center">
+        <div className="relative z-10 max-w-md w-full text-center pt-12 sm:pt-0">
           <div className="text-6xl mb-4 drop-shadow-md">🚪</div>
           <h1 className="text-2xl sm:text-3xl font-extrabold mb-2 text-[#4c0519] dark:text-white transition-colors">Host Left the Game</h1>
           <p className="text-stone-700 dark:text-zinc-300 font-medium mb-6">
